@@ -1,0 +1,13 @@
+#%RAML 1.0 DataType
+
+type: object
+displayName: Trial Period
+properties:
+  status:
+    enum: [ open, closed, pending, accepted ]
+  requiresReview: boolean
+  start: datetime
+  end: datetime
+  votes:
+  reviewVotes:
+  closeVotes: integer
