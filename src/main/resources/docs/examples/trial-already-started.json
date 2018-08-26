@@ -1,0 +1,11 @@
+{
+  "errors": [
+    {
+      "type": "TrialAlreadyStarted",
+      "message": "A previous trial has already been started and must be completed first",
+      "details": {
+        "trial": "https://api/users/1/trials/1"
+      }
+    }
+  ]
+}

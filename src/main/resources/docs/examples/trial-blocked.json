@@ -1,0 +1,12 @@
+{
+  "errors": [
+    {
+      "type": "TrialBlocked",
+      "message": "A previous trial has been rejected and not enough time has passed to start a new one",
+      "details": {
+        "blockedUntil": "2018-12-15 11:02:57",
+        "previousTrial": "https://api/users/1/trials/1"
+      }
+    }
+  ]
+}
