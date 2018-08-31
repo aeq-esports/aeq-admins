@@ -22,15 +22,8 @@
     <modules>
         <module>aeq-admins-trials</module>
         <module>aeq-admins-users</module>
+        <module>aeq-admins-common</module>
+        <module>aeq-admins-application</module>
     </modules>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

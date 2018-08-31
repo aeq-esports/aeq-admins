@@ -1,10 +1,11 @@
 package de.esports.aeq.admins.trials.domain;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "aeq_trial_flag")
-public class TrialFlagTa {
+public class TrialFlagTa implements Serializable {
 
     @Id
     @GeneratedValue
