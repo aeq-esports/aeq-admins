@@ -1,6 +1,5 @@
 package de.esports.aeq.admins.application.domain;
 
-import de.esports.aeq.admins.common.Auditable;
 import de.esports.aeq.admins.users.domain.UserDetailsTa;
 import de.esports.aeq.admins.users.domain.UserTa;
 
@@ -9,7 +8,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "aeq_application")
-public class ApplicationTa extends Auditable implements Serializable {
+public class ApplicationTa implements Serializable {
 
     @Id
     @GeneratedValue
@@ -26,6 +25,9 @@ public class ApplicationTa extends Auditable implements Serializable {
 
     @OneToOne(mappedBy = "user")
     private UserDetailsTa details;
+
+    @Enumerated
+    private ApplicationStatus status;
 
     public Long getId() {
         return id;
@@ -57,5 +59,13 @@ public class ApplicationTa extends Auditable implements Serializable {
 
     public void setDetails(UserDetailsTa details) {
         this.details = details;
+    }
+
+    public ApplicationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ApplicationStatus status) {
+        this.status = status;
     }
 }

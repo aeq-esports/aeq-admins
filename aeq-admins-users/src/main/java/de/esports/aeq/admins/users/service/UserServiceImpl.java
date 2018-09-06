@@ -49,11 +49,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserTa> findOneByFirstName(String firstName) {
-        return repository.findAllByFirstName(firstName);
-    }
-
-    @Override
     public UserTa create(UserTa user) {
         return repository.save(user);
     }

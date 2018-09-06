@@ -24,6 +24,7 @@
         <module>aeq-admins-users</module>
         <module>aeq-admins-common</module>
         <module>aeq-admins-application</module>
+        <module>aeq-admins-core</module>
     </modules>
     
 </project>

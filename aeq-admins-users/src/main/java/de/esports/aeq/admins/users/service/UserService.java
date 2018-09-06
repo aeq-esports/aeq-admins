@@ -18,8 +18,6 @@ public interface UserService {
 
     UserTa findOneByTS3UId(String ts3UId);
 
-    List<UserTa> findOneByFirstName(String firstName);
-
     UserTa create(UserTa user);
 
     UserTa update(UserTa user);

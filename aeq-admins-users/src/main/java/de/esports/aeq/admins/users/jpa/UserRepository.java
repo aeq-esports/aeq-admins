@@ -14,5 +14,4 @@ public interface UserRepository extends JpaRepository<UserTa, Long>,
 
     Optional<UserTa> findByTs3UId(String ts3UniqueId);
 
-    List<UserTa> findAllByFirstName(String firstName);
 }
