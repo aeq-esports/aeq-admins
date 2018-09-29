@@ -1,5 +1,8 @@
 package de.esports.aeq.admins.users.domain;
 
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import java.io.Serializable;
 

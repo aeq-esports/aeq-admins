@@ -25,6 +25,7 @@
         <module>aeq-admins-common</module>
         <module>aeq-admins-application</module>
         <module>aeq-admins-core</module>
+        <module>aeq-admins-security</module>
     </modules>
     
 </project>

@@ -3,20 +3,18 @@ package de.esports.aeq.admins.application.service;
 import de.esports.aeq.admins.application.domain.ApplicationStatus;
 import de.esports.aeq.admins.application.domain.ApplicationTa;
 import de.esports.aeq.admins.application.jpa.ApplicationRepository;
+import de.esports.aeq.admins.application.workflow.ProcessVariables;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
-import java.util.List;
+import java.util.Optional;
 
 import static de.esports.aeq.admins.application.workflow.ProcessVariables
         .APPLICATION_DEFINITION_KEY;
-import static de.esports.aeq.admins.application.workflow.ProcessVariables.APPLICATION_ID;
 
 @Service("applicationService")
 public class ApplicationServiceImpl implements ApplicationService {
@@ -34,6 +32,11 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    public Optional<ApplicationTa> findOne(Long id) {
+        return repository.findById(id);
+    }
+
+    @Override
     public ApplicationTa create(ApplicationTa application) {
         application.setStatus(ApplicationStatus.PENDING);
         ApplicationTa entity = repository.save(application);
@@ -42,14 +45,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private void startApplicationTask(ApplicationTa application) {
-        ProcessInstance instance = runtimeService.createProcessInstanceByKey
-                (APPLICATION_DEFINITION_KEY)
-                .setVariable(APPLICATION_ID, application.getId())
+        runtimeService.createProcessInstanceByKey(APPLICATION_DEFINITION_KEY)
+                .setVariable(ProcessVariables.APPLICATION_ID, application.getId())
                 .execute();
-
-        List<Task> tasks = taskService.createTaskQuery().active().list();
-        System.out.println(tasks.size());
-        tasks.forEach(task -> System.out.println("AMOUNT OF TASKS" + task.getId()));
     }
 
     @Override
@@ -77,6 +75,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setStatus(ApplicationStatus.REJECTED);
         repository.save(application);
 
+        runtimeService.createExecutionQuery()
+                .processVariableValueEquals(ProcessVariables.APPLICATION_ID, applicationId)
+                .active().list()
+                .forEach(e -> runtimeService.suspendProcessInstanceById(e.getProcessInstanceId()));
     }
 
     @Override

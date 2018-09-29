@@ -6,4 +6,6 @@ public class ProcessVariables {
     public static final String APPLICATION_ID = "applicationId";
     public static final String VALID = "valid";
     public static final String REQUIRES_APPROVAL = "requiresApproval";
+    public static final String APPLICATION = "application";
+    public static final String TEXT = "text";
 }
