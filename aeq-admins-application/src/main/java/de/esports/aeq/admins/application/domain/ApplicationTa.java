@@ -1,7 +1,6 @@
 package de.esports.aeq.admins.application.domain;
 
-import de.esports.aeq.admins.users.domain.UserDetailsTa;
-import de.esports.aeq.admins.users.domain.UserTa;
+import de.esports.aeq.admins.security.domain.UserDetailsTa;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,14 +16,11 @@ public class ApplicationTa implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "aeq_user_id")
-    private UserTa user;
+    private UserDetailsTa userDetails;
 
     @Lob
     @Column
     private String text;
-
-    @OneToOne(mappedBy = "user")
-    private UserDetailsTa details;
 
     @Enumerated
     private ApplicationStatus status;
@@ -37,14 +33,6 @@ public class ApplicationTa implements Serializable {
         this.id = id;
     }
 
-    public UserTa getUser() {
-        return user;
-    }
-
-    public void setUser(UserTa user) {
-        this.user = user;
-    }
-
     public String getText() {
         return text;
     }
@@ -53,12 +41,12 @@ public class ApplicationTa implements Serializable {
         this.text = text;
     }
 
-    public UserDetailsTa getDetails() {
-        return details;
+    public UserDetailsTa getUserDetails() {
+        return userDetails;
     }
 
-    public void setDetails(UserDetailsTa details) {
-        this.details = details;
+    public void setUserDetails(UserDetailsTa userDetails) {
+        this.userDetails = userDetails;
     }
 
     public ApplicationStatus getStatus() {

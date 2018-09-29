@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.security.service;
 
-import de.esports.aeq.admins.security.domain.UserTa;
+import de.esports.aeq.admins.security.domain.UserDetailsTa;
 import de.esports.aeq.admins.security.jpa.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,7 +18,7 @@ public class UserTaImpl implements UserService {
     }
 
     @Override
-    public UserTa create(UserTa entity) {
+    public UserDetailsTa create(UserDetailsTa entity) {
         String encodedPassword = encoder.encode(entity.getPassword());
         entity.setPassword(encodedPassword);
 

@@ -21,11 +21,16 @@
 
     <modules>
         <module>aeq-admins-trials</module>
-        <module>aeq-admins-users</module>
         <module>aeq-admins-common</module>
         <module>aeq-admins-application</module>
         <module>aeq-admins-core</module>
         <module>aeq-admins-security</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+
+        </dependencies>
+    </dependencyManagement>
     
 </project>
