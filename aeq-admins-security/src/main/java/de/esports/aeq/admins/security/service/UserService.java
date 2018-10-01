@@ -1,8 +1,10 @@
 package de.esports.aeq.admins.security.service;
 
-import de.esports.aeq.admins.security.domain.UserDetailsTa;
+import de.esports.aeq.admins.security.domain.UserTa;
 
 public interface UserService {
 
-    UserDetailsTa create(UserDetailsTa entity);
+    UserTa create(UserTa entity);
+
+    UserTa findOneByUsername(String username);
 }

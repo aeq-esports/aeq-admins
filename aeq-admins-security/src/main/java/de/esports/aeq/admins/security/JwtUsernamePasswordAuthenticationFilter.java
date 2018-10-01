@@ -20,9 +20,7 @@ import java.util.stream.Collectors;
 
 public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    // We use auth manager to validate the user credentials
     private AuthenticationManager authManager;
-
     private final JwtConfig config;
 
     public JwtUsernamePasswordAuthenticationFilter(AuthenticationManager authManager,

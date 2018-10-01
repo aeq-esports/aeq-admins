@@ -8,13 +8,16 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Entity
-@Table(name = "aeq_user_details")
-public class UserDetailsTa implements UserDetails {
+@Table(name = "aeq_user")
+public class UserTa implements UserDetails {
 
     @Id
     @GeneratedValue
-    @Column(name = "aeq_user_details_id")
+    @Column(name = "aeq_user_id")
     private Long id;
+
+    @Column(name = "email")
+    private String email;
 
     @Column(name = "username")
     private String username;
@@ -58,22 +61,22 @@ public class UserDetailsTa implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 
     public String getTs3UId() {
