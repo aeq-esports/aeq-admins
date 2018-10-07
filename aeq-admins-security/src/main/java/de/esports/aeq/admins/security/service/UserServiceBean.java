@@ -8,14 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceBean implements UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder encoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository repository, PasswordEncoder encoder) {
+    public UserServiceBean(UserRepository repository, PasswordEncoder encoder) {
         this.repository = repository;
         this.encoder = encoder;
     }
@@ -32,7 +34,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserTa findOneByUsername(String username) {
+    public List<UserTa> findAll() {
+        return repository.findAll();
+    }
+
+    @Override
+    public UserTa findByUsername(String username) {
         return repository.findOneByUsername(username)
                 .orElseThrow(EntityNotFoundException::new);
     }

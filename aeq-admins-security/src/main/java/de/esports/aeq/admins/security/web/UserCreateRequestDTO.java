@@ -1,6 +1,5 @@
 package de.esports.aeq.admins.security.web;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import de.esports.aeq.admins.common.validation.StrongPassword;
 
 import javax.validation.constraints.Email;
@@ -8,8 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserRequestDTO implements Serializable {
+public class UserCreateRequestDTO implements Serializable {
 
     @NotNull
     @NotBlank

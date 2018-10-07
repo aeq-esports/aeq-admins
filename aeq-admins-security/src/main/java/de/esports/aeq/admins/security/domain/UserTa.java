@@ -1,19 +1,27 @@
 package de.esports.aeq.admins.security.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "aeq_user")
+@NamedEntityGraph(name = "graph.UserTa.roles.privileges",
+        attributeNodes = @NamedAttributeNode(value = "roles", subgraph = "privileges"),
+        subgraphs = @NamedSubgraph(
+                name = "privileges", attributeNodes = @NamedAttributeNode("privileges")))
 public class UserTa implements UserDetails {
 
     @Id
     @GeneratedValue
-    @Column(name = "aeq_user_id")
+    @Column(name = "user_id")
     private Long id;
 
     @Column(name = "email")
@@ -28,6 +36,13 @@ public class UserTa implements UserDetails {
     @Column(name = "ts3_uid")
     private String ts3UId;
 
+    @ManyToMany
+    @JoinTable(name = "aeq_user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JsonManagedReference
+    private Set<RoleTa> roles = new HashSet<>();
+
     public Long getId() {
         return id;
     }
@@ -36,9 +51,19 @@ public class UserTa implements UserDetails {
         this.id = id;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return roles.stream().flatMap(roleTa -> roleTa.getPrivileges().stream())
+                .map(privilegeTa -> new SimpleGrantedAuthority(privilegeTa.getName()))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -85,5 +110,13 @@ public class UserTa implements UserDetails {
 
     public void setTs3UId(String ts3UId) {
         this.ts3UId = ts3UId;
+    }
+
+    public Set<RoleTa> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleTa> roles) {
+        this.roles = roles;
     }
 }

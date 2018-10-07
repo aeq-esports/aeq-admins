@@ -9,6 +9,10 @@ public class CommonBeanProvider {
 
     @Bean
     public ModelMapper modelMapper() {
+        return getPrototypedMapper();
+    }
+
+    public static ModelMapper getPrototypedMapper() {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setSkipNullEnabled(true);
         return mapper;
