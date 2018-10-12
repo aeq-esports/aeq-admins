@@ -14,5 +14,7 @@ public interface RoleService {
 
     List<RoleTa> findAll();
 
+    RoleTa findOne(Long id);
+
     RoleTa findByName(String name);
 }
