@@ -29,11 +29,13 @@
     </dependencyManagement>
 
     <dependencies>
+        <!--
         <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
             <version>${camunda.spring.boot.starter.version}</version>
         </dependency>
+        -->
 
         <dependency>
             <groupId>de.esports.aeq</groupId>
