@@ -50,6 +50,12 @@ public class RoleServiceBean implements RoleService {
     }
 
     @Override
+    public RoleTa findOne(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id));
+    }
+
+    @Override
     public RoleTa findByName(String name) {
         return repository.findOneByName(name)
                 .orElseThrow(() -> new EntityNotFoundException(name));
