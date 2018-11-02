@@ -1,5 +1,7 @@
 package de.esports.aeq.admins.trials.domain;
 
+import de.esports.aeq.admins.forum.domain.CommentTa;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -14,4 +16,6 @@ public class TrialVoteTa implements Serializable {
 
     @Column
     private boolean positive;
+
+    private CommentTa comment;
 }

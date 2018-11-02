@@ -22,14 +22,4 @@ public class TrialTa implements Serializable {
 
     @Column
     private LocalDateTime end;
-
-    @ManyToOne
-    private List<TrialVoteTa> votes;
-
-    @ManyToOne
-    private List<TrialVoteTa> reviews;
-
-    @ManyToOne
-    private List<TrialFlagTa> flags;
-
 }
