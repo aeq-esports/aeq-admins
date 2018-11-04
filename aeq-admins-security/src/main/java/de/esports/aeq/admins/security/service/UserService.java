@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface UserService {
 
+    UserTa register(UserTa entity);
+
     UserTa create(UserTa entity);
 
     List<UserTa> findAll();

@@ -27,10 +27,10 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     @Override
-    public void startTrialPeriod(Long userId) {
-        UserTa user = userService.findById(userId);
+    public void createTrialPeriod(TrialPeriodTa trialPeriod) {
+        UserTa user = userService.findById(trialPeriod);
 
-        trialPeriodRepository.findAllActive(userId)
+        trialPeriodRepository.findAllActive(trialPeriod)
                 .stream().findAny().ifPresent(trialPeriod -> {
             throw new TrialPeriodAlreadyStartedException(trialPeriod);
         });

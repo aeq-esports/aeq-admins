@@ -23,6 +23,11 @@ public class UserServiceBean implements UserService {
     }
 
     @Override
+    public UserTa register(UserTa entity) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public UserTa create(UserTa entity) {
         repository.findOneByUsername(entity.getUsername()).ifPresent(userTa -> {
             throw new DuplicateUsernameException();
