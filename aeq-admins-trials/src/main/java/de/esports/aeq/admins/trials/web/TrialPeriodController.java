@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController("/users/{userId}/trial-periods")
 public class TrialPeriodController {
 
@@ -48,7 +50,7 @@ public class TrialPeriodController {
     @DeleteMapping("/{trialPeriodId}")
     public void delete(@PathVariable Long userId,
             @PathVariable Long trialPeriodId,
-            Authentication authentication) {
+            HttpServletRequest request) {
         // check permissions
     }
 }
