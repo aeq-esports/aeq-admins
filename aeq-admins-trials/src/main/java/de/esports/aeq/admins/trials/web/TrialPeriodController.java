@@ -7,7 +7,7 @@ import de.esports.aeq.admins.trials.service.TrialPeriodService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController("/users/{userId}/trial-periods")
@@ -45,10 +45,10 @@ public class TrialPeriodController {
 
     }
 
+    @PreAuthorize("@cse.canAccessRole(authentication, '#userId') and hasAuthority('')")
     @DeleteMapping("/{trialPeriodId}")
     public void delete(@PathVariable Long userId,
-            @PathVariable Long trialPeriodId,
-            Authentication authentication) {
+            @PathVariable Long trialPeriodId) {
         // check permissions
     }
 }
