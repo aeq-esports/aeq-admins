@@ -26,6 +26,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         this.trialPeriodRepository = trialPeriodRepository;
     }
 
+    //-----------------------------------------------------------------------
     @Override
     public void createTrialPeriod(TrialPeriodCreateDTO request) {
         // fail fast if no user is present
@@ -39,29 +40,37 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         TrialPeriodTa trialPeriod = new TrialPeriodTa();
         trialPeriod.setUser(user);
 
-        if (request.getStart().isPresent()) {
-            // TODO: check permission
-            trialPeriod.setStart(request.getStart().get().toInstant());
-        } else {
-            trialPeriod.setStart(Instant.now());
-        }
+        Instant start = getTrialPeriodStart(request);
+        trialPeriod.setStart(start);
 
-        Duration duration;
-        if (request.getDuration().isPresent()) {
-            // TODO: check permission
-            duration = request.getDuration().get();
-        } else if (request.getEnd().isPresent()) {
-            // TODO: check permission
-            duration = Duration.between(trialPeriod.getStart(), request.getEnd().get());
-        } else {
-            duration = getConfiguration().getTrialPeriod();
-        }
+        Duration duration = getTrialPeriodDuration(request, start);
         trialPeriod.setDuration(duration);
 
         trialPeriod.setState(TrialState.OPEN);
         trialPeriodRepository.save(trialPeriod);
     }
 
+    private Duration getTrialPeriodDuration(TrialPeriodCreateDTO request, Instant start) {
+        if (request.getDuration().isPresent()) {
+            // TODO: check permission
+            return request.getDuration().get();
+        }
+        if (request.getEnd().isPresent()) {
+            // TODO: check permission
+            return Duration.between(start, request.getEnd().get());
+        }
+        return getConfiguration().getTrialPeriod();
+    }
+
+    private Instant getTrialPeriodStart(TrialPeriodCreateDTO request) {
+        if (request.getStart().isPresent()) {
+            // TODO: check permission
+            return request.getStart().get().toInstant();
+        }
+        return Instant.now();
+    }
+
+    //-----------------------------------------------------------------------
     @Override
     public void createTrialPeriodByUsername(String username) {
 
