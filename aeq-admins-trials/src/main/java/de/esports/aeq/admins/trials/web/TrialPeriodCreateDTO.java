@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public class TrialPeriodCreateDTO implements Serializable {
 
+    private Long userId;
+
     /**
      * The start of the trial period.
      * <p>
@@ -38,6 +40,14 @@ public class TrialPeriodCreateDTO implements Serializable {
      */
     @Nullable
     private ZonedDateTime end;
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public Optional<ZonedDateTime> getStart() {
         return Optional.ofNullable(start);
