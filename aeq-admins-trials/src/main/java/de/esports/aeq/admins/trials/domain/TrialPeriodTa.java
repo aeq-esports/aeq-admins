@@ -5,7 +5,7 @@ import de.esports.aeq.admins.security.domain.UserTa;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "aeq_trial_period")
@@ -29,7 +29,7 @@ public class TrialPeriodTa implements Serializable {
     private TrialState state;
 
     @Column
-    private LocalDateTime start;
+    private Instant start;
 
     @Column
     private Duration duration;
@@ -58,11 +58,11 @@ public class TrialPeriodTa implements Serializable {
         this.state = state;
     }
 
-    public LocalDateTime getStart() {
+    public Instant getStart() {
         return start;
     }
 
-    public void setStart(LocalDateTime start) {
+    public void setStart(Instant start) {
         this.start = start;
     }
 

@@ -1,5 +1,6 @@
 package de.esports.aeq.admins.trials.service;
 
+import de.esports.aeq.admins.trials.domain.TrialPeriodConfigTa;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
 
 public interface TrialPeriodService {
@@ -12,4 +13,6 @@ public interface TrialPeriodService {
     void createTrialPeriod(TrialPeriodTa trialPeriod);
 
     void createTrialPeriodByUsername(String username);
+
+    TrialPeriodConfigTa getConfiguration();
 }

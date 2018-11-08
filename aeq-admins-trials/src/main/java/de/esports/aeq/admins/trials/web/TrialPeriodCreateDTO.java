@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 public class TrialPeriodCreateDTO implements Serializable {
 
@@ -38,27 +39,24 @@ public class TrialPeriodCreateDTO implements Serializable {
     @Nullable
     private ZonedDateTime end;
 
-    @Nullable
-    public ZonedDateTime getStart() {
-        return start;
+    public Optional<ZonedDateTime> getStart() {
+        return Optional.ofNullable(start);
     }
 
     public void setStart(@Nullable ZonedDateTime start) {
         this.start = start;
     }
 
-    @Nullable
-    public Duration getDuration() {
-        return duration;
+    public Optional<Duration> getDuration() {
+        return Optional.ofNullable(duration);
     }
 
     public void setDuration(@Nullable Duration duration) {
         this.duration = duration;
     }
 
-    @Nullable
-    public ZonedDateTime getEnd() {
-        return end;
+    public Optional<ZonedDateTime> getEnd() {
+        return Optional.ofNullable(end);
     }
 
     public void setEnd(@Nullable ZonedDateTime end) {
