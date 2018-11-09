@@ -73,4 +73,8 @@ public class TrialPeriodTa implements Serializable {
     public void setDuration(Duration duration) {
         this.duration = duration;
     }
+
+    public boolean isActive() {
+        return false;
+    }
 }

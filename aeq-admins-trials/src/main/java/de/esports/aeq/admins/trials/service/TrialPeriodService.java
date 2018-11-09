@@ -6,8 +6,6 @@ import de.esports.aeq.admins.trials.web.TrialPeriodCreateDTO;
 
 public interface TrialPeriodService {
 
-    void createTrialPeriodByUsername(String username);
-
     TrialPeriodConfigTa getConfiguration();
 
     void createTrialPeriod(TrialPeriodCreateDTO request);

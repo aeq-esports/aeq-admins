@@ -31,11 +31,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     public void createTrialPeriod(TrialPeriodCreateDTO request) {
         // fail fast if no user is present
         UserTa user = userService.findById(request.getUserId());
-
-        trialPeriodRepository.findAllActive(user.getId())
-                .stream().findAny().ifPresent(entity -> {
-            throw new TrialPeriodAlreadyStartedException(entity);
-        });
+        assertNoActiveTrialPeriodOrThrow(user.getId());
 
         TrialPeriodTa trialPeriod = new TrialPeriodTa();
         trialPeriod.setUser(user);
@@ -47,7 +43,9 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         trialPeriod.setDuration(duration);
 
         trialPeriod.setState(TrialState.OPEN);
-        trialPeriodRepository.save(trialPeriod);
+        TrialPeriodTa entity = trialPeriodRepository.save(trialPeriod);
+
+        startTrialPeriodWorkflow(entity);
     }
 
     private Duration getTrialPeriodDuration(TrialPeriodCreateDTO request, Instant start) {
@@ -69,15 +67,32 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         }
         return Instant.now();
     }
-
     //-----------------------------------------------------------------------
-    @Override
-    public void createTrialPeriodByUsername(String username) {
-
-    }
 
     @Override
     public TrialPeriodConfigTa getConfiguration() {
         return null; // TODO
+    }
+
+    //-----------------------------------------------------------------------
+    private void startTrialPeriodWorkflow(TrialPeriodTa entity) {
+        // TODO: camunda
+    }
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Asserts that the user with the given id does not have any active trial period, otherwise an
+     * exception is thrown.
+     * <p>
+     * A trial period is considered active, if its state is not terminal.
+     *
+     * @param userId the user id
+     */
+    private void assertNoActiveTrialPeriodOrThrow(Long userId) {
+        trialPeriodRepository.findAllActive(userId)
+                .stream().filter(TrialPeriodTa::isActive).findAny().ifPresent(entity -> {
+            throw new TrialPeriodAlreadyStartedException(entity);
+        });
     }
 }
