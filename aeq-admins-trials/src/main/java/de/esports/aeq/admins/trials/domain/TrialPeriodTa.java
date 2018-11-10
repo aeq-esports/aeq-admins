@@ -75,6 +75,6 @@ public class TrialPeriodTa implements Serializable {
     }
 
     public boolean isActive() {
-        return false;
+        return state == TrialState.OPEN || state == TrialState.PENDING;
     }
 }

@@ -2,35 +2,67 @@ package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.security.domain.UserTa;
 import de.esports.aeq.admins.security.service.UserService;
+import de.esports.aeq.admins.security.web.UserResponseDTO;
 import de.esports.aeq.admins.trials.domain.TrialPeriodConfigTa;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.domain.TrialState;
+import de.esports.aeq.admins.trials.jpa.TrialPeriodConfigRepository;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodRepository;
 import de.esports.aeq.admins.trials.web.TrialPeriodCreateDTO;
+import de.esports.aeq.admins.trials.web.TrialPeriodResponseDTO;
+import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TrialPeriodServiceBean implements TrialPeriodService {
 
+    private ModelMapper mapper;
     private UserService userService;
     private TrialPeriodRepository trialPeriodRepository;
+    private TrialPeriodConfigRepository trialPeriodConfigRepository;
 
     @Autowired
-    public TrialPeriodServiceBean(UserService userService,
-            TrialPeriodRepository trialPeriodRepository) {
+    public TrialPeriodServiceBean(ModelMapper mapper, UserService userService,
+            TrialPeriodRepository trialPeriodRepository,
+            TrialPeriodConfigRepository trialPeriodConfigRepository) {
+        this.mapper = mapper;
         this.userService = userService;
         this.trialPeriodRepository = trialPeriodRepository;
+        this.trialPeriodConfigRepository = trialPeriodConfigRepository;
+    }
+
+    @PostConstruct
+    private void registerTypeMap() {
+        Converter<UserTa, UserResponseDTO> toUserResponseDto =
+                context -> mapper.map(UserTa.class, UserResponseDTO.class);
+        mapper.addConverter(toUserResponseDto);
     }
 
     //-----------------------------------------------------------------------
     @Override
-    public void createTrialPeriod(TrialPeriodCreateDTO request) {
+    public List<TrialPeriodResponseDTO> findAll(Long userId) {
+        var trialPeriods = trialPeriodRepository.findAll()
+                .stream()
+                .map(trialPeriod -> mapper.map(trialPeriod, TrialPeriodResponseDTO.class))
+                .collect(Collectors.toList());
+        trialPeriods.forEach(trialPeriod ->
+                trialPeriod.setEnd(trialPeriod.getStart().plus(trialPeriod.getDuration())));
+        return trialPeriods;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public void createTrialPeriod(Long userId, TrialPeriodCreateDTO request) {
         // fail fast if no user is present
-        UserTa user = userService.findById(request.getUserId());
+        UserTa user = userService.findById(userId);
         assertNoActiveTrialPeriodOrThrow(user.getId());
 
         TrialPeriodTa trialPeriod = new TrialPeriodTa();
@@ -67,11 +99,17 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         }
         return Instant.now();
     }
-    //-----------------------------------------------------------------------
 
+    //-----------------------------------------------------------------------
     @Override
     public TrialPeriodConfigTa getConfiguration() {
-        return null; // TODO
+        return trialPeriodConfigRepository.findAll().stream()
+                .findFirst().orElseThrow();
+    }
+
+    @Override
+    public void updateConfiguration(TrialPeriodConfigTa config) {
+        trialPeriodConfigRepository.save(config);
     }
 
     //-----------------------------------------------------------------------

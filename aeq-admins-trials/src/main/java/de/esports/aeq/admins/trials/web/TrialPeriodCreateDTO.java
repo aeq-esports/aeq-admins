@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public class TrialPeriodCreateDTO implements Serializable {
 
-    private Long userId;
-
     /**
      * The start of the trial period.
      * <p>
@@ -34,20 +32,12 @@ public class TrialPeriodCreateDTO implements Serializable {
     /**
      * The end of the trial period.
      * <p>
-     * May be used as an alternative for the <code>duration</code> (both cannot be used at the same
-     * time). The zone is required since clients might send the time in their local time zone. This
-     * time should be converted to UTC afterwards.
+     * May be used as an alternative for the <code>duration</code> (if both are configured the
+     * duration will be preferred). The zone is required since clients might send the time in their
+     * local time zone. This time should be converted to UTC afterwards.
      */
     @Nullable
     private ZonedDateTime end;
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
 
     public Optional<ZonedDateTime> getStart() {
         return Optional.ofNullable(start);

@@ -3,10 +3,17 @@ package de.esports.aeq.admins.trials.service;
 import de.esports.aeq.admins.trials.domain.TrialPeriodConfigTa;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.web.TrialPeriodCreateDTO;
+import de.esports.aeq.admins.trials.web.TrialPeriodResponseDTO;
+
+import java.util.List;
 
 public interface TrialPeriodService {
 
     TrialPeriodConfigTa getConfiguration();
 
-    void createTrialPeriod(TrialPeriodCreateDTO request);
+    void updateConfiguration(TrialPeriodConfigTa config);
+
+    void createTrialPeriod(Long userId, TrialPeriodCreateDTO request);
+
+    List<TrialPeriodResponseDTO> findAll(Long userId);
 }

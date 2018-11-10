@@ -6,9 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
-@RestController("/users/{userId}/trial-periods")
+@RestController
+@RequestMapping("/users/{userId}/trials")
 public class TrialPeriodController {
 
     private final TrialPeriodService trialPeriodService;
@@ -19,18 +20,24 @@ public class TrialPeriodController {
     }
 
     //-----------------------------------------------------------------------
+    @GetMapping
+    @ResponseBody
+    public List<TrialPeriodResponseDTO> findAll(@PathVariable Long userId) {
+        return trialPeriodService.findAll(userId);
+    }
+
+    //-----------------------------------------------------------------------
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void create(@PathVariable Long userId,
-            @RequestBody TrialPeriodCreateDTO dto,
-            HttpServletRequest request) {
-        trialPeriodService.createTrialPeriod(dto);
+            @RequestBody TrialPeriodCreateDTO dto) {
+        trialPeriodService.createTrialPeriod(userId, dto);
     }
 
-    @PatchMapping("/{trialPeriodId}")
+    @PatchMapping("/{trialId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patch(@PathVariable Long userId,
-            @PathVariable Long trialPeriodId,
+            @PathVariable Long trialId,
             @RequestBody TrialPeriodPatchDTO request) {
 
     }
