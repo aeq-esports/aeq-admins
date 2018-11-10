@@ -128,7 +128,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
      * @param userId the user id
      */
     private void assertNoActiveTrialPeriodOrThrow(Long userId) {
-        trialPeriodRepository.findAllActive(userId)
+        trialPeriodRepository.findAllActiveByUserId(userId)
                 .stream().filter(TrialPeriodTa::isActive).findAny().ifPresent(entity -> {
             throw new TrialPeriodAlreadyStartedException(entity);
         });

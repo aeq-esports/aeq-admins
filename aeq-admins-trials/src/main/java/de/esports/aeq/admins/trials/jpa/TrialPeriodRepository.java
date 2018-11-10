@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface TrialPeriodRepository extends JpaRepository<TrialPeriodTa, Long> {
 
-    List<TrialPeriodTa> findAllActive(Long userId);
+    List<TrialPeriodTa> findAllActiveByUserId(Long userId);
 }
