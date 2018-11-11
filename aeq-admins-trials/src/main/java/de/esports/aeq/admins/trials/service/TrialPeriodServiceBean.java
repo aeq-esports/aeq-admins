@@ -65,10 +65,12 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     //-----------------------------------------------------------------------
+
     @Override
-    public TrialPeriodTa findOne(Long id) {
-        return trialPeriodRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id));
+    public TrialPeriodResponseDTO findOne(Long trialPeriodId) {
+        return trialPeriodRepository.findById(trialPeriodId)
+                .map(trialPeriod -> mapper.map(trialPeriod, TrialPeriodResponseDTO.class))
+                .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
     }
 
     //-----------------------------------------------------------------------
