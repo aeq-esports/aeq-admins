@@ -26,6 +26,13 @@ public class TrialPeriodController {
         return trialPeriodService.findAll(userId);
     }
 
+    @GetMapping("/{trialPeriodId}")
+    @ResponseBody
+    public TrialPeriodResponseDTO findOne(@PathVariable Long userId,
+            @PathVariable Long trialPeriodId) {
+        return trialPeriodService.findOne(trialPeriodId);
+    }
+
     //-----------------------------------------------------------------------
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)

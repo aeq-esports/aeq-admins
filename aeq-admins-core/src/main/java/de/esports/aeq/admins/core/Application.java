@@ -20,19 +20,7 @@ import java.util.concurrent.Executor;
 @PropertySource(value = "application.properties")
 public class Application {
 
-    private final Executor executor;
-
-    @Autowired
-    public Application(Executor executor) {
-        this.executor = executor;
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-    }
-
-    @Bean
-    public EventBus createEventBus() {
-        return new AsyncEventBus(executor);
     }
 }

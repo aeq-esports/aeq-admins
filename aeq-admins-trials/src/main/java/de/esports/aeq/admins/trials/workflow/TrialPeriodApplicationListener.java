@@ -3,6 +3,7 @@ package de.esports.aeq.admins.trials.workflow;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.domain.TrialState;
 import de.esports.aeq.admins.trials.service.TrialPeriodService;
+import de.esports.aeq.admins.trials.web.TrialPeriodResponseDTO;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,8 +29,6 @@ public class TrialPeriodApplicationListener {
     }
 
     private void updateTrialPeriodState(Long id, TrialState state) {
-        TrialPeriodTa trialPeriod = service.findOne(id);
-        trialPeriod.setState(state);
-        service.update(trialPeriod);
+
     }
 }
