@@ -15,5 +15,9 @@ public interface TrialPeriodService {
 
     void createTrialPeriod(Long userId, TrialPeriodCreateDTO request);
 
+    TrialPeriodTa findOne(Long id);
+
     List<TrialPeriodResponseDTO> findAll(Long userId);
+
+    TrialPeriodTa update(TrialPeriodTa trialPeriod);
 }

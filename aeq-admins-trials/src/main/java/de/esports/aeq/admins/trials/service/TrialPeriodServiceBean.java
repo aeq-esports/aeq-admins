@@ -1,5 +1,6 @@
 package de.esports.aeq.admins.trials.service;
 
+import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.security.domain.UserTa;
 import de.esports.aeq.admins.security.service.UserService;
 import de.esports.aeq.admins.security.web.UserResponseDTO;
@@ -10,6 +11,8 @@ import de.esports.aeq.admins.trials.jpa.TrialPeriodConfigRepository;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodRepository;
 import de.esports.aeq.admins.trials.web.TrialPeriodCreateDTO;
 import de.esports.aeq.admins.trials.web.TrialPeriodResponseDTO;
+import de.esports.aeq.admins.trials.workflow.ProcessVariables;
+import org.camunda.bpm.engine.RuntimeService;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +31,18 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     private UserService userService;
     private TrialPeriodRepository trialPeriodRepository;
     private TrialPeriodConfigRepository trialPeriodConfigRepository;
+    private final RuntimeService runtimeService;
 
     @Autowired
     public TrialPeriodServiceBean(ModelMapper mapper, UserService userService,
             TrialPeriodRepository trialPeriodRepository,
-            TrialPeriodConfigRepository trialPeriodConfigRepository) {
+            TrialPeriodConfigRepository trialPeriodConfigRepository,
+            RuntimeService runtimeService) {
         this.mapper = mapper;
         this.userService = userService;
         this.trialPeriodRepository = trialPeriodRepository;
         this.trialPeriodConfigRepository = trialPeriodConfigRepository;
+        this.runtimeService = runtimeService;
     }
 
     @PostConstruct
@@ -60,6 +66,13 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
 
     //-----------------------------------------------------------------------
     @Override
+    public TrialPeriodTa findOne(Long id) {
+        return trialPeriodRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(id));
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
     public void createTrialPeriod(Long userId, TrialPeriodCreateDTO request) {
         // fail fast if no user is present
         UserTa user = userService.findById(userId);
@@ -77,7 +90,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         trialPeriod.setState(TrialState.OPEN);
         TrialPeriodTa entity = trialPeriodRepository.save(trialPeriod);
 
-        startTrialPeriodWorkflow(entity);
+        // startTrialPeriodWorkflow(entity);
     }
 
     private Duration getTrialPeriodDuration(TrialPeriodCreateDTO request, Instant start) {
@@ -102,6 +115,13 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
 
     //-----------------------------------------------------------------------
     @Override
+    public TrialPeriodTa update(TrialPeriodTa trialPeriod) {
+        // TODO send stream message
+        return trialPeriod;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
     public TrialPeriodConfigTa getConfiguration() {
         return trialPeriodConfigRepository.findAll().stream()
                 .findFirst().orElseThrow();
@@ -114,7 +134,9 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
 
     //-----------------------------------------------------------------------
     private void startTrialPeriodWorkflow(TrialPeriodTa entity) {
-        // TODO: camunda
+        runtimeService.createProcessInstanceByKey(ProcessVariables.TRIAL_PERIOD_DEFINITION_KEY)
+                .setVariable(ProcessVariables.TRIAL_PERIOD_ID, entity.getId())
+                .execute();
     }
 
     //-----------------------------------------------------------------------
