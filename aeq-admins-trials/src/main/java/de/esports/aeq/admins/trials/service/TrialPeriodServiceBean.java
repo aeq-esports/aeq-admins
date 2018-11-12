@@ -55,13 +55,8 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     //-----------------------------------------------------------------------
     @Override
     public List<TrialPeriodResponseDTO> findAll(Long userId) {
-        var trialPeriods = trialPeriodRepository.findAll()
-                .stream()
-                .map(trialPeriod -> mapper.map(trialPeriod, TrialPeriodResponseDTO.class))
+        return trialPeriodRepository.findAll().stream().map(this::toResponseDto)
                 .collect(Collectors.toList());
-        trialPeriods.forEach(trialPeriod ->
-                trialPeriod.setEnd(trialPeriod.getStart().plus(trialPeriod.getDuration())));
-        return trialPeriods;
     }
 
     //-----------------------------------------------------------------------
@@ -69,7 +64,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     @Override
     public TrialPeriodResponseDTO findOne(Long trialPeriodId) {
         return trialPeriodRepository.findById(trialPeriodId)
-                .map(trialPeriod -> mapper.map(trialPeriod, TrialPeriodResponseDTO.class))
+                .map(this::toResponseDto)
                 .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
     }
 
@@ -80,22 +75,28 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         UserTa user = userService.findById(userId);
         assertNoActiveTrialPeriodOrThrow(user.getId());
 
+        TrialPeriodTa entity = createTrialPeriod(user, request);
+        TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
+
+        startTrialPeriodWorkflow(savedEntity);
+        // TODO: post event to cloud-messaging
+    }
+
+    private TrialPeriodTa createTrialPeriod(UserTa user, TrialPeriodCreateDTO request) {
         TrialPeriodTa trialPeriod = new TrialPeriodTa();
         trialPeriod.setUser(user);
 
         Instant start = getTrialPeriodStart(request);
         trialPeriod.setStart(start);
 
-        Duration duration = getTrialPeriodDuration(request, start);
+        Duration duration = calculateTrialPeriodDuration(request, start);
         trialPeriod.setDuration(duration);
 
         trialPeriod.setState(TrialState.OPEN);
-        TrialPeriodTa entity = trialPeriodRepository.save(trialPeriod);
-
-        // startTrialPeriodWorkflow(entity);
+        return trialPeriod;
     }
 
-    private Duration getTrialPeriodDuration(TrialPeriodCreateDTO request, Instant start) {
+    private Duration calculateTrialPeriodDuration(TrialPeriodCreateDTO request, Instant start) {
         if (request.getDuration().isPresent()) {
             // TODO: check permission
             return request.getDuration().get();
@@ -142,6 +143,11 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     //-----------------------------------------------------------------------
+    private TrialPeriodResponseDTO toResponseDto(TrialPeriodTa trialPeriod) {
+        TrialPeriodResponseDTO dto = mapper.map(trialPeriod, TrialPeriodResponseDTO.class);
+        dto.setEnd(trialPeriod.getStart().plus(trialPeriod.getDuration()));
+        return dto;
+    }
 
     /**
      * Asserts that the user with the given id does not have any active trial period, otherwise an
