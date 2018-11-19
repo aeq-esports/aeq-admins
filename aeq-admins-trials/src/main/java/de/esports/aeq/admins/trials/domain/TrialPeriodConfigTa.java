@@ -3,7 +3,7 @@ package de.esports.aeq.admins.trials.domain;
 import javax.persistence.*;
 import java.time.Duration;
 
-import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Entity
 @Table(name = "aeq_trial_period_config")
@@ -15,7 +15,7 @@ public class TrialPeriodConfigTa {
     private Long id;
 
     @Column
-    private Duration trialPeriod = Duration.of(1, MINUTES);
+    private Duration trialPeriod = Duration.of(10, SECONDS);
 
     public Long getId() {
         return id;

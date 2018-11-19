@@ -66,6 +66,10 @@ public class TrialPeriodTa implements Serializable {
         this.start = start;
     }
 
+    public Instant getEnd() {
+        return start.plus(duration);
+    }
+
     public Duration getDuration() {
         return duration;
     }

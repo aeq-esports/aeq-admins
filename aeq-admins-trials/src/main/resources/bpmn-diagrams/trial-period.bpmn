@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1jw0d88" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.3">
+  <bpmn:signal id="Signal_1isqdml" name="closed" />
+  <bpmn:process id="trialPeriodDefinitionKey" name="Trial Period" isExecutable="true">
+    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_1jxpkev" name="End of Trial Period">
+      <bpmn:incoming>SequenceFlow_068vm74</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0f0z4qd</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${trialPeriodEndTime}</bpmn:timeDate>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="Task_11ikwal" name="Approve Trial Period" camunda:delegateExpression="${approveTrialPeriodService}">
+      <bpmn:incoming>SequenceFlow_08kkwfg</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1innr1o</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_15v74ej">
+      <bpmn:incoming>SequenceFlow_08no8gq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_08kkwfg</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1b4se7w</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_0jlwzvt" name="Trial Period Rejected">
+      <bpmn:incoming>SequenceFlow_1innr1o</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_0d9sbqf" name="Approve Trial Period">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="approved" label="Approved?" type="boolean" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0f0z4qd</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_08no8gq</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="eventTrialPeriodStarted" name="Trial Period started">
+      <bpmn:outgoing>SequenceFlow_1ecj0u5</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:eventBasedGateway id="ExclusiveGateway_086o4ha">
+      <bpmn:incoming>SequenceFlow_1ecj0u5</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_068vm74</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:endEvent id="EndEvent_1oycxsg" name="Trial Period Rejected">
+      <bpmn:incoming>SequenceFlow_0bsa494</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_1y1dutn" name="Reject Trial Period" camunda:delegateExpression="${rejectTrialPeriodService}">
+      <bpmn:incoming>SequenceFlow_1b4se7w</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0bsa494</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_068vm74" sourceRef="ExclusiveGateway_086o4ha" targetRef="IntermediateThrowEvent_1jxpkev" />
+    <bpmn:sequenceFlow id="SequenceFlow_1b4se7w" sourceRef="ExclusiveGateway_15v74ej" targetRef="Task_1y1dutn">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${not approved}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_08kkwfg" sourceRef="ExclusiveGateway_15v74ej" targetRef="Task_11ikwal">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1innr1o" sourceRef="Task_11ikwal" targetRef="EndEvent_0jlwzvt" />
+    <bpmn:sequenceFlow id="SequenceFlow_08no8gq" sourceRef="Task_0d9sbqf" targetRef="ExclusiveGateway_15v74ej" />
+    <bpmn:sequenceFlow id="SequenceFlow_0bsa494" sourceRef="Task_1y1dutn" targetRef="EndEvent_1oycxsg" />
+    <bpmn:sequenceFlow id="SequenceFlow_1ecj0u5" sourceRef="eventTrialPeriodStarted" targetRef="ExclusiveGateway_086o4ha" />
+    <bpmn:sequenceFlow id="SequenceFlow_0f0z4qd" sourceRef="IntermediateThrowEvent_1jxpkev" targetRef="Task_0d9sbqf" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="trialPeriodDefinitionKey">
+      <bpmndi:BPMNEdge id="SequenceFlow_068vm74_di" bpmnElement="SequenceFlow_068vm74">
+        <di:waypoint x="348" y="320" />
+        <di:waypoint x="440" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1b4se7w_di" bpmnElement="SequenceFlow_1b4se7w">
+        <di:waypoint x="861" y="345" />
+        <di:waypoint x="861" y="424" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_08kkwfg_di" bpmnElement="SequenceFlow_08kkwfg">
+        <di:waypoint x="861" y="295" />
+        <di:waypoint x="861" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1innr1o_di" bpmnElement="SequenceFlow_1innr1o">
+        <di:waypoint x="911" y="168" />
+        <di:waypoint x="1090" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_08no8gq_di" bpmnElement="SequenceFlow_08no8gq">
+        <di:waypoint x="740" y="320" />
+        <di:waypoint x="836" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0bsa494_di" bpmnElement="SequenceFlow_0bsa494">
+        <di:waypoint x="911" y="464" />
+        <di:waypoint x="1090" y="464" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_1lqkpgb_di" bpmnElement="IntermediateThrowEvent_1jxpkev">
+        <dc:Bounds x="440" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="430" y="345" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0wg75hr_di" bpmnElement="Task_11ikwal">
+        <dc:Bounds x="811" y="128" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_15v74ej_di" bpmnElement="ExclusiveGateway_15v74ej" isMarkerVisible="true">
+        <dc:Bounds x="836" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0jlwzvt_di" bpmnElement="EndEvent_0jlwzvt">
+        <dc:Bounds x="1090" y="150" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1081" y="193" width="55" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0m2a4ky_di" bpmnElement="Task_0d9sbqf">
+        <dc:Bounds x="640" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="eventTrialPeriodStarted">
+        <dc:Bounds x="115" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="106" y="345" width="55" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EventBasedGateway_05uupxy_di" bpmnElement="ExclusiveGateway_086o4ha">
+        <dc:Bounds x="298" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1oycxsg_di" bpmnElement="EndEvent_1oycxsg">
+        <dc:Bounds x="1090" y="446" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1081" y="489" width="55" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0vxziyp_di" bpmnElement="Task_1y1dutn">
+        <dc:Bounds x="811" y="424" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ecj0u5_di" bpmnElement="SequenceFlow_1ecj0u5">
+        <di:waypoint x="151" y="320" />
+        <di:waypoint x="298" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0f0z4qd_di" bpmnElement="SequenceFlow_0f0z4qd">
+        <di:waypoint x="476" y="320" />
+        <di:waypoint x="640" y="320" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

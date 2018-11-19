@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,6 +75,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         // fail fast if no user is present
         UserTa user = userService.findById(userId);
         assertNoActiveTrialPeriodOrThrow(user.getId());
+
 
         TrialPeriodTa entity = createTrialPeriod(user, request);
         TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
@@ -139,6 +141,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     private void startTrialPeriodWorkflow(TrialPeriodTa entity) {
         runtimeService.createProcessInstanceByKey(ProcessVariables.TRIAL_PERIOD_DEFINITION_KEY)
                 .setVariable(ProcessVariables.TRIAL_PERIOD_ID, entity.getId())
+                .setVariable(ProcessVariables.TRIAL_PERIOD_END_DATE, Date.from(entity.getEnd()))
                 .execute();
     }
 
