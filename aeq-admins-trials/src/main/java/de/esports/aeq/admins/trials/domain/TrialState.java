@@ -15,7 +15,7 @@ public enum TrialState {
      * <p>
      * This state is a final state.
      */
-    ACCEPTED,
+    APPROVED,
     /**
      * The member representing the trial has been rejected.
      * <p>

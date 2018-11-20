@@ -15,6 +15,8 @@ import de.esports.aeq.admins.trials.workflow.ProcessVariables;
 import org.camunda.bpm.engine.RuntimeService;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TrialPeriodServiceBean implements TrialPeriodService {
+
+    private static Logger LOG = LoggerFactory.getLogger(TrialPeriodServiceBean.class);
 
     private ModelMapper mapper;
     private UserService userService;
@@ -135,6 +139,32 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     @Override
     public void updateConfiguration(TrialPeriodConfigTa config) {
         trialPeriodConfigRepository.save(config);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public void reject(Long trialPeriodId) {
+        setConsensus(trialPeriodId, TrialState.REJECTED);
+    }
+
+    @Override
+    public void approve(Long trialPeriodId) {
+        setConsensus(trialPeriodId, TrialState.APPROVED);
+    }
+
+    private void setConsensus(Long trialPeriodId, TrialState state) {
+        TrialPeriodTa trialPeriod = trialPeriodRepository.findById(trialPeriodId)
+                .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
+
+        if (trialPeriod.getState() != TrialState.PENDING) {
+            throw new RuntimeException("Invalid state");
+        }
+
+        trialPeriod.setState(state);
+        trialPeriodRepository.save(trialPeriod);
+
+        LOG.info("Consensus of trial period of user {}: {}", trialPeriod.getUser().getId(), state);
+        // TODO: notify
     }
 
     //-----------------------------------------------------------------------
