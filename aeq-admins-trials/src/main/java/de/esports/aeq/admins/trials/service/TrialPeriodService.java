@@ -2,7 +2,6 @@ package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.trials.domain.TrialPeriodConfigTa;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
-import de.esports.aeq.admins.trials.domain.TrialState;
 import de.esports.aeq.admins.trials.web.TrialPeriodCreateDTO;
 import de.esports.aeq.admins.trials.web.TrialPeriodResponseDTO;
 
@@ -21,6 +20,8 @@ public interface TrialPeriodService {
     List<TrialPeriodResponseDTO> findAll(Long userId);
 
     TrialPeriodTa update(TrialPeriodTa trialPeriod);
+
+    void pending(Long trialPeriodId);
 
     void reject(Long trialPeriodId);
 

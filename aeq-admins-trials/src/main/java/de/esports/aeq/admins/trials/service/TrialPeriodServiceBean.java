@@ -143,6 +143,11 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
 
     //-----------------------------------------------------------------------
     @Override
+    public void pending(Long trialPeriodId) {
+
+    }
+
+    @Override
     public void reject(Long trialPeriodId) {
         setConsensus(trialPeriodId, TrialState.REJECTED);
     }
