@@ -2,10 +2,10 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1jw0d88" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.1">
   <bpmn:signal id="Signal_1isqdml" name="closed" />
   <bpmn:process id="trialPeriodDefinitionKey" name="Trial Period" isExecutable="true">
-    <bpmn:sendTask id="SendTask_17jrahh" name="Send Started Mesage">
+    <bpmn:sendTask id="SendTask_17jrahh" name="Send Pending Mesage" camunda:expression="${messaging.sendPendingMessage(trialPeriodId)}">
       <bpmn:incoming>SequenceFlow_16i6zg0</bpmn:incoming>
     </bpmn:sendTask>
-    <bpmn:sendTask id="Task_1lf48n3" name="Send Extended Message">
+    <bpmn:sendTask id="Task_1lf48n3" name="Send Extended Message" camunda:expression="${messaging.sendExtendedMessage(trialPeriodId)}">
       <bpmn:incoming>SequenceFlow_114id8g</bpmn:incoming>
     </bpmn:sendTask>
     <bpmn:parallelGateway id="ExclusiveGateway_0zgfjkz">
@@ -13,11 +13,11 @@
       <bpmn:outgoing>SequenceFlow_114id8g</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_00pitfl</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:serviceTask id="Task_1m1pdh6" name="Extend Trial Period">
+    <bpmn:serviceTask id="Task_1m1pdh6" name="Extend Trial Period" camunda:expression="${services.extendTrialPeriod(trialPeriodId)}">
       <bpmn:incoming>SequenceFlow_0kpwwfn</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0vs2t5v</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sendTask id="Task_11lqk9k" name="Send Started Mesage">
+    <bpmn:sendTask id="Task_11lqk9k" name="Send Started Mesage" camunda:expression="${messaging.sendStartedMessage(trialPeriodId)}">
       <bpmn:incoming>SequenceFlow_1t2qzoy</bpmn:incoming>
     </bpmn:sendTask>
     <bpmn:parallelGateway id="ExclusiveGateway_0tbd7bn">
@@ -26,17 +26,23 @@
       <bpmn:outgoing>SequenceFlow_11xg5qz</bpmn:outgoing>
     </bpmn:parallelGateway>
     <bpmn:parallelGateway id="ExclusiveGateway_1o3lsmx">
-      <bpmn:incoming>SequenceFlow_0f0z4qd</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0qliqcx</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_16i6zg0</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1h5p9lq</bpmn:outgoing>
     </bpmn:parallelGateway>
     <bpmn:endEvent id="EndEvent_1oycxsg" name="Trial Period Rejected">
+      <bpmn:extensionElements>
+        <camunda:executionListener expression="${messaging.sendRejectedMessage(trialPeriodId)}" event="start" />
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1b4se7w</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:startEvent id="eventTrialPeriodStarted" name="Trial Period started">
       <bpmn:outgoing>SequenceFlow_1ecj0u5</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:endEvent id="EndEvent_0jlwzvt" name="Trial Period Rejected">
+    <bpmn:endEvent id="EndEvent_0jlwzvt" name="Trial Period Approved">
+      <bpmn:extensionElements>
+        <camunda:executionListener expression="${messaging.sendApprovedMessage(trialPeriodId)}" event="start" />
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_08kkwfg</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="ExclusiveGateway_15v74ej">
@@ -45,15 +51,11 @@
       <bpmn:outgoing>SequenceFlow_0kpwwfn</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_08kkwfg</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1b4se7w</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_1uwct6y</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_0htap6u</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_1jxpkev" name="End of Trial Period">
       <bpmn:incoming>SequenceFlow_00pitfl</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1uwct6y</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0htap6u</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_11xg5qz</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0f0z4qd</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0qliqcx</bpmn:outgoing>
       <bpmn:timerEventDefinition>
         <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${trialPeriodEndTime}</bpmn:timeDate>
       </bpmn:timerEventDefinition>
@@ -64,23 +66,26 @@
     <bpmn:sequenceFlow id="SequenceFlow_1t2qzoy" sourceRef="ExclusiveGateway_0tbd7bn" targetRef="Task_11lqk9k" />
     <bpmn:sequenceFlow id="SequenceFlow_16i6zg0" sourceRef="ExclusiveGateway_1o3lsmx" targetRef="SendTask_17jrahh" />
     <bpmn:sequenceFlow id="SequenceFlow_1ecj0u5" sourceRef="eventTrialPeriodStarted" targetRef="ExclusiveGateway_0tbd7bn" />
-    <bpmn:sequenceFlow id="SequenceFlow_0kpwwfn" sourceRef="ExclusiveGateway_15v74ej" targetRef="Task_1m1pdh6" />
+    <bpmn:sequenceFlow id="SequenceFlow_0kpwwfn" sourceRef="ExclusiveGateway_15v74ej" targetRef="Task_1m1pdh6">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${consensus == 'extended'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_08kkwfg" sourceRef="ExclusiveGateway_15v74ej" targetRef="EndEvent_0jlwzvt">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${consensus == 'approved'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1b4se7w" sourceRef="ExclusiveGateway_15v74ej" targetRef="EndEvent_1oycxsg">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${not approved}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${consensus == 'rejected'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0f0z4qd" sourceRef="IntermediateThrowEvent_1jxpkev" targetRef="ExclusiveGateway_1o3lsmx" />
-    <bpmn:sequenceFlow id="SequenceFlow_1uwct6y" sourceRef="ExclusiveGateway_15v74ej" targetRef="IntermediateThrowEvent_1jxpkev" />
-    <bpmn:sequenceFlow id="SequenceFlow_0htap6u" sourceRef="ExclusiveGateway_15v74ej" targetRef="IntermediateThrowEvent_1jxpkev" />
     <bpmn:sequenceFlow id="SequenceFlow_11xg5qz" sourceRef="ExclusiveGateway_0tbd7bn" targetRef="IntermediateThrowEvent_1jxpkev" />
     <bpmn:sequenceFlow id="SequenceFlow_08no8gq" sourceRef="Task_0d9sbqf" targetRef="ExclusiveGateway_15v74ej" />
     <bpmn:sequenceFlow id="SequenceFlow_1h5p9lq" sourceRef="ExclusiveGateway_1o3lsmx" targetRef="Task_0d9sbqf" />
-    <bpmn:userTask id="Task_0d9sbqf" name="Aggree on Consensus">
+    <bpmn:userTask id="Task_0d9sbqf" name="Aggree on Consensus" camunda:candidateUsers="admin">
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="approved" label="Approved?" type="boolean" defaultValue="false" />
+          <camunda:formField id="consensus" label="Consensus" type="enum">
+            <camunda:value id="approved" name="Approve" />
+            <camunda:value id="rejected" name="Reject" />
+            <camunda:value id="extended" name="Extend" />
+          </camunda:formField>
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1h5p9lq</bpmn:incoming>
@@ -89,28 +94,16 @@
     <bpmn:sequenceFlow id="SequenceFlow_0r56zcv" sourceRef="BoundaryEvent_00n5zvz" targetRef="ExclusiveGateway_15v74ej" />
     <bpmn:boundaryEvent id="BoundaryEvent_00n5zvz" name="Master Consensus" attachedToRef="Task_0d9sbqf">
       <bpmn:outgoing>SequenceFlow_0r56zcv</bpmn:outgoing>
-      <bpmn:conditionalEventDefinition>
-        <bpmn:condition xsi:type="bpmn:tFormalExpression" />
-      </bpmn:conditionalEventDefinition>
+      <bpmn:messageEventDefinition messageRef="Message_1kkvurx" />
     </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0qliqcx" sourceRef="IntermediateThrowEvent_1jxpkev" targetRef="ExclusiveGateway_1o3lsmx" />
   </bpmn:process>
+  <bpmn:message id="Message_1kkvurx" name="message_master_consensus" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="trialPeriodDefinitionKey">
       <bpmndi:BPMNEdge id="SequenceFlow_11xg5qz_di" bpmnElement="SequenceFlow_11xg5qz">
         <di:waypoint x="274" y="383" />
         <di:waypoint x="394" y="383" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0htap6u_di" bpmnElement="SequenceFlow_0htap6u">
-        <di:waypoint x="896" y="383" />
-        <di:waypoint x="430" y="383" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1uwct6y_di" bpmnElement="SequenceFlow_1uwct6y">
-        <di:waypoint x="896" y="383" />
-        <di:waypoint x="430" y="383" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0f0z4qd_di" bpmnElement="SequenceFlow_0f0z4qd">
-        <di:waypoint x="430" y="383" />
-        <di:waypoint x="531" y="383" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1b4se7w_di" bpmnElement="SequenceFlow_1b4se7w">
         <di:waypoint x="946" y="383" />
@@ -165,7 +158,7 @@
       <bpmndi:BPMNShape id="EndEvent_0jlwzvt_di" bpmnElement="EndEvent_0jlwzvt">
         <dc:Bounds x="1054" y="212" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1044" y="174.5" width="55" height="27" />
+          <dc:Bounds x="1044" y="175" width="55" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="UserTask_0m2a4ky_di" bpmnElement="Task_0d9sbqf">
@@ -218,12 +211,16 @@
         <di:waypoint x="921" y="530" />
         <di:waypoint x="921" y="408" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="BoundaryEvent_0ahhir7_di" bpmnElement="BoundaryEvent_00n5zvz">
+      <bpmndi:BPMNShape id="BoundaryEvent_1vfn0r5_di" bpmnElement="BoundaryEvent_00n5zvz">
         <dc:Bounds x="721" y="405" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="676" y="444" width="56" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0qliqcx_di" bpmnElement="SequenceFlow_0qliqcx">
+        <di:waypoint x="430" y="383" />
+        <di:waypoint x="531" y="383" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
