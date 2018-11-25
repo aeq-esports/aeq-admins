@@ -4,10 +4,14 @@ import de.esports.aeq.admins.trials.domain.TrialPeriodConfigTa;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.web.TrialPeriodCreateDTO;
 import de.esports.aeq.admins.trials.web.TrialPeriodResponseDTO;
+import de.esports.aeq.admins.trials.web.TrialPeriodUpdateDto;
 
 import java.util.List;
 
 public interface TrialPeriodService {
+
+    //-----------------------------------------------------------------------
+    TrialPeriodTa update(TrialPeriodUpdateDto request);
 
     TrialPeriodConfigTa getConfiguration();
 
@@ -19,11 +23,11 @@ public interface TrialPeriodService {
 
     List<TrialPeriodResponseDTO> findAll(Long userId);
 
-    TrialPeriodTa update(TrialPeriodTa trialPeriod);
-
     void pending(Long trialPeriodId);
+
+    void approve(Long trialPeriodId);
 
     void reject(Long trialPeriodId);
 
-    void approve(Long trialPeriodId);
+    void extend(Long trialPeriodId);
 }

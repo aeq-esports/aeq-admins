@@ -78,6 +78,10 @@ public class TrialPeriodTa implements Serializable {
         this.duration = duration;
     }
 
+    public void extendDuration(Duration amount) {
+        this.duration = duration.plus(amount);
+    }
+
     public boolean isActive() {
         return state == TrialState.OPEN || state == TrialState.PENDING;
     }

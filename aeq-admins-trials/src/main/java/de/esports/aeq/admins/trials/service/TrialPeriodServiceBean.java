@@ -1,5 +1,6 @@
 package de.esports.aeq.admins.trials.service;
 
+import de.esports.aeq.admins.common.BadRequestException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.security.domain.UserTa;
 import de.esports.aeq.admins.security.service.UserService;
@@ -11,8 +12,10 @@ import de.esports.aeq.admins.trials.jpa.TrialPeriodConfigRepository;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodRepository;
 import de.esports.aeq.admins.trials.web.TrialPeriodCreateDTO;
 import de.esports.aeq.admins.trials.web.TrialPeriodResponseDTO;
+import de.esports.aeq.admins.trials.web.TrialPeriodUpdateDto;
 import de.esports.aeq.admins.trials.workflow.ProcessVariables;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -65,11 +68,14 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     //-----------------------------------------------------------------------
-
     @Override
     public TrialPeriodResponseDTO findOne(Long trialPeriodId) {
+        TrialPeriodTa trial = findOneOrThrow(trialPeriodId);
+        return toResponseDto(trial);
+    }
+
+    private TrialPeriodTa findOneOrThrow(Long trialPeriodId) {
         return trialPeriodRepository.findById(trialPeriodId)
-                .map(this::toResponseDto)
                 .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
     }
 
@@ -124,9 +130,37 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
 
     //-----------------------------------------------------------------------
     @Override
-    public TrialPeriodTa update(TrialPeriodTa trialPeriod) {
-        // TODO send stream message
-        return trialPeriod;
+    public TrialPeriodTa update(TrialPeriodUpdateDto request) {
+        findOneOrThrow(request.getId());
+        TrialPeriodTa trialPeriod = mapper.map(request, TrialPeriodTa.class);
+
+        Duration duration = calculateTrialPeriodDuration(request, request.getStart().toInstant());
+        trialPeriod.setDuration(duration);
+
+        if (!trialPeriod.getState().equals(request.getState())) {
+            // TODO: check permission and state
+        }
+
+        TrialPeriodTa savedEntity = trialPeriodRepository.save(trialPeriod);
+        updateTrialPeriodWorkflow(savedEntity);
+
+        return savedEntity;
+    }
+
+    private void updateTrialPeriodWorkflow(TrialPeriodTa trialPeriod) {
+
+    }
+
+    private Duration calculateTrialPeriodDuration(TrialPeriodUpdateDto request, Instant start) {
+        if (request.getDuration().isPresent()) {
+            // TODO: check permission
+            return request.getDuration().get();
+        }
+        if (request.getEnd().isPresent()) {
+            // TODO: check permission
+            return Duration.between(start, request.getEnd().get());
+        }
+        return getConfiguration().getTrialPeriod();
     }
 
     //-----------------------------------------------------------------------
@@ -144,7 +178,17 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     //-----------------------------------------------------------------------
     @Override
     public void pending(Long trialPeriodId) {
+        TrialPeriodTa trial = findOneOrThrow(trialPeriodId);
+        if (trial.getState() != TrialState.OPEN) {
+            throw new BadRequestException("Invalid state: " + trial.getState());
+        }
+        trial.setState(TrialState.PENDING);
+        trialPeriodRepository.save(trial);
+    }
 
+    @Override
+    public void approve(Long trialPeriodId) {
+        setConsensus(trialPeriodId, TrialState.APPROVED);
     }
 
     @Override
@@ -153,23 +197,33 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     @Override
-    public void approve(Long trialPeriodId) {
-        setConsensus(trialPeriodId, TrialState.APPROVED);
+    public void extend(Long trialPeriodId) {
+        TrialPeriodTa trial = findOneOrThrow(trialPeriodId);
+        Duration duration = getConfiguration().getTrialPeriod();
+        trial.extendDuration(duration);
+        trialPeriodRepository.save(trial);
     }
 
     private void setConsensus(Long trialPeriodId, TrialState state) {
-        TrialPeriodTa trialPeriod = trialPeriodRepository.findById(trialPeriodId)
-                .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
-
-        if (trialPeriod.getState() != TrialState.PENDING) {
-            throw new RuntimeException("Invalid state");
+        TrialPeriodTa trialPeriod = findOneOrThrow(trialPeriodId);
+        if (trialPeriod.getState().isTerminal()) {
+            throw new BadRequestException("Invalid state");
         }
 
         trialPeriod.setState(state);
         trialPeriodRepository.save(trialPeriod);
 
+        ProcessInstance instance = runtimeService.createProcessInstanceQuery()
+                .variableValueEquals(ProcessVariables.TRIAL_PERIOD_ID, trialPeriod)
+                .singleResult();
+
+        String convertedState = state.toString().toLowerCase();
+
+        runtimeService.createMessageCorrelation(ProcessVariables.TRIAL_PERIOD_CONSENSUS_FOUND)
+                .processInstanceId(instance.getId())
+                .setVariable(ProcessVariables.TRIAL_PERIOD_CONSENSUS, convertedState);
+
         LOG.info("Consensus of trial period of user {}: {}", trialPeriod.getUser().getId(), state);
-        // TODO: notify
     }
 
     //-----------------------------------------------------------------------
