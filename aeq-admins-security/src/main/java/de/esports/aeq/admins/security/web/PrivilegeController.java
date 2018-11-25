@@ -24,7 +24,6 @@ public class PrivilegeController {
 
     @GetMapping
     @ResponseBody
-    @Secured("READ_PRIVILEGES")
     public List<PrivilegeTa> findAll() {
         return service.findAll();
     }

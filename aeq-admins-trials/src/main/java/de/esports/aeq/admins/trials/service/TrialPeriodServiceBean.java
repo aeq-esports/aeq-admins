@@ -2,165 +2,102 @@ package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.common.BadRequestException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.security.domain.UserTa;
-import de.esports.aeq.admins.security.service.UserService;
-import de.esports.aeq.admins.security.web.UserResponseDTO;
 import de.esports.aeq.admins.trials.domain.TrialPeriodConfigTa;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.domain.TrialState;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodConfigRepository;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodRepository;
-import de.esports.aeq.admins.trials.web.TrialPeriodCreateDTO;
-import de.esports.aeq.admins.trials.web.TrialPeriodResponseDTO;
-import de.esports.aeq.admins.trials.web.TrialPeriodUpdateDto;
 import de.esports.aeq.admins.trials.workflow.ProcessVariables;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.modelmapper.Converter;
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import javax.validation.Validator;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static de.esports.aeq.admins.security.SecurityUtils.assertPrivileges;
+import static de.esports.aeq.admins.trials.Privileges.*;
 
 @Service
 public class TrialPeriodServiceBean implements TrialPeriodService {
 
     private static Logger LOG = LoggerFactory.getLogger(TrialPeriodServiceBean.class);
 
-    private ModelMapper mapper;
-    private UserService userService;
     private TrialPeriodRepository trialPeriodRepository;
     private TrialPeriodConfigRepository trialPeriodConfigRepository;
+    private final Validator validator;
     private final RuntimeService runtimeService;
 
     @Autowired
-    public TrialPeriodServiceBean(ModelMapper mapper, UserService userService,
-            TrialPeriodRepository trialPeriodRepository,
+    public TrialPeriodServiceBean(TrialPeriodRepository trialPeriodRepository,
             TrialPeriodConfigRepository trialPeriodConfigRepository,
-            RuntimeService runtimeService) {
-        this.mapper = mapper;
-        this.userService = userService;
+            Validator validator, RuntimeService runtimeService) {
         this.trialPeriodRepository = trialPeriodRepository;
         this.trialPeriodConfigRepository = trialPeriodConfigRepository;
+        this.validator = validator;
         this.runtimeService = runtimeService;
     }
 
-    @PostConstruct
-    private void registerTypeMap() {
-        Converter<UserTa, UserResponseDTO> toUserResponseDto =
-                context -> mapper.map(UserTa.class, UserResponseDTO.class);
-        mapper.addConverter(toUserResponseDto);
+    //-----------------------------------------------------------------------
+    @Override
+    public List<TrialPeriodTa> findAll(Long userId) {
+        assertPrivileges(READ_TRIAL_PERIOD);
+        return trialPeriodRepository.findAll();
     }
 
     //-----------------------------------------------------------------------
     @Override
-    public List<TrialPeriodResponseDTO> findAll(Long userId) {
-        return trialPeriodRepository.findAll().stream().map(this::toResponseDto)
-                .collect(Collectors.toList());
+    public TrialPeriodTa findOne(Long trialPeriodId) {
+        assertPrivileges(READ_TRIAL_PERIOD);
+        return findOneOrThrow(trialPeriodId);
     }
 
     //-----------------------------------------------------------------------
     @Override
-    public TrialPeriodResponseDTO findOne(Long trialPeriodId) {
-        TrialPeriodTa trial = findOneOrThrow(trialPeriodId);
-        return toResponseDto(trial);
-    }
+    public void create(TrialPeriodTa trialPeriod) {
+        validator.validate(trialPeriod); // TODO: add validation logic
+        assertPrivileges(CREATE_TRIAL_PERIOD);
 
-    private TrialPeriodTa findOneOrThrow(Long trialPeriodId) {
-        return trialPeriodRepository.findById(trialPeriodId)
-                .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
-    }
+        Long userId = trialPeriod.getUser().getId();
+        assertNoActiveTrialPeriodOrThrow(userId);
 
-    //-----------------------------------------------------------------------
-    @Override
-    public void createTrialPeriod(Long userId, TrialPeriodCreateDTO request) {
-        // fail fast if no user is present
-        UserTa user = userService.findById(userId);
-        assertNoActiveTrialPeriodOrThrow(user.getId());
-
-
-        TrialPeriodTa entity = createTrialPeriod(user, request);
-        TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
-
+        LOG.info("Creating trial period: {}", trialPeriod);
+        TrialPeriodTa savedEntity = trialPeriodRepository.save(trialPeriod);
         startTrialPeriodWorkflow(savedEntity);
-        // TODO: post event to cloud-messaging
-    }
-
-    private TrialPeriodTa createTrialPeriod(UserTa user, TrialPeriodCreateDTO request) {
-        TrialPeriodTa trialPeriod = new TrialPeriodTa();
-        trialPeriod.setUser(user);
-
-        Instant start = getTrialPeriodStart(request);
-        trialPeriod.setStart(start);
-
-        Duration duration = calculateTrialPeriodDuration(request, start);
-        trialPeriod.setDuration(duration);
-
-        trialPeriod.setState(TrialState.OPEN);
-        return trialPeriod;
-    }
-
-    private Duration calculateTrialPeriodDuration(TrialPeriodCreateDTO request, Instant start) {
-        if (request.getDuration().isPresent()) {
-            // TODO: check permission
-            return request.getDuration().get();
-        }
-        if (request.getEnd().isPresent()) {
-            // TODO: check permission
-            return Duration.between(start, request.getEnd().get());
-        }
-        return getConfiguration().getTrialPeriod();
-    }
-
-    private Instant getTrialPeriodStart(TrialPeriodCreateDTO request) {
-        if (request.getStart().isPresent()) {
-            // TODO: check permission
-            return request.getStart().get().toInstant();
-        }
-        return Instant.now();
     }
 
     //-----------------------------------------------------------------------
     @Override
-    public TrialPeriodTa update(TrialPeriodUpdateDto request) {
-        findOneOrThrow(request.getId());
-        TrialPeriodTa trialPeriod = mapper.map(request, TrialPeriodTa.class);
+    public TrialPeriodTa update(TrialPeriodTa trialPeriod) {
+        validator.validate(trialPeriod); // TODO: add validation logic
+        assertPrivileges(UPDATE_TRIAL_PERIOD);
+        TrialPeriodTa existing = findOneOrThrow(trialPeriod.getId());
 
-        Duration duration = calculateTrialPeriodDuration(request, request.getStart().toInstant());
-        trialPeriod.setDuration(duration);
-
-        if (!trialPeriod.getState().equals(request.getState())) {
-            // TODO: check permission and state
+        if (existing.equals(trialPeriod)) {
+            return trialPeriod;
         }
+
+        LOG.info("Updating trial period: {} -> {}", existing, trialPeriod);
 
         TrialPeriodTa savedEntity = trialPeriodRepository.save(trialPeriod);
         updateTrialPeriodWorkflow(savedEntity);
-
         return savedEntity;
     }
 
-    private void updateTrialPeriodWorkflow(TrialPeriodTa trialPeriod) {
-
-    }
-
-    private Duration calculateTrialPeriodDuration(TrialPeriodUpdateDto request, Instant start) {
-        if (request.getDuration().isPresent()) {
-            // TODO: check permission
-            return request.getDuration().get();
-        }
-        if (request.getEnd().isPresent()) {
-            // TODO: check permission
-            return Duration.between(start, request.getEnd().get());
-        }
-        return getConfiguration().getTrialPeriod();
+    //-----------------------------------------------------------------------
+    @Override
+    public void delete(Long trialPeriodId) {
+        assertPrivileges(DELETE_TRIAL_PERIOD);
+        TrialPeriodTa existing = findOneOrThrow(trialPeriodId);
+        LOG.info("Deleting trial period: {}", existing);
+        trialPeriodRepository.deleteById(trialPeriodId);
     }
 
     //-----------------------------------------------------------------------
@@ -234,11 +171,14 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
                 .execute();
     }
 
+    private void updateTrialPeriodWorkflow(TrialPeriodTa trialPeriod) {
+        // TODO
+    }
+
     //-----------------------------------------------------------------------
-    private TrialPeriodResponseDTO toResponseDto(TrialPeriodTa trialPeriod) {
-        TrialPeriodResponseDTO dto = mapper.map(trialPeriod, TrialPeriodResponseDTO.class);
-        dto.setEnd(trialPeriod.getStart().plus(trialPeriod.getDuration()));
-        return dto;
+    private TrialPeriodTa findOneOrThrow(Long trialPeriodId) {
+        return trialPeriodRepository.findById(trialPeriodId)
+                .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
     }
 
     /**

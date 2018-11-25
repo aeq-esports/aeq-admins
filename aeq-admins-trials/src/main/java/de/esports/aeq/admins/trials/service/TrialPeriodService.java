@@ -2,26 +2,24 @@ package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.trials.domain.TrialPeriodConfigTa;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
-import de.esports.aeq.admins.trials.web.TrialPeriodCreateDTO;
-import de.esports.aeq.admins.trials.web.TrialPeriodResponseDTO;
-import de.esports.aeq.admins.trials.web.TrialPeriodUpdateDto;
 
 import java.util.List;
 
 public interface TrialPeriodService {
 
-    //-----------------------------------------------------------------------
-    TrialPeriodTa update(TrialPeriodUpdateDto request);
-
     TrialPeriodConfigTa getConfiguration();
 
     void updateConfiguration(TrialPeriodConfigTa config);
 
-    void createTrialPeriod(Long userId, TrialPeriodCreateDTO request);
+    void create(TrialPeriodTa trialPeriod);
 
-    TrialPeriodResponseDTO findOne(Long trialPeriodId);
+    TrialPeriodTa findOne(Long trialPeriodId);
 
-    List<TrialPeriodResponseDTO> findAll(Long userId);
+    List<TrialPeriodTa> findAll(Long userId);
+
+    TrialPeriodTa update(TrialPeriodTa trialPeriod);
+
+    void delete(Long trialPeriodId);
 
     void pending(Long trialPeriodId);
 
