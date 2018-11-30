@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.security.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -11,7 +12,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "aeq_privilege")
-public class PrivilegeTa implements Serializable {
+public class PrivilegeTa implements Serializable, GrantedAuthority {
 
     public static final String PREFIX = "PRIVILEGE";
 
@@ -65,6 +66,11 @@ public class PrivilegeTa implements Serializable {
 
     public void setRoles(Set<RoleTa> roles) {
         this.roles = roles;
+    }
+
+    @Override
+    public String getAuthority() {
+        return name;
     }
 
     @Override

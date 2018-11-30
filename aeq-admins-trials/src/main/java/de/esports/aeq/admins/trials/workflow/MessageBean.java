@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.trials.workflow;
 
 import de.esports.aeq.admins.common.CamundaRelated;
+import de.esports.aeq.admins.security.RunAsRole;
 import de.esports.aeq.admins.trials.service.TrialPeriodService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,30 +20,35 @@ public class MessageBean {
         this.service = service;
     }
 
+    @RunAsRole("ADMIN")
     @CamundaRelated
     public void sendStartedMessage(Long trialPeriodId) {
         var entity = service.findOne(trialPeriodId);
         LOG.info("Trial period started: {}", entity);
     }
 
+    @RunAsRole("ADMIN")
     @CamundaRelated
     public void sendPendingMessage(Long trialPeriodId) {
         var entity = service.findOne(trialPeriodId);
         LOG.info("Trial period pending: {}", entity);
     }
 
+    @RunAsRole("ADMIN")
     @CamundaRelated
     public void sendExtendedMessage(Long trialPeriodId) {
         var entity = service.findOne(trialPeriodId);
         LOG.info("Trial period extended: {}", entity);
     }
 
+    @RunAsRole("ADMIN")
     @CamundaRelated
     public void sendApprovedMessage(Long trialPeriodId) {
         var entity = service.findOne(trialPeriodId);
         LOG.info("Trial period approved: {}", entity);
     }
 
+    @RunAsRole("ADMIN")
     @CamundaRelated
     public void sendRejectedMessage(Long trialPeriodId) {
         var entity = service.findOne(trialPeriodId);

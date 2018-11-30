@@ -19,6 +19,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
     protected RunAsManager runAsManager() {
         RunAsManagerImpl runAsManager = new RunAsManagerImpl();
         runAsManager.setKey("Admin");
+        runAsManager.setRolePrefix("");
         return runAsManager;
     }
 

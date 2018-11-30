@@ -13,17 +13,12 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Validator;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
-
-import static de.esports.aeq.admins.security.SecurityUtils.assertPrivileges;
-import static de.esports.aeq.admins.trials.Privileges.*;
 
 @Service
 public class TrialPeriodServiceBean implements TrialPeriodService {
@@ -48,14 +43,12 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     //-----------------------------------------------------------------------
     @Override
     public List<TrialPeriodTa> findAll(Long userId) {
-        assertPrivileges(READ_TRIAL_PERIOD);
         return trialPeriodRepository.findAll();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public TrialPeriodTa findOne(Long trialPeriodId) {
-        assertPrivileges(READ_TRIAL_PERIOD);
         return findOneOrThrow(trialPeriodId);
     }
 
@@ -63,11 +56,11 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     @Override
     public void create(TrialPeriodTa trialPeriod) {
         validator.validate(trialPeriod); // TODO: add validation logic
-        assertPrivileges(CREATE_TRIAL_PERIOD);
 
         Long userId = trialPeriod.getUser().getId();
         assertNoActiveTrialPeriodOrThrow(userId);
 
+        trialPeriod.setState(TrialState.OPEN);
         LOG.info("Creating trial period: {}", trialPeriod);
         TrialPeriodTa savedEntity = trialPeriodRepository.save(trialPeriod);
         startTrialPeriodWorkflow(savedEntity);
@@ -77,7 +70,6 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     @Override
     public TrialPeriodTa update(TrialPeriodTa trialPeriod) {
         validator.validate(trialPeriod); // TODO: add validation logic
-        assertPrivileges(UPDATE_TRIAL_PERIOD);
         TrialPeriodTa existing = findOneOrThrow(trialPeriod.getId());
 
         if (existing.equals(trialPeriod)) {
@@ -94,7 +86,6 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     //-----------------------------------------------------------------------
     @Override
     public void delete(Long trialPeriodId) {
-        assertPrivileges(DELETE_TRIAL_PERIOD);
         TrialPeriodTa existing = findOneOrThrow(trialPeriodId);
         LOG.info("Deleting trial period: {}", existing);
         trialPeriodRepository.deleteById(trialPeriodId);
