@@ -13,25 +13,17 @@ public interface TrialPeriodService {
     void updateConfiguration(TrialPeriodConfigTa config);
 
     @PreAuthorize("hasAuthority('CREATE_TRIAL_PERIOD')")
-    void create(TrialPeriodTa trialPeriod);
+    void create(TrialPeriod trialPeriod);
 
     @PreAuthorize("hasAuthority('READ_TRIAL_PERIOD')")
-    TrialPeriodTa findOne(Long trialPeriodId);
+    TrialPeriod findOne(Long trialPeriodId);
 
     @PreAuthorize("hasAuthority('READ_TRIAL_PERIOD')")
-    List<TrialPeriodTa> findAll(Long userId);
+    List<TrialPeriod> findAll(Long userId);
 
     @PreAuthorize("hasAuthority('UPDATE_TRIAL_PERIOD')")
-    TrialPeriodTa update(TrialPeriodTa trialPeriod);
+    TrialPeriod update(TrialPeriod trialPeriod);
 
     @PreAuthorize("hasAuthority('DELETE_TRIAL_PERIOD')")
     void delete(Long trialPeriodId);
-
-    void pending(Long trialPeriodId);
-
-    void approve(Long trialPeriodId);
-
-    void reject(Long trialPeriodId);
-
-    void extend(Long trialPeriodId);
 }
