@@ -2,6 +2,7 @@ package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.common.BadRequestException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
+import de.esports.aeq.admins.common.InternalServerErrorException;
 import de.esports.aeq.admins.common.UpdateContext;
 import de.esports.aeq.admins.trials.domain.TrialPeriodConfigTa;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
@@ -16,13 +17,16 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Validator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static de.esports.aeq.admins.trials.Privileges.UPDATE_TRIAL_PERIOD;
 import static de.esports.aeq.admins.trials.workflow.ProcessVariables.TRIAL_PERIOD_DEFINITION_KEY;
 import static de.esports.aeq.admins.trials.workflow.ProcessVariables.TRIAL_PERIOD_ID;
 
@@ -101,29 +105,32 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         LOG.info("Updating trial period: {} -> {}", existing, trialPeriod);
 
         TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
-        validateUpdate(UpdateContext.of(existing, entity));
-
         if (entity.equals(existing)) {
             return trialPeriod;
         }
 
+        var context = UpdateContext.of(entity, entity);
+        assertValidStateTransition(context);
+
         TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
-        handleUpdate(existing, savedEntity);
+        handleUpdate(context);
         return mapToTrialPeriod(savedEntity);
     }
 
-    private void validateUpdate(UpdateContext<TrialPeriodTa> context) {
-        TrialState previousState = context.getPrevious().getState();
-        TrialState currentState = context.getCurrent().getState();
-        if (previousState != currentState && previousState.isTerminal()) {
-            throw new BadRequestException("Cannot change state since " + previousState + " is " +
-                    "already terminal");
+    private void assertValidStateTransition(UpdateContext<TrialPeriodTa> ctx) {
+        if (ctx.getPrevious().getState() == ctx.getCurrent().getState()) {
+            return;
+        }
+        var validStates = getSubsequentStatesForUser(ctx.getPrevious());
+        if (validStates.contains(ctx.getCurrent().getState())) {
+            throw new BadRequestException("Invalid state transition: " + ctx.getPrevious().getState() +
+                    " -> " + ctx.getCurrent().getState());
         }
     }
 
-    private void handleUpdate(TrialPeriodTa previous, TrialPeriodTa trialPeriod) {
-        if (previous.getState() != trialPeriod.getState()) {
-            handleStateChange(trialPeriod);
+    private void handleUpdate(UpdateContext<TrialPeriodTa> ctx) {
+        if (ctx.getPrevious().getState() != ctx.getCurrent().getState()) {
+            handleStateChange(ctx);
         }
     }
 
@@ -160,42 +167,63 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     //-----------------------------------------------------------------------
-    private void handleStateChange(TrialPeriodTa entity) {
-        TrialState state = entity.getState();
-        switch (state) {
+    @Override
+    public Collection<TrialState> getSubsequentStatesForUser(TrialPeriod trialPeriod) {
+        TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
+        return getSubsequentStatesForUser(entity);
+    }
+
+    private Collection<TrialState> getSubsequentStatesForUser(TrialPeriodTa trialPeriod) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return Collections.emptyList();
+        }
+
+        TrialState state = trialPeriod.getState();
+        if (state == null || state.isTerminal()) {
+            return Collections.emptyList();
+        }
+
+        GrantedAuthority authority = UPDATE_TRIAL_PERIOD.toGrantedAuthority();
+        boolean hasPermission = authentication.getAuthorities().contains(authority);
+        if (!hasPermission) {
+            return Collections.emptyList();
+        }
+
+        var states = new HashSet<>(TrialState.getTerminalStates());
+
+        if (state == TrialState.OPEN) {
+            states.add(TrialState.PENDING);
+        } else if (state == TrialState.PENDING) {
+            states.add(TrialState.OPEN);
+        } else {
+            throw new InternalServerErrorException("Invalid state: " + state);
+        }
+
+        return states;
+    }
+
+    //-----------------------------------------------------------------------
+    private void handleStateChange(UpdateContext<TrialPeriodTa> ctx) {
+        TrialPeriodTa current = ctx.getCurrent();
+        switch (current.getState()) {
             case OPEN:
-                setStateOpen(entity);
+                // TODO
                 break;
             case PENDING:
-                setStatePending(entity);
+                // TODO
                 break;
             case APPROVED:
-                setConsensus(entity, state);
+                setConsensus(current, current.getState());
                 break;
             case REJECTED:
-                setConsensus(entity, state);
+                setConsensus(current, current.getState());
                 break;
             default:
         }
 
-        TrialPeriod trialPeriod = mapToTrialPeriod(entity);
+        TrialPeriod trialPeriod = mapToTrialPeriod(current);
         messaging.notifyStateChanged(trialPeriod);
-    }
-
-    public void setStateOpen(TrialPeriodTa entity) {
-        if (entity.getState() != TrialState.PENDING) {
-            throw new BadRequestException("Invalid state: " + entity.getState());
-        }
-        entity.setState(TrialState.PENDING);
-        trialPeriodRepository.save(trial);
-    }
-
-    public void setStatePending(TrialPeriodTa entity) {
-        if (entity.getState() != TrialState.OPEN) {
-            throw new BadRequestException("Invalid state: " + entity.getState());
-        }
-        entity.setState(TrialState.PENDING);
-        trialPeriodRepository.save(entity);
     }
 
     private void setConsensus(TrialPeriodTa entity, TrialState state) {

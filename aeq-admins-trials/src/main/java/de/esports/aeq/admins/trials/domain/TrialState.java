@@ -1,5 +1,9 @@
 package de.esports.aeq.admins.trials.domain;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 public enum TrialState {
 
     /**
@@ -22,6 +26,12 @@ public enum TrialState {
      * This state is a final state.
      */
     REJECTED(true);
+
+    public static Collection<TrialState> getTerminalStates() {
+        return Arrays.stream(TrialState.values())
+                .filter(TrialState::isTerminal)
+                .collect(Collectors.toSet());
+    }
 
     private boolean terminal;
 

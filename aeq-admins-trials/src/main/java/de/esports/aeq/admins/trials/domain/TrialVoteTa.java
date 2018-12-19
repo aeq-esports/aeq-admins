@@ -1,7 +1,5 @@
 package de.esports.aeq.admins.trials.domain;
 
-import de.esports.aeq.admins.forum.domain.CommentTa;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -17,5 +15,30 @@ public class TrialVoteTa implements Serializable {
     @Column
     private boolean positive;
 
-    private CommentTa comment;
+    @Column
+    private String comment;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public boolean isPositive() {
+        return positive;
+    }
+
+    public void setPositive(boolean positive) {
+        this.positive = positive;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }
