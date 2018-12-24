@@ -3,6 +3,7 @@ package de.esports.aeq.admins.trials.domain;
 import javax.persistence.*;
 import java.time.Duration;
 
+import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Entity
@@ -16,6 +17,9 @@ public class TrialPeriodConfigTa {
 
     @Column
     private Duration trialPeriod = Duration.of(10, SECONDS);
+
+    @Column
+    private Duration vestingPeriod = Duration.of(3, MONTHS);
 
     public Long getId() {
         return id;
@@ -31,5 +35,13 @@ public class TrialPeriodConfigTa {
 
     public void setTrialPeriod(Duration trialPeriod) {
         this.trialPeriod = trialPeriod;
+    }
+
+    public Duration getVestingPeriod() {
+        return vestingPeriod;
+    }
+
+    public void setVestingPeriod(Duration vestingPeriod) {
+        this.vestingPeriod = vestingPeriod;
     }
 }
