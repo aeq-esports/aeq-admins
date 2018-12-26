@@ -41,7 +41,6 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     private final SystemConfiguration configuration;
     private final UserService userService;
     private final TrialPeriodMessaging messaging;
-
     private final RuntimeService runtimeService;
     private final ModelMapper mapper;
 
