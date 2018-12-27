@@ -10,10 +10,8 @@ import de.esports.aeq.admins.security.service.UserService;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.domain.TrialState;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodRepository;
-import de.esports.aeq.admins.trials.workflow.ProcessVariables;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.Execution;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +58,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     //-----------------------------------------------------------------------
+
     @Override
     public List<TrialPeriod> findAll(Long userId) {
         return trialPeriodRepository.findAll().stream()
@@ -68,6 +67,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     //-----------------------------------------------------------------------
+
     @Override
     public TrialPeriod findOne(Long trialPeriodId) {
         TrialPeriodTa trialPeriod = findOneOrThrow(trialPeriodId);
@@ -75,9 +75,12 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     //-----------------------------------------------------------------------
+
     @Override
-    public void create(CreateTrialPeriod trialPeriod) {
+    public void create(TrialPeriod trialPeriod) {
         TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
+
+        // the user needs to be resolved before preconditions
         UserTa user = userService.findById(trialPeriod.getUserId());
         entity.setUser(user);
 
@@ -144,19 +147,21 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     private void createProcessInstance(TrialPeriodTa trialPeriod) {
+        String stateString = trialPeriod.getState().toString().toLowerCase();
         runtimeService.createProcessInstanceByKey(TRIAL_PERIOD_DEFINITION_KEY)
-                .setVariable(ProcessVariables.TRIAL_PERIOD_ID, trialPeriod.getId())
-                .setVariable(ProcessVariables.TRIAL_PERIOD_END_DATE,
-                        Date.from(trialPeriod.getEnd()))
+                .setVariable(TRIAL_PERIOD_ID, trialPeriod.getId())
+                .setVariable(TRIAL_PERIOD_END_DATE, Date.from(trialPeriod.getEnd()))
+                .setVariable(TRIAL_PERIOD_STATE, stateString)
                 .execute();
     }
 
     //-----------------------------------------------------------------------
+
     @Override
-    public TrialPeriod update(UpdateTrialPeriod trialPeriod) {
+    public TrialPeriod update(TrialPeriod trialPeriod) {
 
         TrialPeriodTa existing = findOneOrThrow(trialPeriod.getId());
-        TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
+        TrialPeriodTa entity = mapper.map(existing, TrialPeriodTa.class);
 
         if (entity.equals(existing)) {
             LOG.debug("Trial period without changes will not be updated: {}", trialPeriod);
@@ -166,10 +171,11 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         var context = UpdateContext.of(entity, entity);
         assertUpdatePreconditions(context);
 
+        mapper.map(entity, existing);
         LOG.info("Updating trial period: {} -> {}", existing, trialPeriod);
         TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
 
-        handleUpdate(context);
+        handleUpdate(context, trialPeriod.getStateTransition());
         return map(savedEntity);
     }
 
@@ -179,33 +185,66 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
 
     private void assertValidStateTransition(UpdateContext<TrialPeriodTa> ctx) {
         // if the state has not changed simply return
-        if (ctx.getPrevious().getState() == ctx.getCurrent().getState()) {
+        if (!hasStateChanged(ctx)) {
             return;
         }
         var validStates = getSubsequentStatesForUser(ctx.getPrevious());
-        if (validStates.contains(ctx.getCurrent().getState())) {
+        if (!validStates.contains(ctx.getCurrent().getState())) {
             throw new BadRequestException("Invalid state transition: " + ctx.getPrevious().getState() +
                     " -> " + ctx.getCurrent().getState());
         }
     }
 
-    private void handleUpdate(UpdateContext<TrialPeriodTa> ctx) {
+    private void handleUpdate(UpdateContext<TrialPeriodTa> ctx,
+            TrialStateTransition stateTransition) {
+        Long currentId = ctx.getCurrent().getId();
+        TrialState currentState = ctx.getCurrent().getState();
+
         // always process the state change first
-        if (ctx.getPrevious().getState() != ctx.getCurrent().getState()) {
-            handleStateChange(ctx);
+        if (hasStateChanged(ctx)) {
+            updateProcessInstanceState(currentId, currentState, stateTransition);
         }
-        if (!ctx.getPrevious().getDuration().equals(ctx.getCurrent().getDuration())) {
-            updateProcessInstanceEnd(ctx.getCurrent().getId(), ctx.getCurrent().getEnd());
+        if (hasDurationChanged(ctx)) {
+            updateProcessInstanceEnd(currentId, ctx.getCurrent().getEnd());
         }
     }
 
     private void updateProcessInstanceEnd(Long trialPeriodId, Instant end) {
-        Execution instance = getProcessInstance(trialPeriodId);
+        Execution instance = getProcessInstanceOrThrow(trialPeriodId);
         Date endDate = Date.from(end);
         runtimeService.setVariable(instance.getId(), TRIAL_PERIOD_END_DATE, endDate);
     }
 
+    private void updateProcessInstanceState(Long trialPeriodId, TrialState state,
+            TrialStateTransition stateTransition) {
+        Execution instance = getProcessInstanceOrThrow(trialPeriodId);
+
+        String processInstanceId = instance.getProcessInstanceId();
+        String stateString = state.toString().toLowerCase();
+        switch (stateTransition) {
+            case NORMAL:
+                updateProcessInstanceStateNormal(processInstanceId, stateString);
+                break;
+            case TERMINATED:
+                sendTerminatingConsensusMessage(processInstanceId, stateString);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid transition state: " + stateTransition);
+        }
+    }
+
+    private void updateProcessInstanceStateNormal(String processInstanceId, String state) {
+        runtimeService.setVariable(processInstanceId, TRIAL_PERIOD_STATE, state);
+    }
+
+    private void sendTerminatingConsensusMessage(String processInstanceId, String state) {
+        runtimeService.createMessageCorrelation(TRIAL_PERIOD_TERMINATING_CONSENSUS)
+                .processInstanceId(processInstanceId)
+                .setVariable(TRIAL_PERIOD_STATE, state);
+    }
+
     //-----------------------------------------------------------------------
+
     @Override
     public void delete(Long trialPeriodId) {
         TrialPeriodTa existing = findOneOrThrow(trialPeriodId);
@@ -216,11 +255,19 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
 
     private void handleDelete(TrialPeriodTa trialPeriod) {
         Execution instance = getProcessInstance(trialPeriod.getId());
+        // the process instance might have already finished
+        // TODO: the archived version might also need to be deleted?
+        if (instance == null) {
+            LOG.info("Related process instance for trial period with id {} not found.",
+                    trialPeriod.getId());
+            return;
+        }
         runtimeService.deleteProcessInstance(instance.getProcessInstanceId(),
                 "Related trial period deleted.");
     }
 
     //-----------------------------------------------------------------------
+
     @Override
     public Collection<TrialState> getSubsequentStatesForUser(TrialPeriod trialPeriod) {
         TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
@@ -258,50 +305,6 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     //-----------------------------------------------------------------------
-    private void handleStateChange(UpdateContext<TrialPeriodTa> ctx) {
-        TrialPeriodTa current = ctx.getCurrent();
-        switch (current.getState()) {
-            case OPEN:
-                // TODO
-                break;
-            case PENDING:
-                // TODO
-                break;
-            case APPROVED:
-                setConsensus(current, current.getState());
-                break;
-            case REJECTED:
-                setConsensus(current, current.getState());
-                break;
-            default:
-        }
-
-        TrialPeriod trialPeriod = map(current);
-        messaging.notifyStateChanged(trialPeriod);
-    }
-
-    private void setConsensus(TrialPeriodTa entity, TrialState state) {
-        if (entity.getState().isTerminal()) {
-            throw new BadRequestException("Invalid state");
-        }
-
-        entity.setState(state);
-        trialPeriodRepository.save(entity);
-
-        ProcessInstance instance = runtimeService.createProcessInstanceQuery()
-                .variableValueEquals(TRIAL_PERIOD_ID, entity)
-                .singleResult();
-
-        String convertedState = state.toString().toLowerCase();
-
-        runtimeService.createMessageCorrelation(ProcessVariables.TRIAL_PERIOD_CONSENSUS_FOUND)
-                .processInstanceId(instance.getId())
-                .setVariable(ProcessVariables.TRIAL_PERIOD_CONSENSUS, convertedState);
-
-        LOG.info("Consensus of trial period of user {}: {}", entity.getUser().getId(), state);
-    }
-
-    //-----------------------------------------------------------------------
 
     /*
      * Internally used utility methods.
@@ -319,7 +322,24 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
                 .singleResult();
     }
 
+    private Execution getProcessInstanceOrThrow(Long trialPeriodId) {
+        Execution execution = getProcessInstance(trialPeriodId);
+        if (execution == null) {
+            throw new InternalServerErrorException("Related process instance not found for trial " +
+                    "period with id:" + trialPeriodId);
+        }
+        return execution;
+    }
+
     private TrialPeriod map(TrialPeriodTa trialPeriod) {
         return mapper.map(trialPeriod, TrialPeriod.class);
+    }
+
+    private boolean hasStateChanged(UpdateContext<TrialPeriodTa> ctx) {
+        return ctx.getPrevious().getState() != ctx.getCurrent().getState();
+    }
+
+    private boolean hasDurationChanged(UpdateContext<TrialPeriodTa> ctx) {
+        return !ctx.getPrevious().getDuration().equals(ctx.getCurrent().getDuration());
     }
 }

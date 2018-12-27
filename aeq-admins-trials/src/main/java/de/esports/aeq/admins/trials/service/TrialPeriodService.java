@@ -10,7 +10,7 @@ public interface TrialPeriodService {
 
     @PreAuthorize("hasAuthority('CREATE_TRIAL_PERIOD') or " +
             "(hasAuthority('CREATE_OWN_TRIAL_PERIOD') and @cse.hasUserId(#trialPeriod.userId))")
-    void create(CreateTrialPeriod trialPeriod);
+    void create(TrialPeriod trialPeriod);
 
     @PreAuthorize("hasAuthority('READ_TRIAL_PERIOD') or" +
             "(hasAuthority('READ_OWN_TRIAL_PERIOD') and @cse.hasUserId(#trialPeriodId))")
@@ -20,7 +20,7 @@ public interface TrialPeriodService {
     List<TrialPeriod> findAll(Long userId);
 
     @PreAuthorize("hasAuthority('UPDATE_TRIAL_PERIOD')")
-    TrialPeriod update(UpdateTrialPeriod trialPeriod);
+    TrialPeriod update(TrialPeriod trialPeriod);
 
     @PreAuthorize("hasAuthority('DELETE_TRIAL_PERIOD')")
     void delete(Long trialPeriodId);
