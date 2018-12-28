@@ -51,6 +51,13 @@ public class TrialPeriod implements Serializable {
         return start;
     }
 
+    public Instant getEnd() {
+        if (start != null && duration != null) {
+            return start.plus(duration);
+        }
+        return null;
+    }
+
     public void setStart(Instant start) {
         this.start = start;
     }

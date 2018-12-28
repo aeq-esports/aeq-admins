@@ -10,7 +10,7 @@ import de.esports.aeq.admins.security.service.UserService;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.domain.TrialState;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodRepository;
-import org.camunda.bpm.engine.RuntimeService;
+import de.esports.aeq.admins.trials.workflow.WorkflowController;
 import org.camunda.bpm.engine.runtime.Execution;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -24,11 +24,13 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static de.esports.aeq.admins.trials.Privileges.UPDATE_TRIAL_PERIOD;
-import static de.esports.aeq.admins.trials.workflow.ProcessVariables.*;
 
 @Service
 public class TrialPeriodServiceBean implements TrialPeriodService {
@@ -38,22 +40,20 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     private final TrialPeriodRepository trialPeriodRepository;
     private final SystemConfiguration configuration;
     private final UserService userService;
-    private final TrialPeriodMessaging messaging;
-    private final RuntimeService runtimeService;
+    private final WorkflowController workflow;
+
     private final ModelMapper mapper;
 
     @Autowired
     public TrialPeriodServiceBean(TrialPeriodRepository repository,
             SystemConfiguration configuration,
             UserService userService,
-            TrialPeriodMessaging messaging,
-            RuntimeService runtimeService,
+            WorkflowController workflow,
             ModelMapper mapper) {
         this.trialPeriodRepository = repository;
         this.configuration = configuration;
         this.userService = userService;
-        this.messaging = messaging;
-        this.runtimeService = runtimeService;
+        this.workflow = workflow;
         this.mapper = mapper;
     }
 
@@ -90,7 +90,8 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         LOG.info("Creating trial period: {}", trialPeriod);
         TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
 
-        createProcessInstance(savedEntity);
+        TrialPeriod result = map(savedEntity);
+        workflow.createProcessInstance(result);
     }
 
     private void assertCreatePreconditions(TrialPeriodTa trialPeriod) {
@@ -146,15 +147,6 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         }
     }
 
-    private void createProcessInstance(TrialPeriodTa trialPeriod) {
-        String stateString = trialPeriod.getState().toString().toLowerCase();
-        runtimeService.createProcessInstanceByKey(TRIAL_PERIOD_DEFINITION_KEY)
-                .setVariable(TRIAL_PERIOD_ID, trialPeriod.getId())
-                .setVariable(TRIAL_PERIOD_END_DATE, Date.from(trialPeriod.getEnd()))
-                .setVariable(TRIAL_PERIOD_STATE, stateString)
-                .execute();
-    }
-
     //-----------------------------------------------------------------------
 
     @Override
@@ -202,45 +194,11 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
 
         // always process the state change first
         if (hasStateChanged(ctx)) {
-            updateProcessInstanceState(currentId, currentState, stateTransition);
+            workflow.updateProcessInstanceState(currentId, currentState, stateTransition);
         }
         if (hasDurationChanged(ctx)) {
-            updateProcessInstanceEnd(currentId, ctx.getCurrent().getEnd());
+            workflow.updateProcessInstanceEnd(currentId, ctx.getCurrent().getEnd());
         }
-    }
-
-    private void updateProcessInstanceEnd(Long trialPeriodId, Instant end) {
-        Execution instance = getProcessInstanceOrThrow(trialPeriodId);
-        Date endDate = Date.from(end);
-        runtimeService.setVariable(instance.getId(), TRIAL_PERIOD_END_DATE, endDate);
-    }
-
-    private void updateProcessInstanceState(Long trialPeriodId, TrialState state,
-            TrialStateTransition stateTransition) {
-        Execution instance = getProcessInstanceOrThrow(trialPeriodId);
-
-        String processInstanceId = instance.getProcessInstanceId();
-        String stateString = state.toString().toLowerCase();
-        switch (stateTransition) {
-            case NORMAL:
-                updateProcessInstanceStateNormal(processInstanceId, stateString);
-                break;
-            case TERMINATED:
-                sendTerminatingConsensusMessage(processInstanceId, stateString);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid transition state: " + stateTransition);
-        }
-    }
-
-    private void updateProcessInstanceStateNormal(String processInstanceId, String state) {
-        runtimeService.setVariable(processInstanceId, TRIAL_PERIOD_STATE, state);
-    }
-
-    private void sendTerminatingConsensusMessage(String processInstanceId, String state) {
-        runtimeService.createMessageCorrelation(TRIAL_PERIOD_TERMINATING_CONSENSUS)
-                .processInstanceId(processInstanceId)
-                .setVariable(TRIAL_PERIOD_STATE, state);
     }
 
     //-----------------------------------------------------------------------
@@ -254,7 +212,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     private void handleDelete(TrialPeriodTa trialPeriod) {
-        Execution instance = getProcessInstance(trialPeriod.getId());
+        Execution instance = workflow.getProcessInstance(trialPeriod.getId());
         // the process instance might have already finished
         // TODO: the archived version might also need to be deleted?
         if (instance == null) {
@@ -262,8 +220,8 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
                     trialPeriod.getId());
             return;
         }
-        runtimeService.deleteProcessInstance(instance.getProcessInstanceId(),
-                "Related trial period deleted.");
+        String reason = "Related trial period deleted.";
+        workflow.deleteProcessInstance(instance.getProcessInstanceId(), reason);
     }
 
     //-----------------------------------------------------------------------
@@ -313,22 +271,6 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     private TrialPeriodTa findOneOrThrow(Long trialPeriodId) {
         return trialPeriodRepository.findById(trialPeriodId)
                 .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
-    }
-
-    private Execution getProcessInstance(Long trialPeriodId) {
-        return runtimeService.createExecutionQuery()
-                .processDefinitionKey(TRIAL_PERIOD_DEFINITION_KEY)
-                .variableValueEquals(TRIAL_PERIOD_ID, trialPeriodId)
-                .singleResult();
-    }
-
-    private Execution getProcessInstanceOrThrow(Long trialPeriodId) {
-        Execution execution = getProcessInstance(trialPeriodId);
-        if (execution == null) {
-            throw new InternalServerErrorException("Related process instance not found for trial " +
-                    "period with id:" + trialPeriodId);
-        }
-        return execution;
     }
 
     private TrialPeriod map(TrialPeriodTa trialPeriod) {

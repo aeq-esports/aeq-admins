@@ -1,57 +1,32 @@
 package de.esports.aeq.admins.trials.workflow;
 
-import de.esports.aeq.admins.common.CamundaRelated;
+import de.esports.aeq.admins.common.InternalServerErrorException;
 import de.esports.aeq.admins.trials.domain.TrialState;
 import de.esports.aeq.admins.trials.service.TrialPeriod;
-import de.esports.aeq.admins.trials.service.TrialPeriodService;
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import de.esports.aeq.admins.trials.service.TrialStateTransition;
+import org.camunda.bpm.engine.runtime.Execution;
 
 import java.time.Instant;
 
-@Component("trialPeriodWorkflow")
-public class WorkflowController {
+public interface WorkflowController {
 
-    private final TrialPeriodService service;
+    Execution getProcessInstance(Long trialPeriodId);
 
-    @Autowired
-    public WorkflowController(TrialPeriodService service) {
-        this.service = service;
+    default Execution getProcessInstanceOrThrow(Long trialPeriodId) {
+        Execution execution = getProcessInstance(trialPeriodId);
+        if (execution == null) {
+            throw new InternalServerErrorException("Related process instance not found for trial " +
+                    "period with id:" + trialPeriodId);
+        }
+        return execution;
     }
 
-    @CamundaRelated
-    public void pending(DelegateExecution execution) {
-        Long id = (Long) execution.getVariable(ProcessVariables.TRIAL_PERIOD_ID);
-        TrialPeriod trialPeriod = service.findOne(id);
-        trialPeriod.setState(TrialState.PENDING);
-        service.update(trialPeriod);
-    }
+    void createProcessInstance(TrialPeriod trialPeriod);
 
-    @CamundaRelated
-    public void approve(DelegateExecution execution) {
-        Long id = (Long) execution.getVariable(ProcessVariables.TRIAL_PERIOD_ID);
-        TrialPeriod trialPeriod = service.findOne(id);
-        trialPeriod.setState(TrialState.APPROVED);
-        service.update(trialPeriod);
-    }
+    void updateProcessInstanceEnd(Long trialPeriodId, Instant end);
 
-    @CamundaRelated
-    public void reject(DelegateExecution execution) {
-        Long id = (Long) execution.getVariable(ProcessVariables.TRIAL_PERIOD_ID);
-        TrialPeriod trialPeriod = service.findOne(id);
-        trialPeriod.setState(TrialState.REJECTED);
-        service.update(trialPeriod);
-    }
+    void updateProcessInstanceState(Long trialPeriodId, TrialState state,
+            TrialStateTransition stateTransition);
 
-    @CamundaRelated
-    public void extend(DelegateExecution execution) {
-        Long id = (Long) execution.getVariable(ProcessVariables.TRIAL_PERIOD_ID);
-        TrialPeriod trialPeriod = service.findOne(id);
-        trialPeriod.setState(TrialState.OPEN);
-        trialPeriod.setStart(Instant.now());
-        service.update(trialPeriod);
-    }
-
-
+    void deleteProcessInstance(String processInstanceId, String reason);
 }
