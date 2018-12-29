@@ -2,6 +2,7 @@ package de.esports.aeq.admins.trials.domain;
 
 import de.esports.aeq.admins.security.domain.UserTa;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -25,6 +26,7 @@ public class TrialPeriodTa implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @NotAudited
     private UserTa user;
 
     @Enumerated(EnumType.STRING)

@@ -11,24 +11,18 @@
 
     <artifactId>aeq-admins-core</artifactId>
 
-    <properties>
-        <spring.boot.version>2.0.2.RELEASE</spring.boot.version>
-        <camunda.spring.boot.starter.version>3.0.0</camunda.spring.boot.starter.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
+        <dependency>
+            <groupId>de.esports.aeq</groupId>
+            <artifactId>aeq-admins-trials</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.camunda.bpm.springboot</groupId>
+            <artifactId>camunda-bpm-spring-boot-starter</artifactId>
+            <version>${camunda.spring.boot.starter.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
@@ -78,12 +72,6 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
             <version>2.2.11</version>
-        </dependency>
-        <dependency>
-            <groupId>de.esports.aeq</groupId>
-            <artifactId>aeq-admins-security</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

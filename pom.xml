@@ -16,7 +16,8 @@
     </parent>
 
     <properties>
-        <java.version>10</java.version>
+        <java.version>11</java.version>
+        <camunda.spring.boot.starter.version>3.2.0</camunda.spring.boot.starter.version>
     </properties>
 
     <modules>
