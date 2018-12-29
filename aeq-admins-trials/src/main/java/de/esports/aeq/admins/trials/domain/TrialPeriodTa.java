@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.trials.domain;
 
 import de.esports.aeq.admins.security.domain.UserTa;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -9,6 +10,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "aeq_trial_period")
+@Audited
 @NamedQueries(
         @NamedQuery(name = "TrialPeriodTa.findAllActive",
                 query = "SELECT t FROM TrialPeriodTa t WHERE t.user.id = :userId AND t.state = " +
@@ -76,13 +78,5 @@ public class TrialPeriodTa implements Serializable {
 
     public void setDuration(Duration duration) {
         this.duration = duration;
-    }
-
-    public void extendDuration(Duration amount) {
-        this.duration = duration.plus(amount);
-    }
-
-    public boolean isActive() {
-        return state == TrialState.OPEN || state == TrialState.PENDING;
     }
 }
