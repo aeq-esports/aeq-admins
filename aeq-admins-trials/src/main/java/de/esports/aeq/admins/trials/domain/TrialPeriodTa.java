@@ -1,17 +1,16 @@
 package de.esports.aeq.admins.trials.domain;
 
 import de.esports.aeq.admins.security.domain.UserTa;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 @Entity
 @Table(name = "aeq_trial_period")
-@Audited
 @NamedQueries(
         @NamedQuery(name = "TrialPeriodTa.findAllActive",
                 query = "SELECT t FROM TrialPeriodTa t WHERE t.user.id = :userId AND t.state = " +
@@ -26,7 +25,6 @@ public class TrialPeriodTa implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @NotAudited
     private UserTa user;
 
     @Enumerated(EnumType.STRING)
@@ -37,6 +35,17 @@ public class TrialPeriodTa implements Serializable {
 
     @Column
     private Duration duration;
+
+    public TrialPeriodTa() {
+
+    }
+
+    public TrialPeriodTa(TrialPeriodTa trialPeriod) {
+        this.user = trialPeriod.user;
+        this.state = trialPeriod.state;
+        this.start = trialPeriod.start;
+        this.duration = trialPeriod.duration;
+    }
 
     public Long getId() {
         return id;
@@ -80,5 +89,33 @@ public class TrialPeriodTa implements Serializable {
 
     public void setDuration(Duration duration) {
         this.duration = duration;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TrialPeriodTa)) return false;
+        TrialPeriodTa that = (TrialPeriodTa) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(user, that.user) &&
+                state == that.state &&
+                Objects.equals(start, that.start) &&
+                Objects.equals(duration, that.duration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, state, start, duration);
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", TrialPeriodTa.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("user=" + user)
+                .add("state=" + state)
+                .add("start=" + start)
+                .add("duration=" + duration)
+                .toString();
     }
 }

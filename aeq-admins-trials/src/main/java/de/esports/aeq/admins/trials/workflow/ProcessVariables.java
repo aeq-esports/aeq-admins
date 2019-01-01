@@ -6,7 +6,7 @@ public class ProcessVariables {
     public static final String TRIAL_PERIOD_ID = "trialPeriodId";
     public static final String TRIAL_PERIOD_END_DATE = "trialPeriodEndTime";
     public static final String TRIAL_PERIOD_STATE = "trialPeriodState";
-    public static final String TRIAL_PERIOD_CONSENSUS_FOUND = "trialPeriodConsensusFound";
+    public static final String TRIAL_PERIOD_CONSENSUS_FOUND = "consensusFound";
     public static final String TRIAL_PERIOD_TERMINATING_CONSENSUS =
-            "trialPeriodTerminatingConsensus";
+            "terminatingConsensus";
 }

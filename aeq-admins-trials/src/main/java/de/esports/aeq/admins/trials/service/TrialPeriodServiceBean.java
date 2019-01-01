@@ -2,7 +2,6 @@ package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.common.BadRequestException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.common.InternalServerErrorException;
 import de.esports.aeq.admins.common.UpdateContext;
 import de.esports.aeq.admins.configuration.SystemConfiguration;
 import de.esports.aeq.admins.security.domain.UserTa;
@@ -16,9 +15,6 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -29,8 +25,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static de.esports.aeq.admins.trials.Privileges.UPDATE_TRIAL_PERIOD;
 
 @Service
 public class TrialPeriodServiceBean implements TrialPeriodService {
@@ -151,23 +145,16 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
 
     @Override
     public TrialPeriod update(TrialPeriod trialPeriod) {
-
         TrialPeriodTa existing = findOneOrThrow(trialPeriod.getId());
-        TrialPeriodTa entity = mapper.map(existing, TrialPeriodTa.class);
+        TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
 
-        if (entity.equals(existing)) {
-            LOG.debug("Trial period without changes will not be updated: {}", trialPeriod);
-            return map(entity);
-        }
-
-        var context = UpdateContext.of(entity, entity);
+        var context = UpdateContext.of(existing, entity);
         assertUpdatePreconditions(context);
 
-        mapper.map(entity, existing);
-        LOG.info("Updating trial period: {} -> {}", existing, trialPeriod);
+        LOG.info("Updating trial period: {} -> {}", existing, entity);
         TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
 
-        handleUpdate(context, trialPeriod.getStateTransition());
+        handleUpdate(savedEntity, trialPeriod.getStateTransition());
         return map(savedEntity);
     }
 
@@ -180,25 +167,21 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         if (!hasStateChanged(ctx)) {
             return;
         }
-        var validStates = getSubsequentStatesForUser(ctx.getPrevious());
+        TrialPeriod trialPeriod = map(ctx.getPrevious());
+        var validStates = getSubsequentStates(trialPeriod);
         if (!validStates.contains(ctx.getCurrent().getState())) {
             throw new BadRequestException("Invalid state transition: " + ctx.getPrevious().getState() +
                     " -> " + ctx.getCurrent().getState());
         }
     }
 
-    private void handleUpdate(UpdateContext<TrialPeriodTa> ctx,
+    private void handleUpdate(TrialPeriodTa entity,
             TrialStateTransition stateTransition) {
-        Long currentId = ctx.getCurrent().getId();
-        TrialState currentState = ctx.getCurrent().getState();
-
         // always process the state change first
-        if (hasStateChanged(ctx)) {
-            workflow.updateProcessInstanceState(currentId, currentState, stateTransition);
-        }
-        if (hasDurationChanged(ctx)) {
-            workflow.updateProcessInstanceEnd(currentId, ctx.getCurrent().getEnd());
-        }
+        TrialPeriod trialPeriod = map(entity);
+        workflow.updateProcessInstanceState(trialPeriod, stateTransition);
+
+        workflow.updateProcessInstanceEnd(trialPeriod);
     }
 
     //-----------------------------------------------------------------------
@@ -227,25 +210,9 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     //-----------------------------------------------------------------------
 
     @Override
-    public Collection<TrialState> getSubsequentStatesForUser(TrialPeriod trialPeriod) {
-        TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
-        return getSubsequentStatesForUser(entity);
-    }
-
-    private Collection<TrialState> getSubsequentStatesForUser(TrialPeriodTa trialPeriod) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            return Collections.emptyList();
-        }
-
+    public Collection<TrialState> getSubsequentStates(TrialPeriod trialPeriod) {
         TrialState state = trialPeriod.getState();
         if (state == null || state.isTerminal()) {
-            return Collections.emptyList();
-        }
-
-        GrantedAuthority authority = UPDATE_TRIAL_PERIOD.toGrantedAuthority();
-        boolean hasPermission = authentication.getAuthorities().contains(authority);
-        if (!hasPermission) {
             return Collections.emptyList();
         }
 
@@ -255,8 +222,6 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
             states.add(TrialState.PENDING);
         } else if (state == TrialState.PENDING) {
             states.add(TrialState.OPEN);
-        } else {
-            throw new InternalServerErrorException("Invalid state: " + state);
         }
 
         return states;

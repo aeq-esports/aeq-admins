@@ -26,13 +26,14 @@ public interface TrialPeriodService {
     void delete(Long trialPeriodId);
 
     /**
-     * Returns possible subsequent states of this trial period for the currently authenticated user.
-     * If no subsequent state if available, the state of this trial period cannot be changed.
+     * Returns possible subsequent states of this trial period.
+     * <p>
+     * If no subsequent state are available, the state of this trial period cannot be changed.
      *
      * @param trialPeriod the trial period
      * @return a {@link Collection} of subsequent states or an empty {@link Collection} if no
      * subsequent states are available
      */
     @PreAuthorize("hasAuthority('READ_TRIAL_PERIOD')")
-    Collection<TrialState> getSubsequentStatesForUser(TrialPeriod trialPeriod);
+    Collection<TrialState> getSubsequentStates(TrialPeriod trialPeriod);
 }

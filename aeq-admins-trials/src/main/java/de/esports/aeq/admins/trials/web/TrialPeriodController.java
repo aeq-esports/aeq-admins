@@ -48,6 +48,7 @@ public class TrialPeriodController {
     }
 
     //-----------------------------------------------------------------------
+
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void create(@PathVariable Long userId,
@@ -61,9 +62,10 @@ public class TrialPeriodController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patch(@PathVariable Long trialPeriodId,
             @RequestBody TrialPeriodPatchDTO request) {
-        TrialPeriod trialPeriod = mapper.map(request, TrialPeriod.class);
+        TrialPeriod trialPeriod = trialPeriodService.findOne(trialPeriodId);
         trialPeriod.setId(trialPeriodId);
         trialPeriod.setStateTransition(TrialStateTransition.TERMINATED);
+        mapper.map(request, trialPeriod);
         trialPeriodService.update(trialPeriod);
     }
 
