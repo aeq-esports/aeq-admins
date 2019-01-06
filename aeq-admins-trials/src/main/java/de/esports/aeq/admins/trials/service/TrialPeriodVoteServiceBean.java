@@ -43,7 +43,7 @@ public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
         entity = repository.save(entity);
 
         Long trialPeriodId = entity.getTrialPeriod().getId();
-        trialPeriodService.evaluate(trialPeriodId);
+        evaluator.evaluate(trialPeriodId);
 
         return map(entity);
     }
