@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.trials.service;
+package de.esports.aeq.admins.trials.service.dto;
 
 import de.esports.aeq.admins.trials.domain.TrialState;
 
@@ -13,7 +13,6 @@ public class TrialPeriod implements Serializable {
     private Long id;
     private Long userId;
     private TrialState state;
-    private TrialStateTransition stateTransition = TrialStateTransition.NORMAL;
     private Instant start;
     private Duration duration;
 
@@ -39,14 +38,6 @@ public class TrialPeriod implements Serializable {
 
     public void setState(TrialState state) {
         this.state = state;
-    }
-
-    public TrialStateTransition getStateTransition() {
-        return stateTransition;
-    }
-
-    public void setStateTransition(TrialStateTransition stateTransition) {
-        this.stateTransition = stateTransition;
     }
 
     public Instant getStart() {
@@ -80,14 +71,13 @@ public class TrialPeriod implements Serializable {
         return Objects.equals(id, that.id) &&
                 Objects.equals(userId, that.userId) &&
                 state == that.state &&
-                stateTransition == that.stateTransition &&
                 Objects.equals(start, that.start) &&
                 Objects.equals(duration, that.duration);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userId, state, stateTransition, start, duration);
+        return Objects.hash(id, userId, state, start, duration);
     }
 
     @Override
@@ -96,7 +86,6 @@ public class TrialPeriod implements Serializable {
                 .add("id=" + id)
                 .add("userId=" + userId)
                 .add("state=" + state)
-                .add("stateTransition=" + stateTransition)
                 .add("start=" + start)
                 .add("duration=" + duration)
                 .toString();

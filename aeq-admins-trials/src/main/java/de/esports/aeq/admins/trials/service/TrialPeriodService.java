@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.trials.domain.TrialState;
+import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Collection;

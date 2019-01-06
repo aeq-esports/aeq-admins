@@ -8,15 +8,24 @@ import de.esports.aeq.admins.security.domain.UserTa;
 import de.esports.aeq.admins.security.service.UserService;
 import de.esports.aeq.admins.trials.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.domain.TrialState;
+import de.esports.aeq.admins.trials.exception.IllegalTrialPeriodStateException;
+import de.esports.aeq.admins.trials.exception.TrialPeriodAlreadyStartedException;
+import de.esports.aeq.admins.trials.exception.TrialPeriodBlockedException;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodRepository;
+import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import de.esports.aeq.admins.trials.workflow.WorkflowController;
 import org.camunda.bpm.engine.runtime.Execution;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.RevisionType;
+import org.hibernate.envers.query.AuditEntity;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
@@ -35,20 +44,24 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     private final SystemConfiguration configuration;
     private final UserService userService;
     private final WorkflowController workflow;
+    private final EntityManager entityManager;
 
     private final ModelMapper mapper;
+
 
     @Autowired
     public TrialPeriodServiceBean(TrialPeriodRepository repository,
             SystemConfiguration configuration,
             UserService userService,
             WorkflowController workflow,
-            ModelMapper mapper) {
+            ModelMapper mapper,
+            EntityManager entityManager) {
         this.trialPeriodRepository = repository;
         this.configuration = configuration;
         this.userService = userService;
         this.workflow = workflow;
         this.mapper = mapper;
+        this.entityManager = entityManager;
     }
 
     //-----------------------------------------------------------------------
@@ -154,12 +167,14 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         LOG.info("Updating trial period: {} -> {}", existing, entity);
         TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
 
-        handleUpdate(savedEntity, trialPeriod.getStateTransition());
+        handleUpdate(savedEntity);
         return map(savedEntity);
     }
 
     private void assertUpdatePreconditions(UpdateContext<TrialPeriodTa> ctx) {
         assertValidStateTransition(ctx);
+
+        getAmountOfExtensions(ctx.getCurrent().getId());
     }
 
     private void assertValidStateTransition(UpdateContext<TrialPeriodTa> ctx) {
@@ -175,11 +190,10 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
         }
     }
 
-    private void handleUpdate(TrialPeriodTa entity,
-            TrialStateTransition stateTransition) {
+    private void handleUpdate(TrialPeriodTa entity) {
         // always process the state change first
         TrialPeriod trialPeriod = map(entity);
-        workflow.updateProcessInstanceState(trialPeriod, stateTransition);
+        workflow.updateProcessInstanceState(trialPeriod);
 
         workflow.updateProcessInstanceEnd(trialPeriod);
     }
@@ -232,6 +246,18 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     /*
      * Internally used utility methods.
      */
+
+    private int getAmountOfExtensions(Long trialPeriodId) {
+        AuditReader reader = AuditReaderFactory.get(entityManager);
+        List<?> results = reader.createQuery()
+                .forRevisionsOfEntityWithChanges(TrialPeriodTa.class, false)
+                .add(AuditEntity.id().eq(trialPeriodId))
+                .add(AuditEntity.revisionType().eq(RevisionType.MOD))
+                .add(AuditEntity.property("state").hasChanged())
+                .add(AuditEntity.property("state").eq(TrialState.OPEN))
+                .getResultList();
+        return results.size();
+    }
 
     private TrialPeriodTa findOneOrThrow(Long trialPeriodId) {
         return trialPeriodRepository.findById(trialPeriodId)

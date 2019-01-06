@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.trials.service;
+package de.esports.aeq.admins.trials.exception;
 
 import java.time.Instant;
 

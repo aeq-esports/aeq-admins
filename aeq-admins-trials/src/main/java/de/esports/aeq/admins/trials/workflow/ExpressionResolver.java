@@ -2,7 +2,7 @@ package de.esports.aeq.admins.trials.workflow;
 
 import de.esports.aeq.admins.common.CamundaRelated;
 import de.esports.aeq.admins.trials.domain.TrialState;
-import de.esports.aeq.admins.trials.service.TrialPeriod;
+import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import de.esports.aeq.admins.trials.service.TrialPeriodService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;

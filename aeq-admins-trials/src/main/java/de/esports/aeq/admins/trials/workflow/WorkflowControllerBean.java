@@ -1,7 +1,6 @@
 package de.esports.aeq.admins.trials.workflow;
 
-import de.esports.aeq.admins.trials.service.TrialPeriod;
-import de.esports.aeq.admins.trials.service.TrialStateTransition;
+import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import org.camunda.bpm.engine.BadUserRequestException;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -47,7 +46,7 @@ public class WorkflowControllerBean implements WorkflowController {
     @Override
     public void updateProcessInstanceEnd(TrialPeriod trialPeriod) {
         Execution instance = getProcessInstance(trialPeriod.getId());
-        if(instance == null) {
+        if (instance == null) {
             return;
         }
         Date endDate = Date.from(trialPeriod.getEnd());
@@ -55,24 +54,19 @@ public class WorkflowControllerBean implements WorkflowController {
     }
 
     @Override
-    public void updateProcessInstanceState(TrialPeriod trialPeriod,
-            TrialStateTransition stateTransition) {
+    public void updateProcessInstanceState(TrialPeriod trialPeriod) {
         Execution instance = getProcessInstance(trialPeriod.getId());
-        if(instance == null) {
+        if (instance == null) {
             return;
         }
 
         String processInstanceId = instance.getProcessInstanceId();
         String stateString = trialPeriod.getState().toString().toLowerCase();
-        switch (stateTransition) {
-            case NORMAL:
-                updateProcessInstanceStateNormal(processInstanceId, stateString);
-                break;
-            case TERMINATED:
-                sendTerminatingConsensusMessage(processInstanceId, stateString);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid transition state: " + stateTransition);
+
+        if (trialPeriod.getState().isTerminal()) {
+            sendTerminatingConsensusMessage(processInstanceId, stateString);
+        } else {
+            updateProcessInstanceStateNormal(processInstanceId, stateString);
         }
     }
 

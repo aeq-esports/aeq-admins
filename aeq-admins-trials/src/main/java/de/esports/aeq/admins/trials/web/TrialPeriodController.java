@@ -1,9 +1,8 @@
 package de.esports.aeq.admins.trials.web;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.trials.service.TrialPeriod;
+import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import de.esports.aeq.admins.trials.service.TrialPeriodService;
-import de.esports.aeq.admins.trials.service.TrialStateTransition;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,7 +63,6 @@ public class TrialPeriodController {
             @RequestBody TrialPeriodPatchDTO request) {
         TrialPeriod trialPeriod = trialPeriodService.findOne(trialPeriodId);
         trialPeriod.setId(trialPeriodId);
-        trialPeriod.setStateTransition(TrialStateTransition.TERMINATED);
         mapper.map(request, trialPeriod);
         trialPeriodService.update(trialPeriod);
     }

@@ -6,11 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "de.esports.aeq.admins")
 @EnableJpaRepositories(basePackages = "de.esports.aeq.admins")
+@EnableJpaAuditing
 @EntityScan(basePackages = "de.esports.aeq.admins")
 @PropertySource("application.properties")
 @PropertySource("default.config.properties")

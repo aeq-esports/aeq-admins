@@ -1,5 +1,6 @@
-package de.esports.aeq.admins.trials.service;
+package de.esports.aeq.admins.trials.exception;
 
+import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

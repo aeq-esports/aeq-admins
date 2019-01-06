@@ -1,6 +1,8 @@
 package de.esports.aeq.admins.trials.domain;
 
 import de.esports.aeq.admins.security.domain.UserTa;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.util.StringJoiner;
 
 @Entity
 @Table(name = "aeq_trial_period")
+@Audited(withModifiedFlag = true)
 @NamedQueries(
         @NamedQuery(name = "TrialPeriodTa.findAllActive",
                 query = "SELECT t FROM TrialPeriodTa t WHERE t.user.id = :userId AND t.state = " +
@@ -25,6 +28,7 @@ public class TrialPeriodTa implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @NotAudited
     private UserTa user;
 
     @Enumerated(EnumType.STRING)
@@ -35,17 +39,6 @@ public class TrialPeriodTa implements Serializable {
 
     @Column
     private Duration duration;
-
-    public TrialPeriodTa() {
-
-    }
-
-    public TrialPeriodTa(TrialPeriodTa trialPeriod) {
-        this.user = trialPeriod.user;
-        this.state = trialPeriod.state;
-        this.start = trialPeriod.start;
-        this.duration = trialPeriod.duration;
-    }
 
     public Long getId() {
         return id;
