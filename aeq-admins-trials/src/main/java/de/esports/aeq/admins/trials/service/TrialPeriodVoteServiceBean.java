@@ -43,7 +43,7 @@ public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
         entity = repository.save(entity);
 
         Long trialPeriodId = entity.getTrialPeriod().getId();
-        evaluator.evaluate(trialPeriodId);
+        evaluateTrialPeriod(trialPeriodId);
 
         return map(entity);
     }
@@ -76,8 +76,7 @@ public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
 
         entity = repository.save(existing);
         Long trialPeriodId = entity.getTrialPeriod().getId();
-        evaluator.evaluate(trialPeriodId);
-
+        evaluateTrialPeriod(trialPeriodId);
         return map(entity);
     }
 
@@ -114,5 +113,10 @@ public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
         repository.findByUserId(userId).ifPresent(e -> {
             throw new AlreadyVotedException();
         });
+    }
+
+    private void evaluateTrialPeriod(Long trialPeriodId) {
+        var votes = findAll(trialPeriodId);
+        evaluator.evaluate(trialPeriodId, votes);
     }
 }

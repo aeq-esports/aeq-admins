@@ -7,6 +7,7 @@ import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriodVote;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,27 +17,22 @@ public class DefaultTrialPeriodVoteEvaluator implements TrialPeriodVoteEvaluator
 
     private final SystemConfiguration configuration;
     private final TrialPeriodService trialPeriodService;
-    private final TrialPeriodVoteService trialPeriodVoteService;
 
     public DefaultTrialPeriodVoteEvaluator(
             SystemConfiguration configuration,
-            TrialPeriodService trialPeriodService,
-            TrialPeriodVoteService trialPeriodVoteService) {
+            TrialPeriodService trialPeriodService) {
         this.configuration = configuration;
         this.trialPeriodService = trialPeriodService;
-        this.trialPeriodVoteService = trialPeriodVoteService;
     }
 
     @Override
-    public boolean evaluate(Long trialPeriodId) {
+    public boolean evaluate(Long trialPeriodId, Collection<TrialPeriodVote> votes) {
         TrialPeriod entity = trialPeriodService.findOne(trialPeriodId);
 
         TrialState state = entity.getState();
         if (state.isTerminal()) {
             throw new IllegalTrialPeriodStateException(state);
         }
-
-        var votes = trialPeriodVoteService.findAll(trialPeriodId);
 
         int requiredVotes = 1; // TODO
         double majorityPercent = 0.0;
