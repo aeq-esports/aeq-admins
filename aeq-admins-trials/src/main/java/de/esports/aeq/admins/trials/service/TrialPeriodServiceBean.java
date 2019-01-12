@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class TrialPeriodServiceBean implements TrialPeriodService {
+class TrialPeriodServiceBean implements TrialPeriodService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrialPeriodServiceBean.class);
 

@@ -15,7 +15,7 @@ import java.util.Objects;
 import static de.esports.aeq.admins.trials.workflow.ProcessVariables.*;
 
 @Component
-public class WorkflowControllerBean implements WorkflowController {
+class WorkflowControllerBean implements WorkflowController {
 
     private final RuntimeService runtimeService;
     private final HistoryService historyService;

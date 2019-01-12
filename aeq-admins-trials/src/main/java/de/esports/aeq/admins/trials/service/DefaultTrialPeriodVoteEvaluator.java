@@ -3,7 +3,7 @@ package de.esports.aeq.admins.trials.service;
 import de.esports.aeq.admins.configuration.SystemConfiguration;
 import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriodVote;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
-public class DefaultTrialPeriodVoteEvaluator implements TrialPeriodVoteEvaluator {
+@Component
+class DefaultTrialPeriodVoteEvaluator implements TrialPeriodVoteEvaluator {
 
     private final SystemConfiguration configuration;
 

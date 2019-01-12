@@ -22,9 +22,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
+class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
 
-    public static final Logger LOG = LoggerFactory.getLogger(TrialPeriodVoteServiceBean.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TrialPeriodVoteServiceBean.class);
 
     private final ModelMapper mapper;
     private final TrialPeriodVoteRepository repository;
