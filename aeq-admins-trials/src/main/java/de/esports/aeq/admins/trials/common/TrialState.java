@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.trials.domain;
+package de.esports.aeq.admins.trials.common;
 
 import java.util.Arrays;
 import java.util.Collection;

@@ -2,6 +2,7 @@ package de.esports.aeq.admins.trials;
 
 import de.esports.aeq.admins.security.domain.PrivilegeTa;
 import de.esports.aeq.admins.security.service.PrivilegeService;
+import de.esports.aeq.admins.trials.common.Privileges;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 

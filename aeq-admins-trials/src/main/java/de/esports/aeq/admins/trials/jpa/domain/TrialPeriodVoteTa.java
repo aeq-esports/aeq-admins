@@ -1,6 +1,7 @@
-package de.esports.aeq.admins.trials.domain;
+package de.esports.aeq.admins.trials.jpa.domain;
 
 import de.esports.aeq.admins.security.domain.UserTa;
+import de.esports.aeq.admins.trials.common.TrialState;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 

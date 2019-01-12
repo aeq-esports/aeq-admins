@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.trials.service.dto;
 
-import de.esports.aeq.admins.trials.domain.TrialState;
+import de.esports.aeq.admins.trials.common.TrialState;
 
 import java.io.Serializable;
 import java.time.Duration;

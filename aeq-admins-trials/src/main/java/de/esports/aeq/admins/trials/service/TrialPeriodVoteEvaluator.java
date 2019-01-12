@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.trials.service;
 
-import de.esports.aeq.admins.trials.domain.TrialState;
+import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriodVote;
 
 import java.util.Collection;

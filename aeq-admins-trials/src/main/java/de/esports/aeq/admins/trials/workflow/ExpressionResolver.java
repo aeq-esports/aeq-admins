@@ -1,7 +1,7 @@
 package de.esports.aeq.admins.trials.workflow;
 
 import de.esports.aeq.admins.common.CamundaExpression;
-import de.esports.aeq.admins.trials.domain.TrialState;
+import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.service.TrialPeriodService;
 import de.esports.aeq.admins.trials.service.TrialPeriodVoteService;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriod;

@@ -1,7 +1,7 @@
 package de.esports.aeq.admins.trials.web.dto;
 
 import de.esports.aeq.admins.trials.TrialsConfig;
-import de.esports.aeq.admins.trials.domain.TrialState;
+import de.esports.aeq.admins.trials.common.TrialState;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;

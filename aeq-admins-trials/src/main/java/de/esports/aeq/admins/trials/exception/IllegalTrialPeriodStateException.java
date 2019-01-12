@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.trials.exception;
 
-import de.esports.aeq.admins.trials.domain.TrialState;
+import de.esports.aeq.admins.trials.common.TrialState;
 
 public class IllegalTrialPeriodStateException extends RuntimeException {
 

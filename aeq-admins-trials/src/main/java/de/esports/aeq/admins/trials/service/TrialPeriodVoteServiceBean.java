@@ -2,8 +2,8 @@ package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.common.InternalServerErrorException;
-import de.esports.aeq.admins.trials.domain.TrialPeriodVoteTa;
-import de.esports.aeq.admins.trials.domain.TrialState;
+import de.esports.aeq.admins.trials.jpa.domain.TrialPeriodVoteTa;
+import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.exception.AlreadyVotedException;
 import de.esports.aeq.admins.trials.exception.IllegalTrialPeriodStateException;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodVoteRepository;

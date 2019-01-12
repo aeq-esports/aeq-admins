@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.trials.jpa;
 
-import de.esports.aeq.admins.trials.domain.TrialPeriodVoteTa;
+import de.esports.aeq.admins.trials.jpa.domain.TrialPeriodVoteTa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
