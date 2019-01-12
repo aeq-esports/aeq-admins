@@ -1,11 +1,11 @@
-package de.esports.aeq.admins.trials.web;
+package de.esports.aeq.admins.trials.web.dto;
 
 import de.esports.aeq.admins.trials.domain.TrialState;
 
 import java.io.Serializable;
 import java.time.Duration;
 
-public class TrialPeriodPatchDTO implements Serializable {
+public class TrialPeriodPatchDto implements Serializable {
 
     private TrialState state;
     private Duration duration;

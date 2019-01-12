@@ -1,5 +1,6 @@
 package de.esports.aeq.admins.trials.workflow;
 
+import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import org.camunda.bpm.engine.BadUserRequestException;
 import org.camunda.bpm.engine.HistoryService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.Objects;
 
 import static de.esports.aeq.admins.trials.workflow.ProcessVariables.*;
 
@@ -27,10 +29,15 @@ public class WorkflowControllerBean implements WorkflowController {
 
     @Override
     public Execution getProcessInstance(Long trialPeriodId) {
-        return runtimeService.createExecutionQuery()
+        Execution execution = runtimeService.createExecutionQuery()
                 .processDefinitionKey(TRIAL_PERIOD_DEFINITION_KEY)
                 .variableValueEquals(TRIAL_PERIOD_ID, trialPeriodId)
                 .singleResult();
+
+        if (execution == null) {
+            throw new EntityNotFoundException(trialPeriodId);
+        }
+        return execution;
     }
 
     @Override
@@ -44,21 +51,8 @@ public class WorkflowControllerBean implements WorkflowController {
     }
 
     @Override
-    public void updateProcessInstanceEnd(TrialPeriod trialPeriod) {
+    public void updateProcessInstance(TrialPeriod trialPeriod) {
         Execution instance = getProcessInstance(trialPeriod.getId());
-        if (instance == null) {
-            return;
-        }
-        Date endDate = Date.from(trialPeriod.getEnd());
-        runtimeService.setVariable(instance.getId(), TRIAL_PERIOD_END_DATE, endDate);
-    }
-
-    @Override
-    public void updateProcessInstanceState(TrialPeriod trialPeriod) {
-        Execution instance = getProcessInstance(trialPeriod.getId());
-        if (instance == null) {
-            return;
-        }
 
         String processInstanceId = instance.getProcessInstanceId();
         String stateString = trialPeriod.getState().toString().toLowerCase();
@@ -68,6 +62,10 @@ public class WorkflowControllerBean implements WorkflowController {
         } else {
             updateProcessInstanceStateNormal(processInstanceId, stateString);
         }
+
+        // ??? TODO if null after update
+        Date endDate = Date.from(trialPeriod.getEnd());
+        runtimeService.setVariable(instance.getId(), TRIAL_PERIOD_END_DATE, endDate);
     }
 
     private void updateProcessInstanceStateNormal(String processInstanceId, String state) {
@@ -90,4 +88,17 @@ public class WorkflowControllerBean implements WorkflowController {
         }
         historyService.deleteHistoricProcessInstance(processInstanceId);
     }
+
+    @Override
+    public void triggerVoteReceived(Long trialPeriodId) {
+        Objects.requireNonNull(trialPeriodId);
+        Execution instance = getProcessInstance(trialPeriodId);
+
+        runtimeService.createMessageCorrelation(TRIAL_PERIOD_VOTE_RECEIVED)
+                .processInstanceId(instance.getProcessInstanceId())
+                .correlate();
+    }
+
+    //-----------------------------------------------------------------------
+
 }

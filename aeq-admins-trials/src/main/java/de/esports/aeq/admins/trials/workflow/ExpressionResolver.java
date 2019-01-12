@@ -1,9 +1,10 @@
 package de.esports.aeq.admins.trials.workflow;
 
-import de.esports.aeq.admins.common.CamundaRelated;
+import de.esports.aeq.admins.common.CamundaExpression;
 import de.esports.aeq.admins.trials.domain.TrialState;
-import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import de.esports.aeq.admins.trials.service.TrialPeriodService;
+import de.esports.aeq.admins.trials.service.TrialPeriodVoteService;
+import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,41 +17,50 @@ import java.time.Instant;
 public class ExpressionResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExpressionResolver.class);
-    private final TrialPeriodService service;
+    private final TrialPeriodService trialPeriodService;
+    private final TrialPeriodVoteService trialPeriodVoteService;
 
     @Autowired
-    public ExpressionResolver(TrialPeriodService service) {
-        this.service = service;
+    public ExpressionResolver(TrialPeriodService trialPeriodService,
+            TrialPeriodVoteService trialPeriodVoteService) {
+        this.trialPeriodService = trialPeriodService;
+        this.trialPeriodVoteService = trialPeriodVoteService;
     }
 
-    @CamundaRelated
+    @CamundaExpression
     public void pending(DelegateExecution execution) {
         Long id = (Long) execution.getVariable(ProcessVariables.TRIAL_PERIOD_ID);
-        TrialPeriod trialPeriod = service.findOne(id);
+        TrialPeriod trialPeriod = trialPeriodService.findOne(id);
         trialPeriod.setState(TrialState.PENDING);
-        service.update(trialPeriod);
+        trialPeriodService.update(trialPeriod);
     }
 
-    @CamundaRelated
+    @CamundaExpression
     public void extend(DelegateExecution execution) {
         Long id = (Long) execution.getVariable(ProcessVariables.TRIAL_PERIOD_ID);
-        TrialPeriod trialPeriod = service.findOne(id);
+        TrialPeriod trialPeriod = trialPeriodService.findOne(id);
         trialPeriod.setState(TrialState.OPEN);
         trialPeriod.setStart(Instant.now());
-        service.update(trialPeriod);
+        trialPeriodService.update(trialPeriod);
     }
 
-    @CamundaRelated
+    @CamundaExpression
     public void consensus(DelegateExecution execution) {
         Long id = (Long) execution.getVariable(ProcessVariables.TRIAL_PERIOD_ID);
-        TrialPeriod trialPeriod = service.findOne(id);
+        TrialPeriod trialPeriod = trialPeriodService.findOne(id);
 
         String consensus = (String) execution.getVariable(ProcessVariables.TRIAL_PERIOD_STATE);
         TrialState state = TrialState.valueOf(consensus.toUpperCase());
 
         trialPeriod.setState(state);
-        TrialPeriod entity = service.update(trialPeriod);
+        TrialPeriod entity = trialPeriodService.update(trialPeriod);
 
         LOG.info("Consensus found for trial period: {}", entity);
+    }
+
+    @CamundaExpression
+    public void evaluateVotes(DelegateExecution execution) {
+        Long id = (Long) execution.getVariable(ProcessVariables.TRIAL_PERIOD_ID);
+        trialPeriodVoteService.evaluateVotes(id);
     }
 }

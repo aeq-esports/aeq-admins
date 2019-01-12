@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1jw0d88" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.2">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1jw0d88" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.1">
   <bpmn:signal id="Signal_1isqdml" name="closed" />
   <bpmn:process id="trialPeriodDefinitionKey" name="Trial Period" isExecutable="true">
     <bpmn:subProcess id="SubProcess_05b38xi" triggeredByEvent="true">
@@ -52,14 +52,14 @@
       <bpmn:subProcess id="SubProcess_0qy0ek8" triggeredByEvent="true">
         <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_1hoigsz" name="Vote received">
           <bpmn:outgoing>SequenceFlow_06ez76x</bpmn:outgoing>
-          <bpmn:messageEventDefinition />
+          <bpmn:messageEventDefinition messageRef="Message_0vzofec" />
         </bpmn:intermediateCatchEvent>
         <bpmn:sequenceFlow id="SequenceFlow_06ez76x" sourceRef="IntermediateThrowEvent_1hoigsz" targetRef="Task_07sctnd" />
         <bpmn:endEvent id="EndEvent_0ihj9lk">
           <bpmn:incoming>SequenceFlow_1i72uai</bpmn:incoming>
         </bpmn:endEvent>
         <bpmn:sequenceFlow id="SequenceFlow_1i72uai" sourceRef="Task_07sctnd" targetRef="EndEvent_0ihj9lk" />
-        <bpmn:serviceTask id="Task_07sctnd" name="Process Consensus">
+        <bpmn:serviceTask id="Task_07sctnd" name="Process Consensus" camunda:expression="${trialPeriodWorkflow.evaluateVotes(execution)}">
           <bpmn:incoming>SequenceFlow_06ez76x</bpmn:incoming>
           <bpmn:outgoing>SequenceFlow_1i72uai</bpmn:outgoing>
         </bpmn:serviceTask>
@@ -97,6 +97,7 @@
   </bpmn:process>
   <bpmn:message id="Message_1kkvurx" name="consensusFound" />
   <bpmn:message id="Message_0y86956" name="terminatingConsensus" />
+  <bpmn:message id="Message_0vzofec" name="voteReceived" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="trialPeriodDefinitionKey">
       <bpmndi:BPMNShape id="SubProcess_1ho5q8i_di" bpmnElement="SubProcess_05b38xi" isExpanded="true">

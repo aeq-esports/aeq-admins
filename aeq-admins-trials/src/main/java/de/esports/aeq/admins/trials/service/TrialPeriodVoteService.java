@@ -19,4 +19,9 @@ public interface TrialPeriodVoteService {
     TrialPeriodVote update(UpdateTrialPeriodVote vote);
 
     void delete(Long voteId);
+
+    /**
+     * @param trialPeriodId the trial period id
+     */
+    void evaluateVotes(Long trialPeriodId);
 }

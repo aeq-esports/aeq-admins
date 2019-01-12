@@ -9,9 +9,9 @@ public interface WorkflowController {
 
     void createProcessInstance(TrialPeriod trialPeriod);
 
-    void updateProcessInstanceEnd(TrialPeriod trialPeriod);
-
-    void updateProcessInstanceState(TrialPeriod trialPeriod);
+    void updateProcessInstance(TrialPeriod trialPeriod);
 
     void deleteProcessInstance(String processInstanceId, String reason);
+
+    void triggerVoteReceived(Long trialPeriodId);
 }

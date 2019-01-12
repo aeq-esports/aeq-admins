@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
+import de.esports.aeq.admins.common.InternalServerErrorException;
 import de.esports.aeq.admins.trials.domain.TrialPeriodVoteTa;
 import de.esports.aeq.admins.trials.domain.TrialState;
 import de.esports.aeq.admins.trials.exception.AlreadyVotedException;
@@ -10,27 +11,36 @@ import de.esports.aeq.admins.trials.service.dto.CreateTrialPeriodVote;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriodVote;
 import de.esports.aeq.admins.trials.service.dto.UpdateTrialPeriodVote;
+import de.esports.aeq.admins.trials.workflow.WorkflowController;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
 
+    public static final Logger LOG = LoggerFactory.getLogger(TrialPeriodVoteServiceBean.class);
+
     private final ModelMapper mapper;
     private final TrialPeriodVoteRepository repository;
     private final TrialPeriodService trialPeriodService;
+    private WorkflowController workflowController;
     private final TrialPeriodVoteEvaluator evaluator;
 
     public TrialPeriodVoteServiceBean(
             ModelMapper mapper, TrialPeriodVoteRepository repository,
             TrialPeriodService trialPeriodService,
+            WorkflowController workflowController,
             TrialPeriodVoteEvaluator evaluator) {
         this.mapper = mapper;
         this.repository = repository;
         this.trialPeriodService = trialPeriodService;
+        this.workflowController = workflowController;
         this.evaluator = evaluator;
     }
 
@@ -43,7 +53,7 @@ public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
         entity = repository.save(entity);
 
         Long trialPeriodId = entity.getTrialPeriod().getId();
-        evaluateTrialPeriod(trialPeriodId);
+        workflowController.triggerVoteReceived(trialPeriodId);
 
         return map(entity);
     }
@@ -76,7 +86,8 @@ public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
 
         entity = repository.save(existing);
         Long trialPeriodId = entity.getTrialPeriod().getId();
-        evaluateTrialPeriod(trialPeriodId);
+        workflowController.triggerVoteReceived(trialPeriodId);
+
         return map(entity);
     }
 
@@ -84,6 +95,44 @@ public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
     public void delete(Long voteId) {
         repository.deleteById(voteId);
     }
+
+    //-----------------------------------------------------------------------
+
+    @Override
+    public void evaluateVotes(Long trialPeriodId) {
+        Objects.requireNonNull(trialPeriodId);
+        TrialPeriod trialPeriod = trialPeriodService.findOne(trialPeriodId);
+
+        LOG.debug("Evaluating votes for trial period with id {}.", trialPeriod);
+
+        var subsequentStates = trialPeriodService.getSubsequentStates(trialPeriod);
+        if (subsequentStates.isEmpty()) {
+            throw new IllegalTrialPeriodStateException(trialPeriod.getState());
+        }
+
+        var votes = findAll(trialPeriodId);
+        var evaluationResult = evaluator.evaluate(votes);
+
+        if (evaluationResult.isEmpty()) {
+            LOG.debug("Evaluation result for trial period with id {} is empty.", trialPeriodId);
+            return;
+        }
+        TrialState result = evaluationResult.get();
+        if (result == trialPeriod.getState()) {
+            LOG.debug("Evaluated state for trial period with id {} did not change: {}",
+                    trialPeriodId, result);
+            return;
+        }
+
+        // asserts that the validator functions properly
+        if (subsequentStates.contains(result)) {
+            throw illegalStateTransition(trialPeriod.getState(), result);
+        }
+
+        trialPeriod.setState(result);
+        trialPeriodService.update(trialPeriod);
+    }
+
 
     //-----------------------------------------------------------------------
 
@@ -115,8 +164,17 @@ public class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
         });
     }
 
-    private void evaluateTrialPeriod(Long trialPeriodId) {
-        var votes = findAll(trialPeriodId);
-        evaluator.evaluate(trialPeriodId, votes);
+    //-----------------------------------------------------------------------
+
+    /*
+     * Exception providers.
+     */
+
+    private static RuntimeException illegalStateTransition(TrialState from, TrialState to) {
+        String builder = "Illegal state transition: " +
+                from +
+                " -> " +
+                to;
+        return new InternalServerErrorException(builder);
     }
 }

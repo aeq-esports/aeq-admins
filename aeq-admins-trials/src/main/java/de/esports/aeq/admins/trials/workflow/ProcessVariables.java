@@ -9,4 +9,5 @@ public class ProcessVariables {
     public static final String TRIAL_PERIOD_CONSENSUS_FOUND = "consensusFound";
     public static final String TRIAL_PERIOD_TERMINATING_CONSENSUS =
             "terminatingConsensus";
+    public static final String TRIAL_PERIOD_VOTE_RECEIVED = "voteReceived";
 }

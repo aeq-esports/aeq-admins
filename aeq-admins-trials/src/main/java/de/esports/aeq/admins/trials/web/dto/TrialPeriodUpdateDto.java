@@ -1,23 +1,20 @@
-package de.esports.aeq.admins.trials.web;
+package de.esports.aeq.admins.trials.web.dto;
 
 import de.esports.aeq.admins.trials.TrialsConfig;
+import de.esports.aeq.admins.trials.domain.TrialState;
 
 import javax.annotation.Nullable;
-import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-public class TrialPeriodCreateDTO implements Serializable {
+public class TrialPeriodUpdateDto {
 
-    /**
-     * The start of the trial period.
-     * <p>
-     * May be <code>null</code> in which case the current time will be used. The zone is required
-     * since clients might send the time in their local time zone. This time should be converted to
-     * UTC afterwards.
-     */
-    @Nullable
+    @NotNull
+    private Long id;
+
+    @NotNull
     private ZonedDateTime start;
 
     /**
@@ -39,11 +36,22 @@ public class TrialPeriodCreateDTO implements Serializable {
     @Nullable
     private ZonedDateTime end;
 
-    public Optional<ZonedDateTime> getStart() {
-        return Optional.ofNullable(start);
+    @NotNull
+    private TrialState state;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setStart(@Nullable ZonedDateTime start) {
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public ZonedDateTime getStart() {
+        return start;
+    }
+
+    public void setStart(ZonedDateTime start) {
         this.start = start;
     }
 
@@ -51,7 +59,7 @@ public class TrialPeriodCreateDTO implements Serializable {
         return Optional.ofNullable(duration);
     }
 
-    public void setDuration(@Nullable Duration duration) {
+    public void setDuration(Duration duration) {
         this.duration = duration;
     }
 
@@ -59,7 +67,15 @@ public class TrialPeriodCreateDTO implements Serializable {
         return Optional.ofNullable(end);
     }
 
-    public void setEnd(@Nullable ZonedDateTime end) {
+    public void setEnd(ZonedDateTime end) {
         this.end = end;
+    }
+
+    public TrialState getState() {
+        return state;
+    }
+
+    public void setState(TrialState state) {
+        this.state = state;
     }
 }

@@ -3,6 +3,9 @@ package de.esports.aeq.admins.trials.web;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import de.esports.aeq.admins.trials.service.TrialPeriodService;
+import de.esports.aeq.admins.trials.web.dto.TrialPeriodCreateDto;
+import de.esports.aeq.admins.trials.web.dto.TrialPeriodPatchDto;
+import de.esports.aeq.admins.trials.web.dto.TrialPeriodResponseDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,21 +32,21 @@ public class TrialPeriodController {
 
     @GetMapping
     @ResponseBody
-    public List<TrialPeriodResponseDTO> findAll(@PathVariable Long userId) {
+    public List<TrialPeriodResponseDto> findAll(@PathVariable Long userId) {
         return trialPeriodService.findAll(userId).stream()
-                .map(trialPeriod -> mapper.map(trialPeriod, TrialPeriodResponseDTO.class))
+                .map(trialPeriod -> mapper.map(trialPeriod, TrialPeriodResponseDto.class))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{trialPeriodId}")
     @ResponseBody
-    public TrialPeriodResponseDTO findOne(@PathVariable Long userId,
+    public TrialPeriodResponseDto findOne(@PathVariable Long userId,
             @PathVariable Long trialPeriodId) {
         TrialPeriod trialPeriod = trialPeriodService.findOne(trialPeriodId);
         if (!trialPeriod.getUserId().equals(userId)) {
             throw new EntityNotFoundException(trialPeriodId);
         }
-        return mapper.map(trialPeriod, TrialPeriodResponseDTO.class);
+        return mapper.map(trialPeriod, TrialPeriodResponseDto.class);
     }
 
     //-----------------------------------------------------------------------
@@ -51,7 +54,7 @@ public class TrialPeriodController {
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void create(@PathVariable Long userId,
-            @RequestBody TrialPeriodCreateDTO request) {
+            @RequestBody TrialPeriodCreateDto request) {
         TrialPeriod trialPeriod = mapper.map(request, TrialPeriod.class);
         trialPeriod.setUserId(userId);
         trialPeriodService.create(trialPeriod);
@@ -60,7 +63,7 @@ public class TrialPeriodController {
     @PatchMapping("/{trialPeriodId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void patch(@PathVariable Long trialPeriodId,
-            @RequestBody TrialPeriodPatchDTO request) {
+            @RequestBody TrialPeriodPatchDto request) {
         TrialPeriod trialPeriod = trialPeriodService.findOne(trialPeriodId);
         trialPeriod.setId(trialPeriodId);
         mapper.map(request, trialPeriod);

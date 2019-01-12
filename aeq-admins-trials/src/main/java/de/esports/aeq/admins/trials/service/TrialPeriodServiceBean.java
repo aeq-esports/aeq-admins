@@ -193,9 +193,7 @@ public class TrialPeriodServiceBean implements TrialPeriodService {
     private void handleUpdate(TrialPeriodTa entity) {
         // always process the state change first
         TrialPeriod trialPeriod = map(entity);
-        workflow.updateProcessInstanceState(trialPeriod);
-
-        workflow.updateProcessInstanceEnd(trialPeriod);
+        workflow.updateProcessInstance(trialPeriod);
     }
 
     //-----------------------------------------------------------------------

@@ -1,20 +1,23 @@
-package de.esports.aeq.admins.trials.web;
+package de.esports.aeq.admins.trials.web.dto;
 
 import de.esports.aeq.admins.trials.TrialsConfig;
-import de.esports.aeq.admins.trials.domain.TrialState;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-public class TrialPeriodUpdateDto {
+public class TrialPeriodCreateDto implements Serializable {
 
-    @NotNull
-    private Long id;
-
-    @NotNull
+    /**
+     * The start of the trial period.
+     * <p>
+     * May be <code>null</code> in which case the current time will be used. The zone is required
+     * since clients might send the time in their local time zone. This time should be converted to
+     * UTC afterwards.
+     */
+    @Nullable
     private ZonedDateTime start;
 
     /**
@@ -36,22 +39,11 @@ public class TrialPeriodUpdateDto {
     @Nullable
     private ZonedDateTime end;
 
-    @NotNull
-    private TrialState state;
-
-    public Long getId() {
-        return id;
+    public Optional<ZonedDateTime> getStart() {
+        return Optional.ofNullable(start);
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public ZonedDateTime getStart() {
-        return start;
-    }
-
-    public void setStart(ZonedDateTime start) {
+    public void setStart(@Nullable ZonedDateTime start) {
         this.start = start;
     }
 
@@ -59,7 +51,7 @@ public class TrialPeriodUpdateDto {
         return Optional.ofNullable(duration);
     }
 
-    public void setDuration(Duration duration) {
+    public void setDuration(@Nullable Duration duration) {
         this.duration = duration;
     }
 
@@ -67,15 +59,7 @@ public class TrialPeriodUpdateDto {
         return Optional.ofNullable(end);
     }
 
-    public void setEnd(ZonedDateTime end) {
+    public void setEnd(@Nullable ZonedDateTime end) {
         this.end = end;
-    }
-
-    public TrialState getState() {
-        return state;
-    }
-
-    public void setState(TrialState state) {
-        this.state = state;
     }
 }

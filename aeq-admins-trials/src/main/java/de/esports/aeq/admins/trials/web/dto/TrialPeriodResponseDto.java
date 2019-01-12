@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.trials.web;
+package de.esports.aeq.admins.trials.web.dto;
 
 import de.esports.aeq.admins.security.web.UserResponseDTO;
 import de.esports.aeq.admins.trials.domain.TrialState;
@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 
-public class TrialPeriodResponseDTO implements Serializable {
+public class TrialPeriodResponseDto implements Serializable {
 
     private Long id;
 
