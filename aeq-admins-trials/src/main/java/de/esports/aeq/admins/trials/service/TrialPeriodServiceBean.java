@@ -3,17 +3,17 @@ package de.esports.aeq.admins.trials.service;
 import de.esports.aeq.admins.common.BadRequestException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.common.UpdateContext;
-import de.esports.aeq.admins.configuration.SystemConfiguration;
 import de.esports.aeq.admins.security.domain.UserTa;
 import de.esports.aeq.admins.security.service.UserService;
-import de.esports.aeq.admins.trials.jpa.domain.TrialPeriodTa;
+import de.esports.aeq.admins.trials.common.TrialPeriodEnvironment;
 import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.exception.TrialPeriodAlreadyStartedException;
 import de.esports.aeq.admins.trials.exception.TrialPeriodBlockedException;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodRepository;
+import de.esports.aeq.admins.trials.jpa.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
+import de.esports.aeq.admins.trials.service.dto.UpdateTrialPeriod;
 import de.esports.aeq.admins.trials.workflow.WorkflowController;
-import org.camunda.bpm.engine.runtime.Execution;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionType;
@@ -40,7 +40,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     private static final Logger LOG = LoggerFactory.getLogger(TrialPeriodServiceBean.class);
 
     private final TrialPeriodRepository trialPeriodRepository;
-    private final SystemConfiguration configuration;
+    private final TrialPeriodEnvironment environment;
     private final UserService userService;
     private final WorkflowController workflow;
     private final EntityManager entityManager;
@@ -50,13 +50,13 @@ class TrialPeriodServiceBean implements TrialPeriodService {
 
     @Autowired
     public TrialPeriodServiceBean(TrialPeriodRepository repository,
-            SystemConfiguration configuration,
+            TrialPeriodEnvironment environment,
             UserService userService,
             WorkflowController workflow,
             ModelMapper mapper,
             EntityManager entityManager) {
         this.trialPeriodRepository = repository;
-        this.configuration = configuration;
+        this.environment = environment;
         this.userService = userService;
         this.workflow = workflow;
         this.mapper = mapper;
@@ -114,7 +114,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     private void assertNoVestingPeriod(TrialPeriodTa trialPeriod) {
-        Period vestingPeriod = configuration.getVestingPeriod();
+        Period vestingPeriod = environment.getVestingPeriod();
         if (vestingPeriod.isZero()) {
             return;
         }
@@ -146,7 +146,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         }
 
         if (entity.getDuration() == null) {
-            Duration defaultDuration = configuration.getTrialPeriodDuration();
+            Duration defaultDuration = environment.getTrialPeriodDuration();
             LOG.debug("Trial period {} will be initialized with default duration {}",
                     entity, defaultDuration);
             entity.setDuration(defaultDuration);
@@ -156,7 +156,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     //-----------------------------------------------------------------------
 
     @Override
-    public TrialPeriod update(TrialPeriod trialPeriod) {
+    public TrialPeriod update(UpdateTrialPeriod trialPeriod) {
         TrialPeriodTa existing = findOneOrThrow(trialPeriod.getId());
         TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
 
@@ -166,14 +166,14 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         LOG.info("Updating trial period: {} -> {}", existing, entity);
         TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
 
-        handleUpdate(savedEntity);
-        return map(savedEntity);
+        TrialPeriod result = map(savedEntity);
+        workflow.updateProcessInstance(result, trialPeriod.getTransition());
+        return result;
     }
 
     private void assertUpdatePreconditions(UpdateContext<TrialPeriodTa> ctx) {
         assertValidStateTransition(ctx);
-
-        getAmountOfExtensions(ctx.getCurrent().getId());
+        getAmountOfExtensions(ctx.getCurrent().getId()); // TODO
     }
 
     private void assertValidStateTransition(UpdateContext<TrialPeriodTa> ctx) {
@@ -189,12 +189,6 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         }
     }
 
-    private void handleUpdate(TrialPeriodTa entity) {
-        // always process the state change first
-        TrialPeriod trialPeriod = map(entity);
-        workflow.updateProcessInstance(trialPeriod);
-    }
-
     //-----------------------------------------------------------------------
 
     @Override
@@ -206,16 +200,8 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     private void handleDelete(TrialPeriodTa trialPeriod) {
-        Execution instance = workflow.getProcessInstance(trialPeriod.getId());
-        // the process instance might have already finished
-        // TODO: the archived version might also need to be deleted?
-        if (instance == null) {
-            LOG.info("Related process instance for trial period with id {} not found.",
-                    trialPeriod.getId());
-            return;
-        }
         String reason = "Related trial period deleted.";
-        workflow.deleteProcessInstance(instance.getProcessInstanceId(), reason);
+        workflow.deleteProcessInstance(trialPeriod.getId(), reason);
     }
 
     //-----------------------------------------------------------------------

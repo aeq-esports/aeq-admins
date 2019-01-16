@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.trials.service.dto;
 
 import de.esports.aeq.admins.trials.common.TrialState;
+import de.esports.aeq.admins.trials.common.TrialStateTransition;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -13,6 +14,7 @@ public class UpdateTrialPeriod implements Serializable {
     @NotNull
     private Long id;
     private TrialState state;
+    private TrialStateTransition transition = TrialStateTransition.NORMAL;
     private Duration duration;
 
     public Long getId() {
@@ -29,6 +31,14 @@ public class UpdateTrialPeriod implements Serializable {
 
     public void setState(TrialState state) {
         this.state = state;
+    }
+
+    public TrialStateTransition getTransition() {
+        return transition;
+    }
+
+    public void setTransition(TrialStateTransition transition) {
+        this.transition = transition;
     }
 
     public Duration getDuration() {

@@ -2,6 +2,7 @@ package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
+import de.esports.aeq.admins.trials.service.dto.UpdateTrialPeriod;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Collection;
@@ -21,7 +22,7 @@ public interface TrialPeriodService {
     List<TrialPeriod> findAll(Long userId);
 
     @PreAuthorize("hasAuthority('UPDATE_TRIAL_PERIOD')")
-    TrialPeriod update(TrialPeriod trialPeriod);
+    TrialPeriod update(UpdateTrialPeriod trialPeriod);
 
     @PreAuthorize("hasAuthority('DELETE_TRIAL_PERIOD')")
     void delete(Long trialPeriodId);

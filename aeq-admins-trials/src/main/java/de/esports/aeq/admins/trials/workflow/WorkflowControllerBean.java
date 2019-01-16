@@ -1,6 +1,8 @@
 package de.esports.aeq.admins.trials.workflow;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
+import de.esports.aeq.admins.trials.common.TrialState;
+import de.esports.aeq.admins.trials.common.TrialStateTransition;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import org.camunda.bpm.engine.BadUserRequestException;
 import org.camunda.bpm.engine.HistoryService;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 
 import static de.esports.aeq.admins.trials.workflow.ProcessVariables.*;
@@ -51,42 +54,43 @@ class WorkflowControllerBean implements WorkflowController {
     }
 
     @Override
-    public void updateProcessInstance(TrialPeriod trialPeriod) {
-        Execution instance = getProcessInstance(trialPeriod.getId());
-
-        String processInstanceId = instance.getProcessInstanceId();
-        String stateString = trialPeriod.getState().toString().toLowerCase();
-
-        if (trialPeriod.getState().isTerminal()) {
-            sendTerminatingConsensusMessage(processInstanceId, stateString);
-        } else {
-            updateProcessInstanceStateNormal(processInstanceId, stateString);
+    public void updateProcessInstance(TrialPeriod trialPeriod, TrialStateTransition transition) {
+        switch (transition) {
+            case NORMAL:
+                updateProcessInstance(trialPeriod);
+                break;
+            case TERMINATING:
+                /*
+                 * For now, the remaining variables dont need to be updated since the
+                 * process instance will be terminated.
+                 */
+                triggerTerminatingConsensus(trialPeriod.getId(), trialPeriod.getState());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid state transition " + transition);
         }
+    }
 
-        // ??? TODO if null after update
+    private void updateProcessInstance(TrialPeriod trialPeriod) {
+        Execution instance = getProcessInstance(trialPeriod.getId());
+        String processInstanceId = instance.getProcessInstanceId();
+
         Date endDate = Date.from(trialPeriod.getEnd());
-        runtimeService.setVariable(instance.getId(), TRIAL_PERIOD_END_DATE, endDate);
-    }
-
-    private void updateProcessInstanceStateNormal(String processInstanceId, String state) {
-        runtimeService.setVariable(processInstanceId, TRIAL_PERIOD_STATE, state);
-    }
-
-    private void sendTerminatingConsensusMessage(String processInstanceId, String state) {
-        runtimeService.createMessageCorrelation(TRIAL_PERIOD_TERMINATING_CONSENSUS)
-                .processInstanceId(processInstanceId)
-                .setVariable(TRIAL_PERIOD_STATE, state)
-                .correlate();
+        String state = trialPeriod.getState().toString().toLowerCase();
+        Map<String, Object> variables = Map.of(TRIAL_PERIOD_STATE, state,
+                TRIAL_PERIOD_END_DATE, endDate);
+        runtimeService.setVariables(processInstanceId, variables);
     }
 
     @Override
-    public void deleteProcessInstance(String processInstanceId, String reason) {
+    public void deleteProcessInstance(Long trialPeriodId, String reason) {
+        Execution instance = getProcessInstance(trialPeriodId);
+        String processInstanceId = instance.getProcessInstanceId();
         try {
             runtimeService.deleteProcessInstance(processInstanceId, reason);
         } catch (BadUserRequestException e) {
             // ignore
         }
-        historyService.deleteHistoricProcessInstance(processInstanceId);
     }
 
     @Override
@@ -99,6 +103,18 @@ class WorkflowControllerBean implements WorkflowController {
                 .correlate();
     }
 
-    //-----------------------------------------------------------------------
+    @Override
+    public void triggerTerminatingConsensus(Long trialPeriodId, TrialState terminalState) {
+        if (!terminalState.isTerminal()) {
+            throw new IllegalArgumentException("State " + terminalState + " must be terminal.");
+        }
 
+        Execution instance = getProcessInstance(trialPeriodId);
+        String processInstanceId = instance.getProcessInstanceId();
+
+        runtimeService.createMessageCorrelation(TRIAL_PERIOD_TERMINATING_CONSENSUS)
+                .processInstanceId(processInstanceId)
+                .setVariable(TRIAL_PERIOD_STATE, terminalState)
+                .correlate();
+    }
 }

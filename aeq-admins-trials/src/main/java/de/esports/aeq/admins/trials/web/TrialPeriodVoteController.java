@@ -84,7 +84,7 @@ public class TrialPeriodVoteController {
         update(vote);
     }
 
-    @DeleteMapping("/{trialPeriodVoteId}")
+    @DeleteMapping("/{voteId}")
     public void delete(@PathVariable Long voteId) {
         voteService.delete(voteId);
     }
