@@ -1,8 +1,9 @@
 package de.esports.aeq.admins.trials.web;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import de.esports.aeq.admins.trials.service.TrialPeriodService;
+import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
+import de.esports.aeq.admins.trials.service.dto.UpdateTrialPeriod;
 import de.esports.aeq.admins.trials.web.dto.TrialPeriodCreateDto;
 import de.esports.aeq.admins.trials.web.dto.TrialPeriodPatchDto;
 import de.esports.aeq.admins.trials.web.dto.TrialPeriodResponseDto;
@@ -65,9 +66,9 @@ public class TrialPeriodController {
     public void patch(@PathVariable Long trialPeriodId,
             @RequestBody TrialPeriodPatchDto request) {
         TrialPeriod trialPeriod = trialPeriodService.findOne(trialPeriodId);
-        trialPeriod.setId(trialPeriodId);
         mapper.map(request, trialPeriod);
-        trialPeriodService.update(trialPeriod);
+        UpdateTrialPeriod update = mapper.map(trialPeriod, UpdateTrialPeriod.class);
+        trialPeriodService.update(update);
     }
 
     @DeleteMapping("/{trialPeriodId}")

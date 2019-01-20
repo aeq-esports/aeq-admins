@@ -2,15 +2,12 @@ package de.esports.aeq.admins.trials.service;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.common.InternalServerErrorException;
-import de.esports.aeq.admins.trials.jpa.domain.TrialPeriodVoteTa;
 import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.exception.AlreadyVotedException;
 import de.esports.aeq.admins.trials.exception.IllegalTrialPeriodStateException;
 import de.esports.aeq.admins.trials.jpa.TrialPeriodVoteRepository;
-import de.esports.aeq.admins.trials.service.dto.CreateTrialPeriodVote;
-import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
-import de.esports.aeq.admins.trials.service.dto.TrialPeriodVote;
-import de.esports.aeq.admins.trials.service.dto.UpdateTrialPeriodVote;
+import de.esports.aeq.admins.trials.jpa.domain.TrialPeriodVoteTa;
+import de.esports.aeq.admins.trials.service.dto.*;
 import de.esports.aeq.admins.trials.workflow.WorkflowController;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -130,7 +127,8 @@ class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
         }
 
         trialPeriod.setState(result);
-        trialPeriodService.update(trialPeriod);
+        UpdateTrialPeriod update = mapper.map(trialPeriod, UpdateTrialPeriod.class);
+        trialPeriodService.update(update);
     }
 
 

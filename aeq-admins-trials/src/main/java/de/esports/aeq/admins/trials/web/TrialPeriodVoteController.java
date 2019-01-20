@@ -12,6 +12,8 @@ import de.esports.aeq.admins.trials.web.dto.TrialPeriodVotePatchDto;
 import de.esports.aeq.admins.trials.web.dto.TrialPeriodVoteUpdateDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,7 +22,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/trials/{trialPeriodId}")
+@RequestMapping("/trials/{trialPeriodId}/votes")
 public class TrialPeriodVoteController {
 
     private final ModelMapper mapper;
@@ -52,6 +54,7 @@ public class TrialPeriodVoteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("isAuthenticated()")
     public void create(@PathVariable Long trialPeriodId,
             @RequestBody @Valid TrialPeriodVoteCreateDto request,
             Principal principal) {

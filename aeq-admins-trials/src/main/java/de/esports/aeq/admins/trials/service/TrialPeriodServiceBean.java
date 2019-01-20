@@ -5,7 +5,6 @@ import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.common.UpdateContext;
 import de.esports.aeq.admins.security.domain.UserTa;
 import de.esports.aeq.admins.security.service.UserService;
-import de.esports.aeq.admins.trials.common.TrialPeriodEnvironment;
 import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.exception.TrialPeriodAlreadyStartedException;
 import de.esports.aeq.admins.trials.exception.TrialPeriodBlockedException;
@@ -40,7 +39,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     private static final Logger LOG = LoggerFactory.getLogger(TrialPeriodServiceBean.class);
 
     private final TrialPeriodRepository trialPeriodRepository;
-    private final TrialPeriodEnvironment environment;
+    private final TrialPeriodConfigService configService;
     private final UserService userService;
     private final WorkflowController workflow;
     private final EntityManager entityManager;
@@ -50,13 +49,13 @@ class TrialPeriodServiceBean implements TrialPeriodService {
 
     @Autowired
     public TrialPeriodServiceBean(TrialPeriodRepository repository,
-            TrialPeriodEnvironment environment,
+            TrialPeriodConfigService configService,
             UserService userService,
             WorkflowController workflow,
             ModelMapper mapper,
             EntityManager entityManager) {
         this.trialPeriodRepository = repository;
-        this.environment = environment;
+        this.configService = configService;
         this.userService = userService;
         this.workflow = workflow;
         this.mapper = mapper;
@@ -93,7 +92,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         assertCreatePreconditions(entity);
         enrichTrialPeriod(entity);
 
-        LOG.info("Creating trial period: {}", trialPeriod);
+        LOG.info("Creating trial period: {}", entity);
         TrialPeriodTa savedEntity = trialPeriodRepository.save(entity);
 
         TrialPeriod result = map(savedEntity);
@@ -114,7 +113,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     }
 
     private void assertNoVestingPeriod(TrialPeriodTa trialPeriod) {
-        Period vestingPeriod = environment.getVestingPeriod();
+        Period vestingPeriod = configService.getConfig().getVestingPeriod();
         if (vestingPeriod.isZero()) {
             return;
         }
@@ -146,7 +145,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         }
 
         if (entity.getDuration() == null) {
-            Duration defaultDuration = environment.getTrialPeriodDuration();
+            Duration defaultDuration = configService.getConfig().getTrialPeriodDuration();
             LOG.debug("Trial period {} will be initialized with default duration {}",
                     entity, defaultDuration);
             entity.setDuration(defaultDuration);
@@ -158,7 +157,10 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     @Override
     public TrialPeriod update(UpdateTrialPeriod trialPeriod) {
         TrialPeriodTa existing = findOneOrThrow(trialPeriod.getId());
-        TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
+
+        TrialPeriodTa entity = new TrialPeriodTa();
+        mapper.map(existing, entity);
+        mapper.map(trialPeriod, entity);
 
         var context = UpdateContext.of(existing, entity);
         assertUpdatePreconditions(context);

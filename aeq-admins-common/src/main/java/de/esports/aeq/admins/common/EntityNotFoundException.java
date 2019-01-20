@@ -10,6 +10,10 @@ public class EntityNotFoundException extends RuntimeException {
         super("The requested entity cannot be found.");
     }
 
+    public EntityNotFoundException(String message) {
+        super("The requested entity cannot be found: " + message);
+    }
+
     public EntityNotFoundException(Object id) {
         super("The requested entity with id " + id + " cannot be found.");
     }

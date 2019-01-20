@@ -5,7 +5,9 @@ import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.service.TrialPeriodService;
 import de.esports.aeq.admins.trials.service.TrialPeriodVoteService;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
+import de.esports.aeq.admins.trials.service.dto.UpdateTrialPeriod;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +19,15 @@ import java.time.Instant;
 public class ExpressionResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExpressionResolver.class);
+    private final ModelMapper mapper;
     private final TrialPeriodService trialPeriodService;
     private final TrialPeriodVoteService trialPeriodVoteService;
 
     @Autowired
-    public ExpressionResolver(TrialPeriodService trialPeriodService,
+    public ExpressionResolver(ModelMapper mapper,
+            TrialPeriodService trialPeriodService,
             TrialPeriodVoteService trialPeriodVoteService) {
+        this.mapper = mapper;
         this.trialPeriodService = trialPeriodService;
         this.trialPeriodVoteService = trialPeriodVoteService;
     }
@@ -32,7 +37,8 @@ public class ExpressionResolver {
         Long id = (Long) execution.getVariable(ProcessVariables.TRIAL_PERIOD_ID);
         TrialPeriod trialPeriod = trialPeriodService.findOne(id);
         trialPeriod.setState(TrialState.PENDING);
-        trialPeriodService.update(trialPeriod);
+        UpdateTrialPeriod update = mapper.map(trialPeriod, UpdateTrialPeriod.class);
+        trialPeriodService.update(update);
     }
 
     @CamundaExpression
@@ -41,7 +47,8 @@ public class ExpressionResolver {
         TrialPeriod trialPeriod = trialPeriodService.findOne(id);
         trialPeriod.setState(TrialState.OPEN);
         trialPeriod.setStart(Instant.now());
-        trialPeriodService.update(trialPeriod);
+        UpdateTrialPeriod update = mapper.map(trialPeriod, UpdateTrialPeriod.class);
+        trialPeriodService.update(update);
     }
 
     @CamundaExpression
@@ -53,7 +60,8 @@ public class ExpressionResolver {
         TrialState state = TrialState.valueOf(consensus.toUpperCase());
 
         trialPeriod.setState(state);
-        TrialPeriod entity = trialPeriodService.update(trialPeriod);
+        UpdateTrialPeriod update = mapper.map(trialPeriod, UpdateTrialPeriod.class);
+        TrialPeriod entity = trialPeriodService.update(update);
 
         LOG.info("Consensus found for trial period: {}", entity);
     }

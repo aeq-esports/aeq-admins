@@ -21,18 +21,4 @@ public class SystemConfigurationBean implements SystemConfiguration {
     public PasswordStrength getPasswordStrength() {
         return new PasswordStrength(8, true, true, true, true);
     }
-
-    @Override
-    public Duration getTrialPeriodDuration() {
-        String key = PropertyKeys.TRIAL_DEFAULT_DURATION.getKey();
-        String duration = environment.getRequiredProperty(key);
-        return Duration.parse(duration);
-    }
-
-    @Override
-    public Period getVestingPeriod() {
-        String key = PropertyKeys.TRIAL_DEFAULT_VESTING_PERIOD.getKey();
-        String period = environment.getProperty(key);
-        return period != null ? Period.parse(period) : Period.ZERO;
-    }
 }

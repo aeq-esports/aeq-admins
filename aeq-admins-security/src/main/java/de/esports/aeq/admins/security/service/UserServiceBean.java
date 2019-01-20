@@ -46,12 +46,12 @@ public class UserServiceBean implements UserService {
     @Override
     public UserTa findById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + id));
     }
 
     @Override
     public UserTa findByUsername(String username) {
         return repository.findOneByUsername(username)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException("User with username " + username));
     }
 }
