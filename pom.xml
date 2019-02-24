@@ -28,6 +28,7 @@
         <module>aeq-admins-security</module>
         <module>aeq-admins-configuration</module>
         <module>aeq-admins-forum</module>
+        <module>aeq-admins-members</module>
     </modules>
 
     <dependencyManagement>
