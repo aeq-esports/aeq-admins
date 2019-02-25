@@ -1,6 +1,9 @@
-package de.esports.aeq.admins.members.domain;
+package de.esports.aeq.admins.members.service;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
+import de.esports.aeq.admins.members.domain.Member;
+import de.esports.aeq.admins.members.domain.VerifiableAccount;
+import de.esports.aeq.admins.members.domain.VerifiableAccountImpl;
 import de.esports.aeq.admins.members.jpa.MemberRepository;
 import de.esports.aeq.admins.members.jpa.entity.MemberTa;
 import de.esports.aeq.admins.members.jpa.entity.VerifiableAccountTa;

@@ -1,4 +1,6 @@
-package de.esports.aeq.admins.members.domain;
+package de.esports.aeq.admins.members.service;
+
+import de.esports.aeq.admins.members.domain.Member;
 
 import java.util.Collection;
 
