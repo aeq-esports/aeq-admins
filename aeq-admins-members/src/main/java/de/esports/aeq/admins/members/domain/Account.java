@@ -3,7 +3,11 @@ package de.esports.aeq.admins.members.domain;
 import java.time.Instant;
 import java.util.Optional;
 
-public interface Account {
+public class Account {
+
+    private AccountId accountId;
+    private Instant createdAt;
+    private Instant lastSeenAt;
 
     /**
      * Obtains the identifier of this account.
@@ -12,7 +16,13 @@ public interface Account {
      *
      * @return the identifier for this member
      */
-    String getId();
+    public AccountId getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(AccountId accountId) {
+        this.accountId = accountId;
+    }
 
     /**
      * Obtains the exact time this account has been created at.
@@ -20,7 +30,13 @@ public interface Account {
      * @return an {@link Instant} that represents the time this account has been created at, never
      * <code>null</code>
      */
-    Instant getCreatedAt();
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 
     /**
      * Obtains the time the last action that has been performed on this account.
@@ -31,5 +47,11 @@ public interface Account {
      * @return an {@link Optional} that either holds an {@link Instant} or is empty if this option
      * is not supported for this account
      */
-    Optional<Instant> getLastSeenAt();
+    public Instant getLastSeenAt() {
+        return lastSeenAt;
+    }
+
+    public void setLastSeenAt(Instant lastSeenAt) {
+        this.lastSeenAt = lastSeenAt;
+    }
 }

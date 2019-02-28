@@ -1,8 +1,24 @@
 package de.esports.aeq.admins.members.domain;
 
-public interface AccountId {
+public final class AccountId {
 
-    String getValue();
+    private String value;
+    private String type;
 
-    String getType();
+    public static AccountId of(String value, String type) {
+        return new AccountId(value, type);
+    }
+
+    private AccountId(String value, String type) {
+        this.value = value;
+        this.type = type;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getType() {
+        return type;
+    }
 }

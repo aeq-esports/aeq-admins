@@ -5,13 +5,13 @@ import de.esports.aeq.admins.members.domain.Member;
 
 import java.util.Collection;
 
-public interface MemberService {
+public interface ComplaintService {
 
-    Collection<Member> getMembers();
+    Collection<Complaint> getComplaints();
 
-    Member getMemberById(Long id);
+    Complaint getComplaintById(Long id);
 
-    Member createMember(Member member);
+    Complaint createComplaint(Complaint complaint);
 
     Member updateMember(Member member);
 

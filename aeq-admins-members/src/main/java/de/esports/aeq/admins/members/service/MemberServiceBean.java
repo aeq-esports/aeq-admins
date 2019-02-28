@@ -40,31 +40,31 @@ public class MemberServiceBean implements MemberService {
     }
 
     @Override
-    public Collection<Member> findAll() {
+    public Collection<Member> getMembers() {
         return repository.findAll().stream().map(this::map)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Member findById(Long id) {
+    public Member getMemberById(Long id) {
         MemberTa member = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(id));
         return map(member);
     }
 
     @Override
-    public Member create(Member member) {
+    public Member createMember(Member member) {
         member.setId(null);
         return null;
     }
 
     @Override
-    public Member update(Member member) {
+    public Member updateMember(Member member) {
         return null;
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteMember(Long id) {
 
     }
 

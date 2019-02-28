@@ -10,6 +10,10 @@ public class DuplicateEntityException extends RuntimeException {
         super();
     }
 
+    public DuplicateEntityException(Object entity) {
+        super("Duplicated entity: " + entity.toString());
+    }
+
     public DuplicateEntityException(String entity) {
         super("Duplicated entity: " + entity);
     }
