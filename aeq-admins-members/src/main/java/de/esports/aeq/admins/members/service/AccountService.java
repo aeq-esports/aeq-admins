@@ -36,14 +36,14 @@ public interface AccountService {
      * @return a <code>Collection</code> of complaints, which may be empty, but never
      * <code>null</code>
      */
-    Collection<Complaint> getComplaints(AccountId accountId);
+    Collection<Complaint> getComplaintsByAccused(AccountId accountId);
 
-    Collection<Complaint> getSubmittedComplaints(AccountId accountId);
+    Collection<Complaint> getComplaintsByAccuser(AccountId accountId);
 
     /**
      * Associates a new complaint with this account.
      *
-     * @param complaint the complaint to be added, not <code>null</code>
+     * @param complaint the complaint to be added, must not be <code>null</code>
      */
-    void addComplaint(AccountId accountId, Complaint complaint);
+    Complaint addComplaint(Complaint complaint);
 }
