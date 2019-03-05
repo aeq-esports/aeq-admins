@@ -5,6 +5,17 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.Collection;
 
+/**
+ * Represents a complaint, which basically consists of a reporter, an accuser and one or multiple
+ * accused persons.
+ * <p>
+ * Please note that none of the accounts have to be associated to any registered member. This allows
+ * external entities to submit complaints without the need of a registered account. However, if the
+ * account can be referenced to an existing member, the related account id should be replaced with
+ * the corresponding system id for that member.
+ *
+ * @implSpec
+ */
 public class Complaint implements Serializable {
 
     private Long id;
@@ -24,7 +35,7 @@ public class Complaint implements Serializable {
     }
 
     /**
-     * Obtains the reporter of this complaint.
+     * Obtains the reporters account id.
      * <p>
      * If the reporter is the same person as the accuser, the returned account id will be the same
      * as the accuser id.
@@ -39,6 +50,11 @@ public class Complaint implements Serializable {
         this.reporter = reporter;
     }
 
+    /**
+     * Obtains the accusers account id.
+     *
+     * @return the account id, not <code>null</code>
+     */
     public AccountId getAccuserAccountId() {
         return accuserAccountId;
     }
@@ -47,6 +63,11 @@ public class Complaint implements Serializable {
         this.accuserAccountId = accuserAccountId;
     }
 
+    /**
+     * Obtains all accused account ids.
+     *
+     * @return a collection of account ids, never <code>null</code>
+     */
     public Collection<AccountId> getAccusedAccountIds() {
         return accusedAccountIds;
     }

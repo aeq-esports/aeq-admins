@@ -8,13 +8,9 @@ import java.time.Period;
 public class Member implements Serializable {
 
     private Long id;
-
     private String firstName;
-
     private Gender gender;
-
     private LocalDate dateOfBirth;
-
     private VerifiableAccount teamspeakAccount;
 
     public Long getId() {
