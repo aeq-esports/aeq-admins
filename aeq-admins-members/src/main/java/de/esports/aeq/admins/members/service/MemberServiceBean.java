@@ -3,7 +3,6 @@ package de.esports.aeq.admins.members.service;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.members.domain.Member;
 import de.esports.aeq.admins.members.domain.VerifiableAccount;
-import de.esports.aeq.admins.members.domain.VerifiableAccountImpl;
 import de.esports.aeq.admins.members.jpa.MemberRepository;
 import de.esports.aeq.admins.members.jpa.entity.MemberTa;
 import de.esports.aeq.admins.members.jpa.entity.VerifiableAccountTa;
@@ -75,7 +74,7 @@ public class MemberServiceBean implements MemberService {
     private VerifiableAccount mapVerifiableAccount(
             MappingContext<Object, Object> context) {
         VerifiableAccountTa source = (VerifiableAccountTa) context.getSource();
-        return mapper.map(source, VerifiableAccountImpl.class);
+        return mapper.map(source, VerifiableAccount.class);
     }
 
     private VerifiableAccountTa mapVerifiableAccountEntity(

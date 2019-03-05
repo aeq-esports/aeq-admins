@@ -1,13 +1,10 @@
 package de.esports.aeq.admins.members.domain;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Optional;
 
-public class Account {
-
-    private AccountId accountId;
-    private Instant createdAt;
-    private Instant lastSeenAt;
+public interface Account extends Serializable {
 
     /**
      * Obtains the identifier of this account.
@@ -16,13 +13,17 @@ public class Account {
      *
      * @return the identifier for this member
      */
-    public AccountId getAccountId() {
-        return accountId;
-    }
+    AccountId getAccountId();
 
-    public void setAccountId(AccountId accountId) {
-        this.accountId = accountId;
-    }
+    /**
+     * Obtains any object storing detailed information associated to this account.
+     * <p>
+     * The exact type of the underlying object can be determined using the type of the account id.
+     *
+     * @return an object or <code>null</code> if no additional information has been associated to
+     * this account
+     */
+    Object getData();
 
     /**
      * Obtains the exact time this account has been created at.
@@ -30,13 +31,7 @@ public class Account {
      * @return an {@link Instant} that represents the time this account has been created at, never
      * <code>null</code>
      */
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
+    Instant getCreatedAt();
 
     /**
      * Obtains the time the last action that has been performed on this account.
@@ -47,11 +42,5 @@ public class Account {
      * @return an {@link Optional} that either holds an {@link Instant} or is empty if this option
      * is not supported for this account
      */
-    public Instant getLastSeenAt() {
-        return lastSeenAt;
-    }
-
-    public void setLastSeenAt(Instant lastSeenAt) {
-        this.lastSeenAt = lastSeenAt;
-    }
+    Instant getLastSeenAt();
 }

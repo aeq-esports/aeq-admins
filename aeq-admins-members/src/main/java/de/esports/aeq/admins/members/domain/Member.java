@@ -1,64 +1,20 @@
 package de.esports.aeq.admins.members.domain;
 
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.Period;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
-public class Member implements Serializable {
+import static java.util.Objects.requireNonNull;
 
-    private Long id;
-    private String firstName;
-    private Gender gender;
-    private LocalDate dateOfBirth;
-    private VerifiableAccount teamspeakAccount;
+public class Member extends BasicAccount {
 
-    public Long getId() {
-        return id;
+    private Collection<Account> accounts = new HashSet<>();
+
+    public void addAccount(Account account) {
+        accounts.add(requireNonNull(account));
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    /**
-     * Obtains the current age of this member using the system clock in the default time-zone.
-     *
-     * @return a {@link Period} representing the current age
-     */
-    public Period getAge() {
-        return Period.between(dateOfBirth, LocalDate.now());
-    }
-
-    public VerifiableAccount getTeamspeakAccount() {
-        return teamspeakAccount;
-    }
-
-    public void setTeamspeakAccount(@Nullable VerifiableAccount teamspeakAccount) {
-        this.teamspeakAccount = teamspeakAccount;
+    public Collection<Account> getAccounts() {
+        return Collections.unmodifiableCollection(accounts);
     }
 }

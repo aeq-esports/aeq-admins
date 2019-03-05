@@ -10,18 +10,16 @@ import java.util.Collection;
  * accused persons.
  * <p>
  * Please note that none of the accounts have to be associated to any registered member. This allows
- * external entities to submit complaints without the need of a registered account. However, if the
- * account can be referenced to an existing member, the related account id should be replaced with
- * the corresponding system id for that member.
- *
- * @implSpec
+ * external entities to submit complaints without the need of a registered account.
  */
 public class Complaint implements Serializable {
 
     private Long id;
+    private Platform platform;
     private AccountId reporter;
     private AccountId accuserAccountId;
     private Collection<AccountId> accusedAccountIds;
+    private Reason reason;
     private Instant createdAt;
     private String description;
     private Collection<URL> attachments;
@@ -32,6 +30,21 @@ public class Complaint implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    /**
+     * Obtains the platform.
+     * <p>
+     * The platform can be used to resolve
+     *
+     * @return
+     */
+    public Platform getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 
     /**
@@ -72,11 +85,34 @@ public class Complaint implements Serializable {
         return accusedAccountIds;
     }
 
-    public void setAccusedAccountIds(
-            Collection<AccountId> accusedAccountIds) {
+    public void setAccusedAccountIds(Collection<AccountId> accusedAccountIds) {
         this.accusedAccountIds = accusedAccountIds;
     }
 
+    /**
+     * Obtains the reason.
+     * <p>
+     * The reason may be <code>null</code> to indicate that predefined reasons did not match the
+     * target application. In this case, detailed information should be provided in the
+     * <code>description</code>.
+     *
+     * @return the reason or <code>null</code> if none has been specified
+     */
+    public Reason getReason() {
+        return reason;
+    }
+
+    public void setReason(Reason reason) {
+        this.reason = reason;
+    }
+
+    /**
+     * Obtains the exact time this complaint has been created.
+     * <p>
+     * Usually, this field should be initialized by the persistence layer.
+     *
+     * @return an {@link Instant} representing the exact time this complaint has been created
+     */
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -85,6 +121,11 @@ public class Complaint implements Serializable {
         this.createdAt = createdAt;
     }
 
+    /**
+     * Obtains a detailed description of this complaint.
+     *
+     * @return the description, not <code>null</code>
+     */
     public String getDescription() {
         return description;
     }
