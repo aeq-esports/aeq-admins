@@ -1,8 +1,9 @@
 package de.esports.aeq.admins.members.service;
 
+import de.esports.aeq.admins.members.PlatformType;
 import de.esports.aeq.admins.members.domain.Account;
 import de.esports.aeq.admins.members.domain.AccountId;
-import de.esports.aeq.admins.members.domain.Complaint;
+import de.esports.aeq.admins.members.domain.exception.UnresolvableAccountIdException;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -25,25 +26,11 @@ public interface AccountService {
 
     //-----------------------------------------------------------------------
 
-    Collection<Complaint> getComplaints();
+    void resolve(AccountId accountId) throws UnresolvableAccountIdException;
 
-    /**
-     * Obtains all complaints that have been associated to this account.
-     * <p>
-     * More specifically, returns all complaints that list the holder of this account as one of the
-     * <i>accused</i>.
-     *
-     * @return a <code>Collection</code> of complaints, which may be empty, but never
-     * <code>null</code>
-     */
-    Collection<Complaint> getComplaintsByAccused(AccountId accountId);
+    void resolveTo(AccountId accountId, String platform) throws UnresolvableAccountIdException;
 
-    Collection<Complaint> getComplaintsByAccuser(AccountId accountId);
-
-    /**
-     * Associates a new complaint with this account.
-     *
-     * @param complaint the complaint to be added, must not be <code>null</code>
-     */
-    Complaint addComplaint(Complaint complaint);
+    default void resolveTo(AccountId accountId, PlatformType platformType) throws UnresolvableAccountIdException {
+        resolveTo(accountId, platformType.toString());
+    }
 }

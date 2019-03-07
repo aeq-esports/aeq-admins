@@ -3,12 +3,10 @@ package de.esports.aeq.admins.members.service;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.members.domain.Account;
 import de.esports.aeq.admins.members.domain.AccountId;
-import de.esports.aeq.admins.members.domain.Complaint;
 import de.esports.aeq.admins.members.jpa.AccountRepository;
 import de.esports.aeq.admins.members.jpa.ComplaintRepository;
 import de.esports.aeq.admins.members.jpa.entity.AccountIdTa;
 import de.esports.aeq.admins.members.jpa.entity.AccountTa;
-import de.esports.aeq.admins.members.jpa.entity.ComplaintTa;
 import de.esports.aeq.admins.security.exception.DuplicateEntityException;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -28,7 +26,7 @@ public class AccountServiceBean implements AccountService {
     private final ComplaintRepository complaintRepository;
 
     public AccountServiceBean(ModelMapper mapper, AccountRepository accountRepository,
-            ComplaintRepository complaintRepository) {
+                              ComplaintRepository complaintRepository) {
         this.mapper = mapper;
         this.accountRepository = accountRepository;
         this.complaintRepository = complaintRepository;
@@ -102,35 +100,6 @@ public class AccountServiceBean implements AccountService {
 
     //-----------------------------------------------------------------------
 
-    @Override
-    public Collection<Complaint> getComplaints() {
-        return complaintRepository.findAll().stream().map(this::toComplaint)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Collection<Complaint> getComplaintsByAccused(AccountId accountId) {
-        AccountIdTa mappedAccountId = toAccountIdTa(accountId);
-        return complaintRepository.findAllByAccusedAccountIds(mappedAccountId).stream()
-                .map(this::toComplaint).collect(Collectors.toList());
-    }
-
-    @Override
-    public Collection<Complaint> getComplaintsByAccuser(AccountId accountId) {
-        AccountIdTa mappedAccountId = toAccountIdTa(accountId);
-        return complaintRepository.findAllByAccuserAccountId(mappedAccountId).stream()
-                .map(this::toComplaint).collect(Collectors.toList());
-    }
-
-    @Override
-    public Complaint addComplaint(Complaint complaint) {
-        ComplaintTa entity = toComplaintTa(complaint);
-        complaintRepository.save(entity);
-        return toComplaint(entity);
-    }
-
-    //-----------------------------------------------------------------------
-
     /*
      * Assertion methods.
      */
@@ -154,17 +123,5 @@ public class AccountServiceBean implements AccountService {
 
     private AccountTa toAccountTa(Account account) {
         return mapper.map(account, AccountTa.class);
-    }
-
-    private AccountIdTa toAccountIdTa(AccountId accountId) {
-        return mapper.map(accountId, AccountIdTa.class);
-    }
-
-    private Complaint toComplaint(ComplaintTa account) {
-        return mapper.map(account, Complaint.class);
-    }
-
-    private ComplaintTa toComplaintTa(Complaint account) {
-        return mapper.map(account, ComplaintTa.class);
     }
 }

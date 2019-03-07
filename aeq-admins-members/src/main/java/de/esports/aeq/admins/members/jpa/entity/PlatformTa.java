@@ -1,10 +1,18 @@
-package de.esports.aeq.admins.members.domain;
+package de.esports.aeq.admins.members.jpa.entity;
 
+import javax.persistence.*;
 import java.io.Serializable;
 
-public class Platform implements Serializable {
+@Entity
+@Table(name = "platform")
+public class PlatformTa implements Serializable {
 
+    @Id
+    @GeneratedValue
+    @Column(name = "platform_id")
     private Long id;
+
+    @Column(name = "name")
     private String name;
 
     public Long getId() {
