@@ -14,6 +14,8 @@ public class AccountIdTa implements Serializable {
     @Column(name = "account_type")
     private String type;
 
+    private PlatformTa platform;
+
     public AccountIdTa() {
 
     }
@@ -37,6 +39,14 @@ public class AccountIdTa implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public PlatformTa getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(PlatformTa platform) {
+        this.platform = platform;
     }
 
     @Override

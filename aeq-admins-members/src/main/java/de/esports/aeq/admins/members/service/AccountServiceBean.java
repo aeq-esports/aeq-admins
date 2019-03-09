@@ -1,18 +1,20 @@
 package de.esports.aeq.admins.members.service;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.members.domain.Account;
-import de.esports.aeq.admins.members.domain.AccountId;
+import de.esports.aeq.admins.members.domain.account.*;
+import de.esports.aeq.admins.members.domain.exception.AccountIdAlreadyOccupiedException;
+import de.esports.aeq.admins.members.jpa.AccountPropertyDataRepository;
 import de.esports.aeq.admins.members.jpa.AccountRepository;
-import de.esports.aeq.admins.members.jpa.ComplaintRepository;
 import de.esports.aeq.admins.members.jpa.entity.AccountIdTa;
+import de.esports.aeq.admins.members.jpa.entity.AccountPropertyDataTa;
 import de.esports.aeq.admins.members.jpa.entity.AccountTa;
-import de.esports.aeq.admins.security.exception.DuplicateEntityException;
+import de.esports.aeq.admins.members.jpa.entity.PlatformTa;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
@@ -23,13 +25,16 @@ public class AccountServiceBean implements AccountService {
 
     private final ModelMapper mapper;
     private final AccountRepository accountRepository;
-    private final ComplaintRepository complaintRepository;
+    private final AccountPropertyDataRepository propertyDataRepository;
+    private final PlatformService platformService;
 
     public AccountServiceBean(ModelMapper mapper, AccountRepository accountRepository,
-                              ComplaintRepository complaintRepository) {
+            AccountPropertyDataRepository propertyDataRepository,
+            PlatformService platformService) {
         this.mapper = mapper;
         this.accountRepository = accountRepository;
-        this.complaintRepository = complaintRepository;
+        this.propertyDataRepository = propertyDataRepository;
+        this.platformService = platformService;
     }
 
     //-----------------------------------------------------------------------
@@ -43,7 +48,12 @@ public class AccountServiceBean implements AccountService {
 
         Converter<AccountIdTa, AccountId> mapAccountIdTa = c -> {
             AccountIdTa accountId = c.getSource();
-            return AccountId.of(accountId.getValue(), accountId.getType());
+            AccountId result = new AccountId(accountId.getValue(), accountId.getType());
+            PlatformTa platform = accountId.getPlatform();
+
+            // TODO
+
+            result.setPlatform();
         };
 
         mapper.addConverter(mapAccountId, AccountId.class, AccountIdTa.class);
@@ -66,8 +76,20 @@ public class AccountServiceBean implements AccountService {
 
     @Override
     public Account getAccountById(AccountId accountId) {
-        return accountRepository.findById(accountId).map(this::toAccount)
+        AccountTa entity = accountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException(accountId));
+
+        AccountImpl account = toAccount(entity);
+
+        // TODO: restore platform info as well
+
+        Class<?> dataType = entity.getDataType();
+        if (dataType != null) {
+            Object accountData = getAccountData(accountId, dataType);
+            account.setData(accountData);
+        }
+
+        return account;
     }
 
     @Override
@@ -82,15 +104,75 @@ public class AccountServiceBean implements AccountService {
                 .map(this::toAccount).collect(Collectors.toList());
     }
 
+    //-----------------------------------------------------------------------
+
     @Override
     public Account createAccount(Account account) {
-        checkExistingAccountId(account.getAccountId());
+        AccountId accountId = account.getAccountId();
+        checkAccountIdAlreadyOccupied(accountId);
 
         AccountTa entity = toAccountTa(account);
         entity.setCreatedAt(Instant.now());
 
+        Platform platform = account.getPlatform();
+        // assert the platform id exists
+        if (platform != null) {
+            platformService.getPlatformById(platform.getId());
+        }
+
         accountRepository.save(entity);
+
+        Object accountData = account.getData();
+        if (accountData != null) {
+            persistAccountData(accountId, accountData);
+        }
+
         return toAccount(entity);
+    }
+
+    private void persistAccountData(AccountId accountId, Object accountData) {
+        Class<?> dataClass = accountData.getClass();
+
+        if (accountData instanceof Serializable) {
+            throw new RuntimeException(dataClass + " must be serializable.");
+        }
+
+        if (accountData instanceof SimplePropertyMap) {
+            persistPropertyAccountData(accountId, (SimplePropertyMap) accountData);
+            return;
+        }
+
+        throw new RuntimeException("No entity processing method found for class " + dataClass);
+    }
+
+    private void persistPropertyAccountData(AccountId accountId, SimplePropertyMap properties) {
+        AccountIdTa accountIdTa = toAccountIdTa(accountId);
+
+        AccountPropertyDataTa entity = new AccountPropertyDataTa();
+        entity.setAccountId(accountIdTa);
+        entity.setProperties(properties.getProperties());
+
+        propertyDataRepository.save(entity);
+    }
+
+    private Object getAccountData(AccountId accountId, Class<?> dataClass) {
+        if (SimplePropertyMap.class.isAssignableFrom(dataClass)) {
+            return getPropertyAccountData(accountId);
+        }
+
+        throw new RuntimeException("No entity processing method found for class " + dataClass);
+    }
+
+    private SimplePropertyMap getPropertyAccountData(AccountId accountId) {
+        AccountIdTa accountIdTa = toAccountIdTa(accountId);
+
+        var entityOpt = propertyDataRepository.findById(accountIdTa);
+        if (entityOpt.isEmpty()) {
+            return new PropertyPlatformData();
+        }
+
+        AccountPropertyDataTa entity = entityOpt.get();
+        return new PropertyPlatformData(entity.getProperties());
     }
 
     @Override
@@ -98,16 +180,17 @@ public class AccountServiceBean implements AccountService {
         accountRepository.deleteById(accountId);
     }
 
+
     //-----------------------------------------------------------------------
 
     /*
      * Assertion methods.
      */
 
-    private void checkExistingAccountId(AccountId accountId) {
+    private void checkAccountIdAlreadyOccupied(AccountId accountId) {
         Optional<AccountTa> existing = accountRepository.findById(accountId);
         if (existing.isPresent()) {
-            throw new DuplicateEntityException(accountId);
+            throw new AccountIdAlreadyOccupiedException(accountId);
         }
     }
 
@@ -117,11 +200,15 @@ public class AccountServiceBean implements AccountService {
      * Convenience methods to be used for mapping.
      */
 
-    private Account toAccount(AccountTa account) {
-        return mapper.map(account, Account.class);
+    private AccountImpl toAccount(AccountTa account) {
+        return mapper.map(account, AccountImpl.class);
     }
 
     private AccountTa toAccountTa(Account account) {
         return mapper.map(account, AccountTa.class);
+    }
+
+    private AccountIdTa toAccountIdTa(AccountId accountId) {
+        return mapper.map(accountId, AccountIdTa.class);
     }
 }

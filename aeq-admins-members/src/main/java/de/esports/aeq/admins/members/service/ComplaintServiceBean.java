@@ -1,10 +1,8 @@
 package de.esports.aeq.admins.members.service;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.members.PlatformType;
-import de.esports.aeq.admins.members.domain.AccountId;
+import de.esports.aeq.admins.members.domain.account.AccountId;
 import de.esports.aeq.admins.members.domain.Complaint;
-import de.esports.aeq.admins.members.domain.Platform;
 import de.esports.aeq.admins.members.jpa.ComplaintRepository;
 import de.esports.aeq.admins.members.jpa.entity.AccountIdTa;
 import de.esports.aeq.admins.members.jpa.entity.ComplaintTa;

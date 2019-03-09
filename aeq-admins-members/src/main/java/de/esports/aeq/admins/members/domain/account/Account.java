@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.members.domain;
+package de.esports.aeq.admins.members.domain.account;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -14,6 +14,19 @@ public interface Account extends Serializable {
      * @return the identifier for this member
      */
     AccountId getAccountId();
+
+    /**
+     * Obtains the platform of this account.
+     * <p>
+     * This method exists for convenience and the default implementation returns the platform of the
+     * account id.
+     *
+     * @return the platform of this account or <code>null</code> if no platform id is present
+     * @see AccountId#getPlatform()
+     */
+    default Platform getPlatform() {
+        return getAccountId().getPlatform();
+    }
 
     /**
      * Obtains any object storing detailed information associated to this account.

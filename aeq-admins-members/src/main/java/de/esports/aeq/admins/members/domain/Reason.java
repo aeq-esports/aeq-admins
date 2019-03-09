@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.members.domain;
 
 import de.esports.aeq.admins.common.i18n.LocalizedMessage;
+import de.esports.aeq.admins.members.domain.account.Platform;
 
 import java.io.Serializable;
 import java.util.Collection;

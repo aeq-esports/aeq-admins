@@ -1,8 +1,8 @@
-package de.esports.aeq.admins.members.domain;
+package de.esports.aeq.admins.members.domain.account;
 
 import java.time.Instant;
 
-public class BasicAccount implements Account {
+public class AccountImpl implements Account {
 
     private AccountId accountId;
     private Object data;

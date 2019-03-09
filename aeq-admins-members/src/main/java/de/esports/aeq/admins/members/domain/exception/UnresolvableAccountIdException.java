@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.members.domain.exception;
 
-import de.esports.aeq.admins.members.domain.AccountId;
+import de.esports.aeq.admins.members.domain.account.AccountId;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

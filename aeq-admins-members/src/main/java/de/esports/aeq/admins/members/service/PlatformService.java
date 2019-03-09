@@ -1,7 +1,7 @@
 package de.esports.aeq.admins.members.service;
 
 import de.esports.aeq.admins.members.PlatformType;
-import de.esports.aeq.admins.members.domain.Platform;
+import de.esports.aeq.admins.members.domain.account.Platform;
 
 import java.util.Collection;
 

@@ -19,6 +19,9 @@ public class AccountTa implements Serializable {
     @Column
     private Instant lastSeen;
 
+    @Column(name = "data_type")
+    private Class<?> dataType;
+
     public AccountIdTa getAccountId() {
         return accountId;
     }
@@ -41,6 +44,14 @@ public class AccountTa implements Serializable {
 
     public void setLastSeen(Instant lastSeen) {
         this.lastSeen = lastSeen;
+    }
+
+    public Class<?> getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(Class<?> dataType) {
+        this.dataType = dataType;
     }
 
     @Override

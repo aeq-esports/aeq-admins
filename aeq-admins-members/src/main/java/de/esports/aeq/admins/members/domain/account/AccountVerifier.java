@@ -1,19 +1,19 @@
-package de.esports.aeq.admins.members;
+package de.esports.aeq.admins.members.domain.account;
 
-import de.esports.aeq.admins.members.domain.VerifiableAccount;
 import de.esports.aeq.admins.members.domain.exception.AccountVerificationException;
 
 public interface AccountVerifier {
 
     /**
-     * Obtains the type that this verifier can process.
+     * Validates if this verifier can process the target <code>type</code>.
      * <p>
      * It is guaranteed that only accounts matching the specified type are passed to this verifier.
      * If an account does not match the required type, the verifier will be skipped.
      *
      * @return the type that this verifier can process
+     * @see AccountId#getType()
      */
-    String getType();
+    boolean canVerify(String type);
 
     /**
      * Verifies this account.
@@ -24,8 +24,9 @@ public interface AccountVerifier {
      * those two results, an {@link AccountVerificationException} must be thrown.
      *
      * @param account the account to be verified
+     * @param token   the token to be used for verification
      * @throws AccountVerificationException if the verifier cannot decide on the resulting
      *                                      verification status
      */
-    void verify(VerifiableAccount account) throws AccountVerificationException;
+    void verify(VerifiableAccountImpl account, Object token) throws AccountVerificationException;
 }

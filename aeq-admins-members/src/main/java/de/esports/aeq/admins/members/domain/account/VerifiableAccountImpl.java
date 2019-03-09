@@ -1,8 +1,8 @@
-package de.esports.aeq.admins.members.domain;
+package de.esports.aeq.admins.members.domain.account;
 
 import java.time.Instant;
 
-public class VerifiableAccount extends BasicAccount {
+public class VerifiableAccountImpl extends AccountImpl {
 
     private boolean verified;
     private Instant verifiedAt;

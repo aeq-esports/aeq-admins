@@ -1,7 +1,7 @@
 package de.esports.aeq.admins.members.service;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.members.domain.Platform;
+import de.esports.aeq.admins.members.domain.account.Platform;
 import de.esports.aeq.admins.members.jpa.PlatformRepository;
 import de.esports.aeq.admins.members.jpa.entity.PlatformTa;
 import org.modelmapper.ModelMapper;
