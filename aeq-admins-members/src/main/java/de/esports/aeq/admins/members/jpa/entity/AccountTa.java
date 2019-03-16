@@ -1,8 +1,6 @@
 package de.esports.aeq.admins.members.jpa.entity;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -19,8 +17,9 @@ public class AccountTa implements Serializable {
     @Column
     private Instant lastSeen;
 
-    @Column(name = "data_type")
-    private Class<?> dataType;
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch =
+            FetchType.LAZY)
+    private AccountDataTa data;
 
     public AccountIdTa getAccountId() {
         return accountId;
@@ -46,12 +45,12 @@ public class AccountTa implements Serializable {
         this.lastSeen = lastSeen;
     }
 
-    public Class<?> getDataType() {
-        return dataType;
+    public AccountDataTa getData() {
+        return data;
     }
 
-    public void setDataType(Class<?> dataType) {
-        this.dataType = dataType;
+    public void setData(AccountDataTa data) {
+        this.data = data;
     }
 
     @Override

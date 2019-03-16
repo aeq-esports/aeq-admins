@@ -1,12 +1,11 @@
 package de.esports.aeq.admins.members.service;
 
+import de.esports.aeq.admins.members.AccountType;
 import de.esports.aeq.admins.members.domain.account.Account;
 import de.esports.aeq.admins.members.domain.account.AccountId;
-import de.esports.aeq.admins.members.domain.account.VerifiableAccount;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Optional;
 
 public interface AccountService {
 
@@ -34,26 +33,15 @@ public interface AccountService {
      * @param accountId the account id
      * @return a modifiable {@link Collection} of accounts, not <code>null</code>
      */
-    Collection<Account> getAccountsById(AccountId accountId);
+    Account getAccountById(AccountId accountId);
 
     Collection<Account> getAccountsByType(String type);
 
-    Collection<Account> getAccountsByType(String type, Instant lastSeenAt);
+    default Collection<Account> getAccountsByType(Enum<? extends AccountType> type) {
+        return getAccountsByType(type.toString());
+    }
 
-    /**
-     * Obtains a verified account that matches the target <code>accountId</code>.
-     * <p>
-     * Please note that there can only be one verified account per account id. If there should exist
-     * multiple accounts with the same verified account id, the implementation might throw an {@link
-     * IllegalStateException}. If no account matches the given account id or if there exist accounts
-     * matching the account id but those accounts are not verified, an <i>empty</i> {@link Optional}
-     * will be returned.
-     *
-     * @param accountId the account id, not <code>null</code>
-     * @return an {@link Optional} holding the account or is <i>empty</i> if no account is present
-     * that matches the criteria
-     */
-    Optional<VerifiableAccount> getVerifiedAccount(AccountId accountId);
+    Collection<Account> getAccountsByType(String type, Instant lastSeenAt);
 
     Account createAccount(Account account);
 

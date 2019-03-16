@@ -56,7 +56,7 @@ public class PlatformServiceBean implements PlatformService {
     }
 
     @Override
-    public Platform createMember(Platform platform) {
+    public Platform createPlatform(Platform platform) {
         Objects.requireNonNull(platform);
         PlatformTa entity = toPlatformTa(platform);
 

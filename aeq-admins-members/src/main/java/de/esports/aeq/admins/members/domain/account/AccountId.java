@@ -1,8 +1,11 @@
 package de.esports.aeq.admins.members.domain.account;
 
+import de.esports.aeq.admins.members.AccountType;
+
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 /**
  * Allows to identity an account.
@@ -17,6 +20,21 @@ public final class AccountId implements Serializable {
     private String value;
     private String type;
     private Platform platform;
+
+    public static AccountId create(Enum<AccountType> type) {
+        return create(type.toString());
+    }
+
+    /**
+     * Creates a new account id with a randomly generated unique id as value.
+     *
+     * @param type the type of the account id, not <code>null</code>
+     * @return the created account id, not <code>null</code>
+     */
+    private static AccountId create(String type) {
+        String value = UUID.randomUUID().toString();
+        return new AccountId(value, type);
+    }
 
     public AccountId(String value, String type) {
         this.value = Objects.requireNonNull(value);

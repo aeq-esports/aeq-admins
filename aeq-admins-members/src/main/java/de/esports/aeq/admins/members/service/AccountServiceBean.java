@@ -1,20 +1,21 @@
 package de.esports.aeq.admins.members.service;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.members.domain.account.*;
+import de.esports.aeq.admins.members.AccountType;
+import de.esports.aeq.admins.members.domain.account.Account;
+import de.esports.aeq.admins.members.domain.account.AccountId;
+import de.esports.aeq.admins.members.domain.account.AccountImpl;
+import de.esports.aeq.admins.members.domain.account.Platform;
 import de.esports.aeq.admins.members.domain.exception.AccountIdAlreadyOccupiedException;
-import de.esports.aeq.admins.members.jpa.AccountPropertyDataRepository;
 import de.esports.aeq.admins.members.jpa.AccountRepository;
 import de.esports.aeq.admins.members.jpa.entity.AccountIdTa;
-import de.esports.aeq.admins.members.jpa.entity.AccountPropertyDataTa;
 import de.esports.aeq.admins.members.jpa.entity.AccountTa;
 import de.esports.aeq.admins.members.jpa.entity.PlatformTa;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.spi.MappingContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
@@ -25,39 +26,58 @@ public class AccountServiceBean implements AccountService {
 
     private final ModelMapper mapper;
     private final AccountRepository accountRepository;
-    private final AccountPropertyDataRepository propertyDataRepository;
     private final PlatformService platformService;
 
     public AccountServiceBean(ModelMapper mapper, AccountRepository accountRepository,
-            AccountPropertyDataRepository propertyDataRepository,
             PlatformService platformService) {
         this.mapper = mapper;
         this.accountRepository = accountRepository;
-        this.propertyDataRepository = propertyDataRepository;
         this.platformService = platformService;
     }
 
     //-----------------------------------------------------------------------
 
     @PostConstruct
-    private void setupMapper() {
-        Converter<AccountId, AccountIdTa> mapAccountId = c -> {
-            AccountId accountId = c.getSource();
-            return new AccountIdTa(accountId.getValue(), accountId.getType());
-        };
+    private void setup() {
+        // setup mapper
+        mapper.addConverter(this::mapAccountId, AccountId.class, AccountIdTa.class);
+        mapper.addConverter(this::mapAccountIdTa, AccountIdTa.class, AccountId.class);
+    }
 
-        Converter<AccountIdTa, AccountId> mapAccountIdTa = c -> {
-            AccountIdTa accountId = c.getSource();
-            AccountId result = new AccountId(accountId.getValue(), accountId.getType());
-            PlatformTa platform = accountId.getPlatform();
+    //-----------------------------------------------------------------------
 
-            // TODO
+    /*
+     * Converters used by the mapper.
+     */
 
-            result.setPlatform();
-        };
+    private AccountIdTa mapAccountId(MappingContext<AccountId, AccountIdTa> context) {
+        AccountId source = context.getSource();
 
-        mapper.addConverter(mapAccountId, AccountId.class, AccountIdTa.class);
-        mapper.addConverter(mapAccountIdTa, AccountIdTa.class, AccountId.class);
+        AccountIdTa destination = new AccountIdTa();
+        destination.setValue(source.getValue());
+        destination.setType(source.getType());
+
+        Platform platform = source.getPlatform();
+        if (platform != null) {
+            PlatformTa platformTa = mapper.map(platform, PlatformTa.class);
+            destination.setPlatform(platformTa);
+        }
+
+        return destination;
+    }
+
+    private AccountId mapAccountIdTa(MappingContext<AccountIdTa, AccountId> context) {
+        AccountIdTa source = context.getSource();
+
+        AccountId destination = new AccountId(source.getValue(), source.getType());
+
+        PlatformTa platformTa = source.getPlatform();
+        if (platformTa != null) {
+            Platform platform = mapper.map(platformTa, Platform.class);
+            destination.setPlatform(platform);
+        }
+
+        return destination;
     }
 
     //-----------------------------------------------------------------------
@@ -76,20 +96,8 @@ public class AccountServiceBean implements AccountService {
 
     @Override
     public Account getAccountById(AccountId accountId) {
-        AccountTa entity = accountRepository.findById(accountId)
+        return accountRepository.findById(accountId).map(this::toAccount)
                 .orElseThrow(() -> new EntityNotFoundException(accountId));
-
-        AccountImpl account = toAccount(entity);
-
-        // TODO: restore platform info as well
-
-        Class<?> dataType = entity.getDataType();
-        if (dataType != null) {
-            Object accountData = getAccountData(accountId, dataType);
-            account.setData(accountData);
-        }
-
-        return account;
     }
 
     @Override
@@ -108,72 +116,30 @@ public class AccountServiceBean implements AccountService {
 
     @Override
     public Account createAccount(Account account) {
+        // if the account id is empty, create one
+        if (account.getAccountId() == null) {
+            account.setAccountId(AccountId.create(AccountType.TEMPORARY));
+        }
+
         AccountId accountId = account.getAccountId();
-        checkAccountIdAlreadyOccupied(accountId);
+
+        assertAccountIdNotAlreadyUsed(accountId);
 
         AccountTa entity = toAccountTa(account);
         entity.setCreatedAt(Instant.now());
 
         Platform platform = account.getPlatform();
-        // assert the platform id exists
+        // assert the platform exists if present
         if (platform != null) {
             platformService.getPlatformById(platform.getId());
         }
 
         accountRepository.save(entity);
 
-        Object accountData = account.getData();
-        if (accountData != null) {
-            persistAccountData(accountId, accountData);
-        }
-
         return toAccount(entity);
     }
 
-    private void persistAccountData(AccountId accountId, Object accountData) {
-        Class<?> dataClass = accountData.getClass();
-
-        if (accountData instanceof Serializable) {
-            throw new RuntimeException(dataClass + " must be serializable.");
-        }
-
-        if (accountData instanceof SimplePropertyMap) {
-            persistPropertyAccountData(accountId, (SimplePropertyMap) accountData);
-            return;
-        }
-
-        throw new RuntimeException("No entity processing method found for class " + dataClass);
-    }
-
-    private void persistPropertyAccountData(AccountId accountId, SimplePropertyMap properties) {
-        AccountIdTa accountIdTa = toAccountIdTa(accountId);
-
-        AccountPropertyDataTa entity = new AccountPropertyDataTa();
-        entity.setAccountId(accountIdTa);
-        entity.setProperties(properties.getProperties());
-
-        propertyDataRepository.save(entity);
-    }
-
-    private Object getAccountData(AccountId accountId, Class<?> dataClass) {
-        if (SimplePropertyMap.class.isAssignableFrom(dataClass)) {
-            return getPropertyAccountData(accountId);
-        }
-
-        throw new RuntimeException("No entity processing method found for class " + dataClass);
-    }
-
-    private SimplePropertyMap getPropertyAccountData(AccountId accountId) {
-        AccountIdTa accountIdTa = toAccountIdTa(accountId);
-
-        var entityOpt = propertyDataRepository.findById(accountIdTa);
-        if (entityOpt.isEmpty()) {
-            return new PropertyPlatformData();
-        }
-
-        AccountPropertyDataTa entity = entityOpt.get();
-        return new PropertyPlatformData(entity.getProperties());
-    }
+    //-----------------------------------------------------------------------
 
     @Override
     public void deleteAccount(AccountId accountId) {
@@ -187,7 +153,7 @@ public class AccountServiceBean implements AccountService {
      * Assertion methods.
      */
 
-    private void checkAccountIdAlreadyOccupied(AccountId accountId) {
+    private void assertAccountIdNotAlreadyUsed(AccountId accountId) {
         Optional<AccountTa> existing = accountRepository.findById(accountId);
         if (existing.isPresent()) {
             throw new AccountIdAlreadyOccupiedException(accountId);
@@ -206,9 +172,5 @@ public class AccountServiceBean implements AccountService {
 
     private AccountTa toAccountTa(Account account) {
         return mapper.map(account, AccountTa.class);
-    }
-
-    private AccountIdTa toAccountIdTa(AccountId accountId) {
-        return mapper.map(accountId, AccountIdTa.class);
     }
 }

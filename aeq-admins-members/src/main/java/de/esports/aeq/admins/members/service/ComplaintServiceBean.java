@@ -103,7 +103,7 @@ public class ComplaintServiceBean implements ComplaintService {
     //-----------------------------------------------------------------------
 
     private void resolveAccountId(AccountId accountId) {
-        accountService.resolve(accountId);
+        accountService.getAccountById(accountId);
     }
 
     //-----------------------------------------------------------------------

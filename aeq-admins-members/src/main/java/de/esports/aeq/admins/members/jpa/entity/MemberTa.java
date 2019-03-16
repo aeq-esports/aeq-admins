@@ -1,13 +1,11 @@
 package de.esports.aeq.admins.members.jpa.entity;
 
-import de.esports.aeq.admins.members.domain.Gender;
-
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.util.List;
 
 @Entity
-@Table(name = "member")
+@Table(name = "mer_member")
 public class MemberTa implements Serializable {
 
     @Id
@@ -15,16 +13,9 @@ public class MemberTa implements Serializable {
     @Column(name = "member_id")
     private Long id;
 
-    @Column
-    private String firstName;
+    private AccountTa account;
 
-    @Column
-    private Gender gender;
-
-    @Column
-    private LocalDate dateOfBirth;
-
-    private VerifiableAccountTa teamspeakAccount;
+    private List<AccountTa> accounts;
 
     public Long getId() {
         return id;
@@ -34,35 +25,19 @@ public class MemberTa implements Serializable {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public AccountTa getAccount() {
+        return account;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setAccount(AccountTa account) {
+        this.account = account;
     }
 
-    public Gender getGender() {
-        return gender;
+    public List<AccountTa> getAccounts() {
+        return accounts;
     }
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public VerifiableAccountTa getTeamspeakAccount() {
-        return teamspeakAccount;
-    }
-
-    public void setTeamspeakAccount(VerifiableAccountTa teamspeakAccount) {
-        this.teamspeakAccount = teamspeakAccount;
+    public void setAccounts(List<AccountTa> accounts) {
+        this.accounts = accounts;
     }
 }

@@ -1,14 +1,12 @@
 package de.esports.aeq.admins.members.domain.account;
 
-import de.esports.aeq.admins.common.i18n.LocalizedMessage;
-
 import java.io.Serializable;
 
 public class Platform implements Serializable {
 
     private Long id;
     private String type;
-    private LocalizedMessage name;
+    private String name;
     private Object data;
 
     /**
@@ -34,7 +32,7 @@ public class Platform implements Serializable {
      *
      * @return a message, not <code>null</code>
      */
-    public LocalizedMessage getName() {
+    public String getName() {
         return name;
     }
 

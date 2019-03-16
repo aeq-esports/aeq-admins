@@ -20,7 +20,7 @@ public class AccountIdTa implements Serializable {
 
     }
 
-    public AccountIdTa(String value, String type) {
+    public AccountIdTa(String value, String type, PlatformTa platform) {
         this.value = value;
         this.type = type;
     }

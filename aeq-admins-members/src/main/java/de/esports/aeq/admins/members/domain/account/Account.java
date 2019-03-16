@@ -9,11 +9,18 @@ public interface Account extends Serializable {
     /**
      * Obtains the identifier of this account.
      * <p>
-     * Generally, the identifier should be unique among all members.
+     * Generally, the account id should be unique among all accounts.
      *
-     * @return the identifier for this member
+     * @return the account id or <code>null</code> if this account id has not been resolved yet
      */
     AccountId getAccountId();
+
+    /**
+     * Sets the account id.
+     *
+     * @param accountId the account id, may be <code>null</code>
+     */
+    void setAccountId(AccountId accountId);
 
     /**
      * Obtains the platform of this account.
@@ -25,18 +32,22 @@ public interface Account extends Serializable {
      * @see AccountId#getPlatform()
      */
     default Platform getPlatform() {
-        return getAccountId().getPlatform();
+        AccountId accountId = getAccountId();
+        return accountId != null ? accountId.getPlatform() : null;
     }
 
     /**
-     * Obtains any object storing detailed information associated to this account.
+     * Obtains an object storing detailed information associated to this account.
      * <p>
-     * The exact type of the underlying object can be determined using the type of the account id.
+     * The exact type of the object can be determined using the type of the account id. Please note
+     * that the underlying object might be <code>null</code>, although additional information is
+     * available, but has not been resolved for performance reasons.
      *
-     * @return an object or <code>null</code> if no additional information has been associated to
-     * this account
+     * @return an object or <code>null</code> if no additional information is available
      */
     Object getData();
+
+    void setData(Object data);
 
     /**
      * Obtains the exact time this account has been created at.

@@ -9,17 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>aeq-admins-members</artifactId>
+    <artifactId>aeq-admins-i18n</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>de.esports.aeq</groupId>
             <artifactId>aeq-admins-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.esports.aeq</groupId>
-            <artifactId>aeq-admins-i18n</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -44,11 +39,6 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator-annotation-processor</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-envers</artifactId>
-            <version>5.4.0.Final</version>
         </dependency>
 
         <dependency>

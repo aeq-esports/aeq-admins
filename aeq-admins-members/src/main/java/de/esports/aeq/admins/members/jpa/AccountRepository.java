@@ -11,6 +11,8 @@ import java.util.Collection;
 @Repository
 public interface AccountRepository extends JpaRepository<AccountTa, AccountId> {
 
+    Collection<AccountTa> findAllByAccountId(AccountId accountId);
+
     Collection<AccountTa> findAllByLastSeenAfter(Instant lastSeen);
 
     Collection<AccountTa> findAllByAccountIdType(String type);

@@ -11,6 +11,8 @@ import static java.util.Objects.requireNonNull;
 
 public class Member extends AccountImpl {
 
+    private Long id;
+
     private Collection<Account> accounts = new HashSet<>();
 
     public void addAccount(Account account) {
@@ -19,5 +21,13 @@ public class Member extends AccountImpl {
 
     public Collection<Account> getAccounts() {
         return Collections.unmodifiableCollection(accounts);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

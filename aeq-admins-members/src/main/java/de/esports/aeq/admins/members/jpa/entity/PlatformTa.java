@@ -12,8 +12,15 @@ public class PlatformTa implements Serializable {
     @Column(name = "platform_id")
     private Long id;
 
-    @Column(name = "name")
+    @Column
     private String name;
+
+    @Column
+    private String type;
+
+    @OneToOne(mappedBy = "platform", cascade = CascadeType.ALL, orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private PlatformDataTa data;
 
     public Long getId() {
         return id;
@@ -29,5 +36,21 @@ public class PlatformTa implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public PlatformDataTa getData() {
+        return data;
+    }
+
+    public void setData(PlatformDataTa data) {
+        this.data = data;
     }
 }
