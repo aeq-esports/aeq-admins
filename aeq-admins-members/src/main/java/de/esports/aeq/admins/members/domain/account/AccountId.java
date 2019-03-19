@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.members.domain.account;
 
 import de.esports.aeq.admins.members.AccountType;
+import de.esports.aeq.admins.platform.api.PlatformReference;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -10,8 +11,12 @@ import java.util.UUID;
 /**
  * Allows to identity an account.
  * <p>
- * Please note that there should be absolutely made no assumptions about the validity of the values
- * representing the account id. The provided values may or may not actually exist.
+ * More specifically, an account id is a symbolic link to an account. There are absolutely no
+ * assumptions made about the existence or validity of the provided data. The provided values may or
+ * may not actually exist.
+ * <p>
+ * In addition, the combination of <i>value</i>, <i>type</i> and <i>platform reference</i> should
+ * also exist only once to be able to correctly identity an account.
  *
  * @see Account
  */
@@ -19,7 +24,7 @@ public final class AccountId implements Serializable {
 
     private String value;
     private String type;
-    private Platform platform;
+    private PlatformReference platformReference;
 
     public static AccountId create(Enum<AccountType> type) {
         return create(type.toString());
@@ -45,9 +50,7 @@ public final class AccountId implements Serializable {
      * Obtains the actual value.
      * <p>
      * This value can represent anything that can be used to identity an account, such as a unique
-     * id or a nickname. The <code>value</code> of this account id must be unique, also taking the
-     * <code>type</code> and <code>platform</code> into account, to be able to correctly identity
-     * an account it belongs to.
+     * id or a nickname.
      *
      * @return the value, not <code>null</code>
      */
@@ -76,20 +79,16 @@ public final class AccountId implements Serializable {
     }
 
     /**
-     * Obtains the platform that this account id is valid on.
-     * <p>
-     * If this account can be identified without the need of a platform, this method may return
-     * <code>null</code>. This can be the case is the combination of <code>value</code> and
-     * <code>type</code> is already unique on all platforms.
+     * Obtains the platform reference that this account id is valid on.
      *
-     * @return the platform or <code>null</code> if no platform id is present
+     * @return the platform reference, not <code>null</code>
      */
-    public Platform getPlatform() {
-        return platform;
+    public PlatformReference getPlatformReference() {
+        return platformReference;
     }
 
-    public void setPlatform(Platform platform) {
-        this.platform = platform;
+    public void setPlatformReference(PlatformReference platformReference) {
+        this.platformReference = platformReference;
     }
 
     @Override
@@ -98,12 +97,12 @@ public final class AccountId implements Serializable {
         if (!(o instanceof AccountId)) return false;
         AccountId accountId = (AccountId) o;
         return value.equals(accountId.value) && type.equals(accountId.type) &&
-                platform.equals(accountId.platform);
+                platformReference.equals(accountId.platformReference);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value, type, platform);
+        return Objects.hash(value, type, platformReference);
     }
 
     @Override
@@ -111,7 +110,7 @@ public final class AccountId implements Serializable {
         return new StringJoiner(", ", AccountId.class.getSimpleName() + "[", "]")
                 .add("value='" + value + "'")
                 .add("type='" + type + "'")
-                .add("platform=" + platform)
+                .add("platformReference=" + platformReference)
                 .toString();
     }
 }

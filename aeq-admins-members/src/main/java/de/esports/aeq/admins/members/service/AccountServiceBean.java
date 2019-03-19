@@ -5,12 +5,12 @@ import de.esports.aeq.admins.members.AccountType;
 import de.esports.aeq.admins.members.domain.account.Account;
 import de.esports.aeq.admins.members.domain.account.AccountId;
 import de.esports.aeq.admins.members.domain.account.AccountImpl;
-import de.esports.aeq.admins.members.domain.account.Platform;
 import de.esports.aeq.admins.members.domain.exception.AccountIdAlreadyOccupiedException;
 import de.esports.aeq.admins.members.jpa.AccountRepository;
 import de.esports.aeq.admins.members.jpa.entity.AccountIdTa;
 import de.esports.aeq.admins.members.jpa.entity.AccountTa;
-import de.esports.aeq.admins.members.jpa.entity.PlatformTa;
+import de.esports.aeq.admins.platform.api.Platform;
+import de.esports.aeq.admins.platform.api.service.PlatformService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.spi.MappingContext;
 import org.springframework.stereotype.Service;
@@ -57,11 +57,7 @@ public class AccountServiceBean implements AccountService {
         destination.setValue(source.getValue());
         destination.setType(source.getType());
 
-        Platform platform = source.getPlatform();
-        if (platform != null) {
-            PlatformTa platformTa = mapper.map(platform, PlatformTa.class);
-            destination.setPlatform(platformTa);
-        }
+        // TODO platform
 
         return destination;
     }
@@ -71,11 +67,7 @@ public class AccountServiceBean implements AccountService {
 
         AccountId destination = new AccountId(source.getValue(), source.getType());
 
-        PlatformTa platformTa = source.getPlatform();
-        if (platformTa != null) {
-            Platform platform = mapper.map(platformTa, Platform.class);
-            destination.setPlatform(platform);
-        }
+        // TODO platform
 
         return destination;
     }

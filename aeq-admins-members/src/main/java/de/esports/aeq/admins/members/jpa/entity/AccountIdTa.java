@@ -1,5 +1,7 @@
 package de.esports.aeq.admins.members.jpa.entity;
 
+import de.esports.aeq.admins.platform.api.entity.PlatformTa;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;

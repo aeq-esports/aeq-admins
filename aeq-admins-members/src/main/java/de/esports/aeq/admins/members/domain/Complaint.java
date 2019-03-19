@@ -1,7 +1,7 @@
 package de.esports.aeq.admins.members.domain;
 
 import de.esports.aeq.admins.members.domain.account.AccountId;
-import de.esports.aeq.admins.members.domain.account.Platform;
+import de.esports.aeq.admins.platform.api.Platform;
 
 import java.io.Serializable;
 import java.net.URL;

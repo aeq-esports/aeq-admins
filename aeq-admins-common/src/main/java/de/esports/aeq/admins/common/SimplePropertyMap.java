@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.members.domain.account;
+package de.esports.aeq.admins.common;
 
 import java.util.Map;
 

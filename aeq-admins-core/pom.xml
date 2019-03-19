@@ -14,8 +14,13 @@
     <dependencies>
         <dependency>
             <groupId>de.esports.aeq</groupId>
-            <artifactId>aeq-admins-trials</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>aeq-admins-platform-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.esports.aeq</groupId>
+            <artifactId>aeq-admins-riot-integration</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

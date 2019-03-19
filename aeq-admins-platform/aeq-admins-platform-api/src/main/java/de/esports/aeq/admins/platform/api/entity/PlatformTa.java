@@ -1,15 +1,17 @@
-package de.esports.aeq.admins.members.jpa.entity;
+package de.esports.aeq.admins.platform.api.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Entity
-@Table(name = "platform")
+@Table(name = "aeq_platform")
 public class PlatformTa implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column(name = "platform_id")
+    @Column(name = "plt_id")
     private Long id;
 
     @Column
@@ -18,9 +20,9 @@ public class PlatformTa implements Serializable {
     @Column
     private String type;
 
-    @OneToOne(mappedBy = "platform", cascade = CascadeType.ALL, orphanRemoval = true,
-            fetch = FetchType.LAZY)
-    private PlatformDataTa data;
+    @OneToMany(mappedBy = "platform", cascade = CascadeType.ALL, orphanRemoval = true,
+            fetch = FetchType.EAGER)
+    private Collection<PlatformDataTa> data = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -46,11 +48,12 @@ public class PlatformTa implements Serializable {
         this.type = type;
     }
 
-    public PlatformDataTa getData() {
+    public Collection<PlatformDataTa> getData() {
         return data;
     }
 
-    public void setData(PlatformDataTa data) {
+    public void setData(
+            Collection<PlatformDataTa> data) {
         this.data = data;
     }
 }

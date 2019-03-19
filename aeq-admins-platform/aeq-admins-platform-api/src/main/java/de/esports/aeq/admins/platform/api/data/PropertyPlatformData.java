@@ -1,21 +1,18 @@
-package de.esports.aeq.admins.members.domain.account;
+package de.esports.aeq.admins.platform.api.data;
+
+import de.esports.aeq.admins.common.SimplePropertyMap;
+import de.esports.aeq.admins.platform.api.Platform;
+import de.esports.aeq.admins.platform.api.PlatformData;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class PropertyPlatformData implements SimplePropertyMap {
+public class PropertyPlatformData implements SimplePropertyMap, PlatformData {
 
+    private Platform platform;
     private Map<String, String> properties = new HashMap<>();
-
-    public PropertyPlatformData() {
-
-    }
-
-    public PropertyPlatformData(Map<String, String> properties) {
-        this.properties = properties;
-    }
 
     @Override
     public void addProperty(String key, String property) {
@@ -27,5 +24,14 @@ public class PropertyPlatformData implements SimplePropertyMap {
     @Override
     public Map<String, String> getProperties() {
         return Collections.unmodifiableMap(properties);
+    }
+
+    @Override
+    public Platform getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 }

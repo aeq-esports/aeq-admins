@@ -1,6 +1,6 @@
-package de.esports.aeq.admins.members.jpa;
+package de.esports.aeq.admins.platform.impl.jpa;
 
-import de.esports.aeq.admins.members.jpa.entity.PlatformTa;
+import de.esports.aeq.admins.platform.api.entity.PlatformTa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

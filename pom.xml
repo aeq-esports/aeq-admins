@@ -30,6 +30,8 @@
         <module>aeq-admins-forum</module>
         <module>aeq-admins-members</module>
         <module>aeq-admins-i18n</module>
+        <module>aeq-admins-platform</module>
+        <module>aeq-admins-riot-integration</module>
     </modules>
 
     <dependencyManagement>
