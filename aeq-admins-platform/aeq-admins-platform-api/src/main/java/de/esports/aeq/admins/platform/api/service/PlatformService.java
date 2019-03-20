@@ -12,6 +12,8 @@ public interface PlatformService {
 
     Optional<Platform> getPlatformById(Long id);
 
+    Optional<Platform> getPlatformByType(String type);
+
     Optional<Platform> getPlatformByName(String id);
 
     Platform createPlatform(Platform platform);

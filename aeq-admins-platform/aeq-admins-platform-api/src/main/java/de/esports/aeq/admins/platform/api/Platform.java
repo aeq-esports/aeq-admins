@@ -1,12 +1,11 @@
 package de.esports.aeq.admins.platform.api;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static java.util.Objects.requireNonNull;
 
-public class Platform implements Serializable {
+public class Platform {
 
     private Long id;
     private String type;

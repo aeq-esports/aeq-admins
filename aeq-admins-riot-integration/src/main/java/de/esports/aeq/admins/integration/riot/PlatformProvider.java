@@ -3,48 +3,41 @@ package de.esports.aeq.admins.integration.riot;
 import de.esports.aeq.admins.platform.api.Platform;
 import de.esports.aeq.admins.platform.api.PlatformData;
 import de.esports.aeq.admins.platform.api.PlatformType;
-import de.esports.aeq.admins.platform.api.service.PlatformService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import de.esports.aeq.admins.platform.api.StaticPlatformProvider;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
-public class PlatformProvider {
+public class PlatformProvider implements StaticPlatformProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PlatformProvider.class);
-
-    private final PlatformService platformService;
-
-    @Autowired
-    public PlatformProvider(PlatformService platformService) {
-        this.platformService = platformService;
+    @Override
+    public Collection<Platform> getPlatforms() {
+        return Collections.singletonList(getRiotPlatform());
     }
 
-    @PostConstruct
-    public void setupPlatform() {
-        LOG.info("Creating riot platform");
+    private Platform getRiotPlatform() {
+        PlatformType platformType = PlatformType.RIOT;
+        String type = platformType.toString();
 
-        PlatformType type = PlatformType.RIOT;
-        Platform platform = Platform.create(type.toString(), type.getName());
-
-        Collection<PlatformData> data = platform.getPlatformData();
+        Platform platform = Platform.create(type, platformType.getName());
 
         var platformValues = net.rithms.riot.constant.Platform.values();
-        Arrays.stream(platformValues)
+
+        List<PlatformData> data = Arrays.stream(platformValues)
                 .map(net.rithms.riot.constant.Platform::toString)
                 .map(this::createPlatformData)
-                .forEach(data::add);
+                .collect(Collectors.toList());
 
-        platformService.createPlatform(platform);
+        platform.setPlatformData(data);
+        return platform;
     }
 
     private PlatformData createPlatformData(String platformName) {
         return new RiotPlatformData(platformName);
     }
-
 }

@@ -4,6 +4,8 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 @Entity
 @Table(name = "aeq_platform")
@@ -55,5 +57,14 @@ public class PlatformTa implements Serializable {
     public void setData(
             Collection<PlatformDataTa> data) {
         this.data = data;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", PlatformTa.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("name='" + name + "'")
+                .add("type='" + type + "'")
+                .toString();
     }
 }
