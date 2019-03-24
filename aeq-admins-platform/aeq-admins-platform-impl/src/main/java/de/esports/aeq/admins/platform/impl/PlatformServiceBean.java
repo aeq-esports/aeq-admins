@@ -136,7 +136,8 @@ public class PlatformServiceBean implements PlatformService {
      */
 
     private Platform toPlatform(PlatformTa platformTa) {
-        return mapper.getMapper().map(platformTa, Platform.class);
+        Platform platform = mapper.getMapper().map(platformTa, Platform.class);
+        return platform;
     }
 
     private PlatformTa toPlatformTa(Platform platform) {

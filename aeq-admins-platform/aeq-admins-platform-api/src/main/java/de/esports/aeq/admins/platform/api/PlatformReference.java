@@ -17,9 +17,9 @@ public final class PlatformReference {
         return new PlatformReference(platform, null);
     }
 
-    public PlatformReference of(PlatformData data) {
+    public PlatformReference of(Platform platform, PlatformData data) {
         requireNonNull(data);
-        return new PlatformReference(data.getPlatform(), data);
+        return new PlatformReference(platform, data);
     }
 
     private PlatformReference(Platform platform, PlatformData data) {

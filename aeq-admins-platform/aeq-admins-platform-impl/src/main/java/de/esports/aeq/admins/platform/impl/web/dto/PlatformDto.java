@@ -8,6 +8,8 @@ public class PlatformDto {
     private String type;
     private String name;
 
+    private Object platformData;
+
     public Long getId() {
         return id;
     }
@@ -30,6 +32,14 @@ public class PlatformDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Object getPlatformData() {
+        return platformData;
+    }
+
+    public void setPlatformData(Object platformData) {
+        this.platformData = platformData;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.platform.api.entity;
 
 import javax.persistence.*;
+import java.util.HashMap;
 import java.util.Map;
 
 @Entity
@@ -13,7 +14,7 @@ public class PropertyPlatformDataTa extends PlatformDataTa {
     @Column(name = "prop_value")
     @CollectionTable(name = "aeq_prop_map",
             joinColumns = @JoinColumn(name = "platform_id"))
-    private Map<String, String> properties;
+    private Map<String, String> properties = new HashMap<>();
 
     public Map<String, String> getProperties() {
         return properties;

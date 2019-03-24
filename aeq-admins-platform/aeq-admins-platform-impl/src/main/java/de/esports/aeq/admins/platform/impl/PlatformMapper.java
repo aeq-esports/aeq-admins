@@ -57,13 +57,14 @@ public class PlatformMapper {
         var platformData = context.getDestination().getPlatformData();
         context.getSource().getData().stream().map(this::mapPlatformDataTa)
                 .forEach(platformData::add);
-
         return context.getDestination();
     }
 
     private PlatformData mapPlatformDataTa(PlatformDataTa data) {
         if (data instanceof PropertyPlatformDataTa) {
-            return mapper.map(data, PropertyPlatformData.class);
+            PropertyPlatformData result = new PropertyPlatformData();
+            ((PropertyPlatformDataTa) data).getProperties().forEach(result::addProperty);
+            return result;
         }
 
         throw new IllegalStateException("Unknown platform data type: " + data.getClass());
