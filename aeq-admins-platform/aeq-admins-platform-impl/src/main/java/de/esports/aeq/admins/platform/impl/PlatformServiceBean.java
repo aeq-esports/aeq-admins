@@ -7,6 +7,7 @@ import de.esports.aeq.admins.platform.api.entity.PlatformTa;
 import de.esports.aeq.admins.platform.api.service.PlatformService;
 import de.esports.aeq.admins.platform.impl.jpa.PlatformRepository;
 import de.esports.aeq.admins.security.exception.DuplicateEntityException;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,11 @@ public class PlatformServiceBean implements PlatformService {
     private static final Logger LOG = LoggerFactory.getLogger(PlatformServiceBean.class);
 
     private final ApplicationContext context;
-    private final PlatformMapper mapper;
+    private final ModelMapper mapper;
     private final PlatformRepository repository;
 
     @Autowired
-    public PlatformServiceBean(PlatformMapper mapper, PlatformRepository repository,
+    public PlatformServiceBean(ModelMapper mapper, PlatformRepository repository,
             ApplicationContext context) {
         this.mapper = mapper;
         this.repository = repository;
@@ -83,7 +84,7 @@ public class PlatformServiceBean implements PlatformService {
     @Override
     public Platform createPlatform(Platform platform) {
         requireNonNull(platform);
-        PlatformTa created = toPlatformTa(platform);
+        PlatformTa created = createPlatform(toPlatformTa(platform));
         return toPlatform(created);
     }
 
@@ -100,8 +101,10 @@ public class PlatformServiceBean implements PlatformService {
     @Override
     public Platform updatePlatform(Platform platform) {
         requireNonNull(platform);
+
         PlatformTa entity = toPlatformTa(platform);
         PlatformTa updated = updatePlatform(entity);
+
         return toPlatform(updated);
     }
 
@@ -110,7 +113,7 @@ public class PlatformServiceBean implements PlatformService {
         PlatformTa existing = repository.findById(platformId)
                 .orElseThrow(() -> new EntityNotFoundException(platformId));
 
-        mapper.getMapper().map(platform, existing);
+        mapper.map(platform, existing);
 
         return repository.save(existing);
     }
@@ -136,11 +139,10 @@ public class PlatformServiceBean implements PlatformService {
      */
 
     private Platform toPlatform(PlatformTa platformTa) {
-        Platform platform = mapper.getMapper().map(platformTa, Platform.class);
-        return platform;
+        return mapper.map(platformTa, Platform.class);
     }
 
     private PlatformTa toPlatformTa(Platform platform) {
-        return mapper.getMapper().map(platform, PlatformTa.class);
+        return mapper.map(platform, PlatformTa.class);
     }
 }

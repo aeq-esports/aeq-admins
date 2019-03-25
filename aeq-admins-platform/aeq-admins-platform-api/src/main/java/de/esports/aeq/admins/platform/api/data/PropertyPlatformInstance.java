@@ -1,14 +1,14 @@
 package de.esports.aeq.admins.platform.api.data;
 
 import de.esports.aeq.admins.common.SimplePropertyMap;
-import de.esports.aeq.admins.platform.api.PlatformData;
+import de.esports.aeq.admins.platform.api.PlatformInstance;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class PropertyPlatformData implements SimplePropertyMap, PlatformData {
+public class PropertyPlatformInstance implements SimplePropertyMap, PlatformInstance {
 
     private Map<String, String> properties = new HashMap<>();
 

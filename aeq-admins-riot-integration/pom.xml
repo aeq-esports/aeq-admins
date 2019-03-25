@@ -17,7 +17,11 @@
             <artifactId>aeq-admins-platform-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>de.esports.aeq</groupId>
+            <artifactId>aeq-admins-security</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.github.taycaldwell</groupId>
             <artifactId>riot-api-java</artifactId>

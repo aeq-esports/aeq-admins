@@ -1,5 +1,9 @@
 package de.esports.aeq.admins.platform.impl.web.dto;
 
+import de.esports.aeq.admins.platform.api.PlatformInstance;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 public class PlatformDto {
@@ -8,7 +12,7 @@ public class PlatformDto {
     private String type;
     private String name;
 
-    private Object platformData;
+    private Collection<PlatformInstance> instances = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -34,12 +38,12 @@ public class PlatformDto {
         this.name = name;
     }
 
-    public Object getPlatformData() {
-        return platformData;
+    public Collection<PlatformInstance> getInstances() {
+        return instances;
     }
 
-    public void setPlatformData(Object platformData) {
-        this.platformData = platformData;
+    public void setInstances(Collection<PlatformInstance> instances) {
+        this.instances = instances;
     }
 
     @Override

@@ -7,7 +7,7 @@ import java.io.Serializable;
 @Table(name = "aeq_plt_data")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "data_type")
-public class PlatformDataTa implements Serializable {
+public class PlatformInstanceTa implements Serializable {
 
     @Id
     @GeneratedValue

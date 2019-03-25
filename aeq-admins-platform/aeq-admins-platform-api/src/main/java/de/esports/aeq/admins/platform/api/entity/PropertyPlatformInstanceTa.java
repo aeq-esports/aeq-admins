@@ -7,7 +7,7 @@ import java.util.Map;
 @Entity
 @Table(name = "aeq_plt_dta_prop_map")
 @DiscriminatorValue("prop_map")
-public class PropertyPlatformDataTa extends PlatformDataTa {
+public class PropertyPlatformInstanceTa extends PlatformInstanceTa {
 
     @ElementCollection
     @MapKeyColumn(name = "prop_key")

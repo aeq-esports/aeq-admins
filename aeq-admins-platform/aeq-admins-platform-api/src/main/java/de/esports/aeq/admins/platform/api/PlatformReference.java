@@ -11,18 +11,18 @@ import static java.util.Objects.requireNonNull;
 public final class PlatformReference {
 
     private Platform platform;
-    private PlatformData data;
+    private PlatformInstance data;
 
     public PlatformReference of(Platform platform) {
         return new PlatformReference(platform, null);
     }
 
-    public PlatformReference of(Platform platform, PlatformData data) {
+    public PlatformReference of(Platform platform, PlatformInstance data) {
         requireNonNull(data);
         return new PlatformReference(platform, data);
     }
 
-    private PlatformReference(Platform platform, PlatformData data) {
+    private PlatformReference(Platform platform, PlatformInstance data) {
         this.platform = requireNonNull(platform);
         this.data = data;
     }
@@ -45,7 +45,7 @@ public final class PlatformReference {
      *
      * @return an object or <code>null</code> if none is present
      */
-    public PlatformData getData() {
+    public PlatformInstance getData() {
         return data;
     }
 

@@ -1,30 +1,12 @@
 package de.esports.aeq.admins.platform.api;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static java.util.Objects.requireNonNull;
-
 public class Platform {
 
     private Long id;
     private String type;
     private String name;
 
-    private Collection<PlatformData> platformData = new ArrayList<>();
-
-    public static Platform create(String type, String name) {
-        return new Platform(type, name);
-    }
-
-    public Platform() {
-
-    }
-
-    private Platform(String type, String name) {
-        this.type = requireNonNull(type);
-        this.name = requireNonNull(name);
-    }
+    private Class<?> instanceClass;
 
     /**
      * Obtains the unique id that identifies this platform.
@@ -65,14 +47,11 @@ public class Platform {
         this.name = name;
     }
 
-    /**
-     * @return a <i>modifiable</i> collection, not <code>null</code>
-     */
-    public Collection<PlatformData> getPlatformData() {
-        return platformData;
+    public Class<?> getInstanceClass() {
+        return instanceClass;
     }
 
-    public void setPlatformData(Collection<PlatformData> platformData) {
-        this.platformData = platformData;
+    public void setInstanceClass(Class<?> instanceClass) {
+        this.instanceClass = instanceClass;
     }
 }

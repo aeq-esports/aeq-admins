@@ -4,7 +4,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.StringJoiner;
 
 @Entity
@@ -22,9 +21,12 @@ public class PlatformTa implements Serializable {
     @Column
     private String type;
 
+    @Column
+    private Class<?> instanceClass;
+
     @OneToMany(mappedBy = "platform", cascade = CascadeType.ALL, orphanRemoval = true,
             fetch = FetchType.EAGER)
-    private Collection<PlatformDataTa> data = new ArrayList<>();
+    private Collection<PlatformInstanceTa> data = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -50,12 +52,20 @@ public class PlatformTa implements Serializable {
         this.type = type;
     }
 
-    public Collection<PlatformDataTa> getData() {
+    public Class<?> getInstanceClass() {
+        return instanceClass;
+    }
+
+    public void setInstanceClass(Class<?> instanceClass) {
+        this.instanceClass = instanceClass;
+    }
+
+    public Collection<PlatformInstanceTa> getData() {
         return data;
     }
 
     public void setData(
-            Collection<PlatformDataTa> data) {
+            Collection<PlatformInstanceTa> data) {
         this.data = data;
     }
 
