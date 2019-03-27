@@ -1,6 +1,4 @@
-package de.esports.aeq.admins.integration.riot.jpa.entity;
-
-import de.esports.aeq.admins.platform.api.entity.PlatformInstanceTa;
+package de.esports.aeq.admins.platform.impl.jpa.entity;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;

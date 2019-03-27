@@ -8,4 +8,5 @@ package de.esports.aeq.admins.platform.api;
  */
 public interface PlatformInstance {
 
+    Long getId();
 }

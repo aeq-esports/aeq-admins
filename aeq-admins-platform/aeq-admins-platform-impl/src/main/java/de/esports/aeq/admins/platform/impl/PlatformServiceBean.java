@@ -2,16 +2,19 @@ package de.esports.aeq.admins.platform.impl;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.platform.api.Platform;
-import de.esports.aeq.admins.platform.api.StaticPlatformProvider;
-import de.esports.aeq.admins.platform.api.entity.PlatformTa;
+import de.esports.aeq.admins.platform.api.PlatformInstance;
+import de.esports.aeq.admins.platform.api.data.RiotPlatformInstance;
 import de.esports.aeq.admins.platform.api.service.PlatformService;
 import de.esports.aeq.admins.platform.impl.jpa.PlatformRepository;
+import de.esports.aeq.admins.platform.impl.jpa.entity.PlatformInstanceTa;
+import de.esports.aeq.admins.platform.impl.jpa.entity.PlatformTa;
+import de.esports.aeq.admins.platform.impl.jpa.entity.RiotPlatformInstanceTa;
 import de.esports.aeq.admins.security.exception.DuplicateEntityException;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -26,36 +29,31 @@ public class PlatformServiceBean implements PlatformService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlatformServiceBean.class);
 
-    private final ApplicationContext context;
     private final ModelMapper mapper;
     private final PlatformRepository repository;
 
     @Autowired
-    public PlatformServiceBean(ModelMapper mapper, PlatformRepository repository,
-            ApplicationContext context) {
+    public PlatformServiceBean(ModelMapper mapper, PlatformRepository repository) {
         this.mapper = mapper;
         this.repository = repository;
-        this.context = context;
     }
 
     //-----------------------------------------------------------------------
 
+    /*
+     * Mapper configuration.
+     */
+
     @PostConstruct
-    private void setup() {
-        context.getBeansOfType(StaticPlatformProvider.class).values()
-                .forEach(this::processPlatformProviders);
-    }
+    private void configureMapper() {
+        Converter<RiotPlatformInstance, PlatformInstanceTa> mapPlatformInstance =
+                c -> mapper.map(c.getSource(), RiotPlatformInstanceTa.class);
 
-    private void processPlatformProviders(StaticPlatformProvider provider) {
-        LOG.debug("Processing platform provider {}", provider.getClass());
+        Converter<RiotPlatformInstanceTa, PlatformInstance> mapPlatformInstanceTa =
+                c -> mapper.map(c.getSource(), RiotPlatformInstance.class);
 
-        Collection<PlatformTa> platforms = provider.getPlatforms().stream()
-                .map(this::toPlatformTa).collect(Collectors.toList());
-
-        for (PlatformTa platform : platforms) {
-            LOG.debug("Processing platform of provider {}: {}", provider.getClass(), platform);
-            createOrUpdatePlatform(platform);
-        }
+        mapper.addConverter(mapPlatformInstance);
+        mapper.addConverter(mapPlatformInstanceTa);
     }
 
     //-----------------------------------------------------------------------
@@ -84,7 +82,8 @@ public class PlatformServiceBean implements PlatformService {
     @Override
     public Platform createPlatform(Platform platform) {
         requireNonNull(platform);
-        PlatformTa created = createPlatform(toPlatformTa(platform));
+        PlatformTa entity = toPlatformTa(platform);
+        PlatformTa created = createPlatform(entity);
         return toPlatform(created);
     }
 

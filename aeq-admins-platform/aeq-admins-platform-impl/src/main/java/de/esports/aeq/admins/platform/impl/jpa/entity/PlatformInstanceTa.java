@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.platform.api.entity;
+package de.esports.aeq.admins.platform.impl.jpa.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -14,7 +14,7 @@ public class PlatformInstanceTa implements Serializable {
     @Column(name = "plt_data_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "plt_id")
     private PlatformTa platform;
 
