@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -46,14 +47,41 @@ public class PlatformServiceBean implements PlatformService {
 
     @PostConstruct
     private void configureMapper() {
-        Converter<RiotPlatformInstance, PlatformInstanceTa> mapPlatformInstance =
-                c -> mapper.map(c.getSource(), RiotPlatformInstanceTa.class);
 
-        Converter<RiotPlatformInstanceTa, PlatformInstance> mapPlatformInstanceTa =
-                c -> mapper.map(c.getSource(), RiotPlatformInstance.class);
 
-        mapper.addConverter(mapPlatformInstance);
-        mapper.addConverter(mapPlatformInstanceTa);
+        Function<PlatformInstance, PlatformInstanceTa> mapPlatformInstance = instance -> {
+            if (instance instanceof RiotPlatformInstance) {
+                return mapper.map(instance, RiotPlatformInstanceTa.class);
+            }
+            throw new IllegalArgumentException("Illegal class " + instance.getClass());
+        };
+
+        Function<PlatformInstanceTa, PlatformInstance> mapPlatformInstanceTa = instanceTa -> {
+            if (instanceTa instanceof RiotPlatformInstanceTa) {
+                return mapper.map(instanceTa, RiotPlatformInstance.class);
+            }
+            throw new IllegalArgumentException("Illegal class " + instanceTa.getClass());
+        };
+
+        Converter<Platform, PlatformTa> mapPlatform = c -> {
+            c.getSource().getInstances().stream().map(mapPlatformInstance)
+                    .forEach(c.getDestination().getInstances()::add);
+            return c.getDestination();
+        };
+
+        Converter<PlatformTa, Platform> mapPlatformTa = c -> {
+            c.getSource().getInstances().stream().map(mapPlatformInstanceTa)
+                    .forEach(c.getDestination().getInstances()::add);
+            return c.getDestination();
+        };
+
+        mapper.createTypeMap(Platform.class, PlatformTa.class)
+                .addMappings(m -> m.skip(PlatformTa::setInstances))
+                .setPostConverter(mapPlatform);
+
+        mapper.createTypeMap(PlatformTa.class, Platform.class)
+                .addMappings(m -> m.skip(Platform::setInstances))
+                .setPostConverter(mapPlatformTa);
     }
 
     //-----------------------------------------------------------------------
@@ -121,14 +149,6 @@ public class PlatformServiceBean implements PlatformService {
     public void deletePlatform(Long id) {
         requireNonNull(id);
         repository.deleteById(id);
-    }
-
-    //-----------------------------------------------------------------------
-
-    private PlatformTa createOrUpdatePlatform(PlatformTa platform) {
-        return repository.findByType(platform.getType())
-                .map(this::updatePlatform)
-                .orElseGet(() -> createPlatform(platform));
     }
 
     //-----------------------------------------------------------------------

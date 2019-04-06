@@ -31,14 +31,14 @@ public class RiotIntegrationConfiguration {
         Platform platform = new Platform();
         platform.setType(type);
         platform.setName(platformType.getName());
-
-
-        Platform created = service.getPlatformByType(type)
-                .orElseGet(() -> service.createPlatform(platform));
-
         Collection<PlatformInstance> instances = getPlatformInstances();
-        created.setInstances(instances);
-        service.updatePlatform(created);
+        platform.setInstances(instances);
+
+        service.getPlatformByType(type).ifPresentOrElse(plt -> {
+                    plt.setInstances(getPlatformInstances());
+                    service.updatePlatform(plt);
+                },
+                () -> service.createPlatform(platform));
     }
 
     private Collection<PlatformInstance> getPlatformInstances() {

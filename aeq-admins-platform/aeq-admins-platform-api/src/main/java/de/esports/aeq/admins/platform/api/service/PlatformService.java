@@ -21,5 +21,4 @@ public interface PlatformService {
     Platform updatePlatform(Platform platform);
 
     void deletePlatform(Long id);
-
 }
