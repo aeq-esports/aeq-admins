@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.members.jpa;
 
-import de.esports.aeq.admins.members.domain.account.AccountId;
+import de.esports.aeq.account.api.AccountId;
 import de.esports.aeq.admins.members.jpa.entity.MemberTa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,5 +1,7 @@
 package de.esports.aeq.admins.members.jpa.entity;
 
+import de.esports.aeq.account.api.jpa.AccountIdTa;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.net.URL;

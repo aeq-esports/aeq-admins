@@ -1,7 +1,7 @@
 package de.esports.aeq.admins.members.service;
 
+import de.esports.aeq.account.api.AccountId;
 import de.esports.aeq.admins.members.domain.Member;
-import de.esports.aeq.admins.members.domain.account.AccountId;
 
 import java.util.Collection;
 

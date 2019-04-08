@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.members.jpa;
 
-import de.esports.aeq.admins.members.jpa.entity.AccountIdTa;
+import de.esports.aeq.account.api.jpa.AccountIdTa;
 import de.esports.aeq.admins.members.jpa.entity.ComplaintTa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

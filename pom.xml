@@ -32,6 +32,7 @@
         <module>aeq-admins-i18n</module>
         <module>aeq-admins-platform</module>
         <module>aeq-admins-riot-integration</module>
+        <module>aeq-admins-account</module>
     </modules>
 
     <dependencyManagement>

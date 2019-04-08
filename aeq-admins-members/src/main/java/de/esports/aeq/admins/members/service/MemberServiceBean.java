@@ -1,14 +1,15 @@
 package de.esports.aeq.admins.members.service;
 
+import de.esports.aeq.account.api.Account;
+import de.esports.aeq.account.api.AccountId;
+import de.esports.aeq.account.api.AccountType;
+import de.esports.aeq.account.api.exception.InvalidAccountIdTypeException;
+import de.esports.aeq.account.api.exception.MissingAccountIdException;
+import de.esports.aeq.account.api.jpa.AccountTa;
+import de.esports.aeq.account.api.service.AccountService;
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.members.AccountType;
 import de.esports.aeq.admins.members.domain.Member;
-import de.esports.aeq.admins.members.domain.account.Account;
-import de.esports.aeq.admins.members.domain.account.AccountId;
-import de.esports.aeq.admins.members.domain.exception.InvalidAccountIdTypeException;
-import de.esports.aeq.admins.members.domain.exception.MissingAccountIdException;
 import de.esports.aeq.admins.members.jpa.MemberRepository;
-import de.esports.aeq.admins.members.jpa.entity.AccountTa;
 import de.esports.aeq.admins.members.jpa.entity.MemberTa;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.spi.MappingContext;

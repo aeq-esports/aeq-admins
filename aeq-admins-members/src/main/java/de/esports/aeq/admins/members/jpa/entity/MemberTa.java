@@ -1,5 +1,7 @@
 package de.esports.aeq.admins.members.jpa.entity;
 
+import de.esports.aeq.account.api.jpa.AccountTa;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
