@@ -33,6 +33,7 @@
         <module>aeq-admins-platform</module>
         <module>aeq-admins-riot-integration</module>
         <module>aeq-admins-account</module>
+        <module>aeq-admins-complaint</module>
     </modules>
 
     <dependencyManagement>
