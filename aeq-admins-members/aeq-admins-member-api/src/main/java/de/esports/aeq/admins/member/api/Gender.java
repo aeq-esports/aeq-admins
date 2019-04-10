@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.members.domain;
+package de.esports.aeq.admins.member.api;
 
 public enum Gender {
 

@@ -1,9 +1,9 @@
-package de.esports.aeq.admins.members.domain;
+package de.esports.aeq.admins.member.api;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
-public class MemberData implements Serializable {
+public class MemberDetails implements Serializable {
 
     private String firstName;
     private Gender gender;

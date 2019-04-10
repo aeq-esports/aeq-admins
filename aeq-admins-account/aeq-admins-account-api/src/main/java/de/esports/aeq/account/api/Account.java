@@ -69,4 +69,5 @@ public interface Account extends Serializable {
      * is not supported for this account
      */
     Instant getLastSeenAt();
+
 }

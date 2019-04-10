@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.common;
+package de.esports.aeq.admins.common.validation;
 
 import java.util.Optional;
 
