@@ -14,6 +14,11 @@
     <dependencies>
         <dependency>
             <groupId>de.esports.aeq</groupId>
+            <artifactId>aeq-admins-account-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.esports.aeq</groupId>
             <artifactId>aeq-admins-platform-impl</artifactId>
             <version>${project.version}</version>
         </dependency>

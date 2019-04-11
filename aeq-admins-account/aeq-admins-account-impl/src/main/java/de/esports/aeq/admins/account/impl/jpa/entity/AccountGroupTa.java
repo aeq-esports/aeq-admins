@@ -15,5 +15,22 @@ public class AccountGroupTa {
     @Column(name = "acc_group_id")
     private Long groupId;
 
+    @OneToMany(cascade = CascadeType.ALL)
     private Collection<AccountTa> accounts = new ArrayList<>();
+
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
+    }
+
+    public Collection<AccountTa> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Collection<AccountTa> accounts) {
+        this.accounts = accounts;
+    }
 }
