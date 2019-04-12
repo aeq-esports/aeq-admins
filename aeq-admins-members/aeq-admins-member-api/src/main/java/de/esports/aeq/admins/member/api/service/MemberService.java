@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.member.api.service;
 
-import de.esports.aeq.account.api.AccountId;
+import de.esports.aeq.admins.account.api.AccountId;
 import de.esports.aeq.admins.member.api.Member;
 
 import java.util.Collection;

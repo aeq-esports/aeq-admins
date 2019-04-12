@@ -1,47 +1,31 @@
 package de.esports.aeq.admins.member.api;
 
-import de.esports.aeq.account.api.Account;
-import de.esports.aeq.account.api.AccountId;
+import de.esports.aeq.admins.account.api.Account;
+import de.esports.aeq.admins.account.api.AccountId;
 
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a member.
  */
-public class Member {
+public class Member implements Account {
 
-    private Long id;
     private AccountId accountId;
-
     private MemberDetails data;
     private Instant createdAt;
     private Instant lastSeenAt;
+    private boolean isBanned;
 
     private Collection<Account> accounts = new HashSet<>();
 
     /**
-     * Obtains the id of the member.
-     *
-     * @return
-     */
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
      * Obtains the account id that represents this member.
-     * <p>
-     * While the value obtained by {@link #getId()} may vary between systems, the account id is
-     * meant to be unique among multiple systems.
      *
      * @return the account id, never <code>null</code>
      */
@@ -74,12 +58,17 @@ public class Member {
         this.createdAt = createdAt;
     }
 
-    public Instant getLastSeenAt() {
-        return lastSeenAt;
+    public Optional<Instant> getLastSeenAt() {
+        return Optional.ofNullable(lastSeenAt);
     }
 
     public void setLastSeenAt(Instant lastSeenAt) {
         this.lastSeenAt = lastSeenAt;
+    }
+
+    @Override
+    public boolean isBanned() {
+        return isBanned;
     }
 
     /**

@@ -13,11 +13,15 @@ public final class PlatformReference {
     private Platform platform;
     private PlatformInstance data;
 
-    public PlatformReference of(Platform platform) {
+    public static PlatformReference system() {
+        return new PlatformReference(Platforms.SYSTEM, null);
+    }
+
+    public static PlatformReference of(Platform platform) {
         return new PlatformReference(platform, null);
     }
 
-    public PlatformReference of(Platform platform, PlatformInstance data) {
+    public static PlatformReference of(Platform platform, PlatformInstance data) {
         requireNonNull(data);
         return new PlatformReference(platform, data);
     }

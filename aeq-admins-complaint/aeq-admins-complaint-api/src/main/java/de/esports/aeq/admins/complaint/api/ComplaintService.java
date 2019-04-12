@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.complaint.api;
 
-import de.esports.aeq.account.api.AccountId;
+import de.esports.aeq.admins.account.api.AccountId;
 
 import java.util.Collection;
 

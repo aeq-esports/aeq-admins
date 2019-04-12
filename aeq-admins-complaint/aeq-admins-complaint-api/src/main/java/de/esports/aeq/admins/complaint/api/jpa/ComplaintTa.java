@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.complaint.api.jpa;
 
-import de.esports.aeq.account.api.jpa.AccountIdTa;
+import de.esports.aeq.admins.account.api.jpa.entity.AccountIdTa;
 
 import javax.persistence.*;
 import java.io.Serializable;

@@ -1,8 +1,8 @@
 package de.esports.aeq.admins.complaint.impl;
 
-import de.esports.aeq.account.api.AccountId;
-import de.esports.aeq.account.api.jpa.AccountIdTa;
-import de.esports.aeq.account.api.service.AccountService;
+import de.esports.aeq.admins.account.api.AccountId;
+import de.esports.aeq.admins.account.api.jpa.entity.AccountIdTa;
+import de.esports.aeq.admins.account.api.service.AccountService;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.complaint.api.Complaint;
 import de.esports.aeq.admins.complaint.api.ComplaintService;

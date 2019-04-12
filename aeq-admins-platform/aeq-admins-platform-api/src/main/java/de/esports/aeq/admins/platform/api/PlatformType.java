@@ -4,7 +4,8 @@ public enum PlatformType {
 
     TEAMSPEAK("Teamspeak"),
     STEAM("Steam"),
-    RIOT("Riot");
+    RIOT("Riot"),
+    SYSTEM("System");
 
     private final String name;
 

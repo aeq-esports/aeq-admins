@@ -1,16 +1,18 @@
 package de.esports.aeq.admins.account.impl;
 
-import de.esports.aeq.account.api.Account;
-import de.esports.aeq.account.api.AccountId;
+import de.esports.aeq.admins.account.api.AccountId;
+import de.esports.aeq.admins.account.api.VerifiableAccount;
 
 import java.time.Instant;
+import java.util.Optional;
 
-public class AccountImpl implements Account {
+public class AccountImpl implements VerifiableAccount {
 
     private AccountId accountId;
-    private Object data;
     private Instant createdAt;
     private Instant lastSeenAt;
+    private Instant verifiedAt;
+    private boolean isBanned;
 
     @Override
     public AccountId getAccountId() {
@@ -23,15 +25,6 @@ public class AccountImpl implements Account {
     }
 
     @Override
-    public Object getData() {
-        return data;
-    }
-
-    public void setData(Object data) {
-        this.data = data;
-    }
-
-    @Override
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -41,11 +34,29 @@ public class AccountImpl implements Account {
     }
 
     @Override
-    public Instant getLastSeenAt() {
-        return lastSeenAt;
+    public Optional<Instant> getLastSeenAt() {
+        return Optional.ofNullable(lastSeenAt);
     }
 
     public void setLastSeenAt(Instant lastSeenAt) {
         this.lastSeenAt = lastSeenAt;
+    }
+
+    @Override
+    public Optional<Instant> getVerifiedAt() {
+        return Optional.ofNullable(verifiedAt);
+    }
+
+    public void setVerifiedAt(Instant verifiedAt) {
+        this.verifiedAt = verifiedAt;
+    }
+
+    @Override
+    public boolean isBanned() {
+        return isBanned;
+    }
+
+    public void setBanned(boolean banned) {
+        isBanned = banned;
     }
 }
