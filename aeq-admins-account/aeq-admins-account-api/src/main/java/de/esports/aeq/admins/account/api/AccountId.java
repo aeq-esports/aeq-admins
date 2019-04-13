@@ -1,11 +1,15 @@
 package de.esports.aeq.admins.account.api;
 
-import de.esports.aeq.admins.platform.api.PlatformReference;
+import de.esports.aeq.admins.platform.api.Platform;
+import de.esports.aeq.admins.platform.api.PlatformInstance;
+import de.esports.aeq.admins.platform.api.Platforms;
 
-import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Allows to identity an account.
@@ -19,11 +23,13 @@ import java.util.UUID;
  *
  * @see Account
  */
-public final class AccountId implements Serializable {
+public final class AccountId {
 
     private String value;
-    private String type;
-    private PlatformReference platformReference;
+    private String valueType;
+
+    private Platform platform;
+    private PlatformInstance platformInstance;
 
     public static AccountId create(Enum<AccountType> type) {
         return create(type.toString());
@@ -37,12 +43,20 @@ public final class AccountId implements Serializable {
      */
     private static AccountId create(String type) {
         String value = UUID.randomUUID().toString();
-        return new AccountId(value, type);
+        return new AccountId(value, type, Platforms.SYSTEM);
     }
 
-    public AccountId(String value, String type) {
-        this.value = Objects.requireNonNull(value);
-        this.type = Objects.requireNonNull(type);
+    /**
+     * Creates a new account id.
+     *
+     * @param value     the actual account id value, not <code>null</code>
+     * @param valueType the type of the <code>value</code>, not <code>null</code>
+     * @param platform  the platform, not <code>null</code>
+     */
+    public AccountId(String value, String valueType, Platform platform) {
+        this.value = requireNonNull(value);
+        this.valueType = requireNonNull(valueType);
+        this.platform = requireNonNull(platform);
     }
 
     /**
@@ -62,32 +76,45 @@ public final class AccountId implements Serializable {
     }
 
     /**
-     * Obtains the account type.
+     * Obtains the account value type.
      * <p>
      * The account type specifies the exact type of the <code>value</code> as there are often
      * multiple ways to identify one account on one platform.
      *
      * @return the account type, not <code>null</code>
      */
-    public String getType() {
-        return type;
+    public String getValueType() {
+        return valueType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setValueType(String valueType) {
+        this.valueType = valueType;
+    }
+
+
+    public Platform getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 
     /**
-     * Obtains the platform reference that this account id is valid on.
+     * Obtains the concrete platform instance that this account id is valid on.
+     * <p>
+     * This data may be used to distinguish multiple concrete platforms of the same type, for
+     * example multiple servers. If the platform can be identified without the need of additional
+     * information, this method can return <code>null</code>.
      *
-     * @return the platform reference, not <code>null</code>
+     * @return an object or <code>null</code> if none is present
      */
-    public PlatformReference getPlatformReference() {
-        return platformReference;
+    public Optional<PlatformInstance> getPlatformInstance() {
+        return Optional.ofNullable(platformInstance);
     }
 
-    public void setPlatformReference(PlatformReference platformReference) {
-        this.platformReference = platformReference;
+    public void setPlatformInstance(PlatformInstance platformInstance) {
+        this.platformInstance = platformInstance;
     }
 
     @Override
@@ -95,21 +122,25 @@ public final class AccountId implements Serializable {
         if (this == o) return true;
         if (!(o instanceof AccountId)) return false;
         AccountId accountId = (AccountId) o;
-        return value.equals(accountId.value) && type.equals(accountId.type) &&
-                platformReference.equals(accountId.platformReference);
+        return Objects.equals(value, accountId.value) &&
+                Objects.equals(valueType, accountId.valueType) &&
+                Objects.equals(platform, accountId.platform) &&
+                Objects.equals(platformInstance, accountId.platformInstance);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value, type, platformReference);
+        return Objects.hash(value, valueType, platform, platformInstance);
     }
 
     @Override
     public String toString() {
         return new StringJoiner(", ", AccountId.class.getSimpleName() + "[", "]")
                 .add("value='" + value + "'")
-                .add("type='" + type + "'")
-                .add("platformReference=" + platformReference)
+                .add("type='" + valueType + "'")
+                .add("platform=" + platform)
+                .add("platformInstance=" + platformInstance)
                 .toString();
     }
+
 }

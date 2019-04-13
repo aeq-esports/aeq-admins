@@ -14,6 +14,7 @@
     <modules>
         <module>aeq-admins-member-api</module>
         <module>aeq-admins-member-impl</module>
+        <module>aeq-admins-member-web</module>
     </modules>
 
 

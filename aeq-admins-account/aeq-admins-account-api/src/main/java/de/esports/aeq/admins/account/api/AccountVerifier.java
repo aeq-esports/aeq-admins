@@ -12,7 +12,7 @@ public interface AccountVerifier {
      * If an account does not match the required type, the verifier will be skipped.
      *
      * @return the type that this verifier can process
-     * @see AccountId#getType()
+     * @see AccountId#getValueType()
      */
     boolean canVerify(String type);
 

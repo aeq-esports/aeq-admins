@@ -1,36 +1,34 @@
-package de.esports.aeq.admins.members.jpa.entity;
-
-import de.esports.aeq.admins.account.api.Account;
-import de.esports.aeq.admins.member.api.MemberDetails;
+package de.esports.aeq.admins.member.impl.jpa.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 
 @Entity
-@Table(name = "mer_member")
+@Table(name = "aeq_mem")
+@NamedEntityGraph(
+        name = "MemberTa.connectedAccounts",
+        attributeNodes = {
+                @NamedAttributeNode("connectedAccounts")
+        }
+)
 public class MemberTa implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column(name = "member_id")
+    @Column(name = "mem_id")
     private Long id;
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
-    private MemberDetails data;
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MemberAccountTa account;
 
-    @Column
-    private Instant createdAt;
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MemberDetailsTa details;
 
-    @Column
-    private Instant lastSeenAt;
-
-    @Column
-    private Boolean isBanned;
-
-    private Collection<Account> accounts = new HashSet<>();
+    @OneToMany
+    @JoinColumn(name = "acc_id")
+    private Collection<ConnectedAccountTa> connectedAccounts = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -38,5 +36,32 @@ public class MemberTa implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public MemberAccountTa getAccount() {
+        return account;
+    }
+
+    public void setAccount(MemberAccountTa account) {
+        this.account = account;
+        account.setMember(this);
+    }
+
+    public MemberDetailsTa getDetails() {
+        return details;
+    }
+
+    public void setDetails(MemberDetailsTa details) {
+        this.details = details;
+        details.setMember(this);
+    }
+
+    public Collection<ConnectedAccountTa> getConnectedAccounts() {
+        return connectedAccounts;
+    }
+
+    public void setConnectedAccounts(
+            Collection<ConnectedAccountTa> connectedAccounts) {
+        this.connectedAccounts = connectedAccounts;
     }
 }

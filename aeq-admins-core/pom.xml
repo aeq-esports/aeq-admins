@@ -22,6 +22,18 @@
             <artifactId>aeq-admins-platform-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>de.esports.aeq</groupId>
+            <artifactId>aeq-admins-member-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.esports.aeq</groupId>
+            <artifactId>aeq-admins-member-web</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>de.esports.aeq</groupId>
             <artifactId>aeq-admins-riot-integration</artifactId>

@@ -2,11 +2,10 @@ package de.esports.aeq.admins.account.api;
 
 import de.esports.aeq.admins.platform.api.Platform;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.Optional;
 
-public interface Account extends Serializable {
+public interface Account {
 
     /**
      * Obtains the identifier of this account.
@@ -37,7 +36,7 @@ public interface Account extends Serializable {
         if (accountId == null) {
             return null;
         }
-        return accountId.getPlatformReference().getPlatform();
+        return accountId.getPlatform();
     }
 
     /**

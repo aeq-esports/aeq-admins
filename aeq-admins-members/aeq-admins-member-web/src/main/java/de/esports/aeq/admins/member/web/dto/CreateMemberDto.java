@@ -1,52 +1,16 @@
-package de.esports.aeq.admins.member.impl.jpa.entity;
+package de.esports.aeq.admins.member.web.dto;
 
 import de.esports.aeq.admins.member.api.Gender;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Locale;
 
-@Entity
-@Table(name = "aeq_mem_det")
-public class MemberDetailsTa implements Serializable {
+public class CreateMemberDto {
 
-    @Id
-    private Long id;
-
-    @MapsId
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mem_id")
-    private MemberTa member;
-
-    @Column
     private String firstName;
-
-    @Column
-    @Enumerated(EnumType.STRING)
     private Gender gender;
-
-    @Column
     private LocalDate dateOfBirth;
-
-    @Column
     private Locale locale;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public MemberTa getMember() {
-        return member;
-    }
-
-    public void setMember(MemberTa member) {
-        this.member = member;
-    }
 
     public String getFirstName() {
         return firstName;

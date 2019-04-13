@@ -1,9 +1,9 @@
-package de.esports.aeq.admins.account.impl;
+package de.esports.aeq.admins.account.api;
 
-import de.esports.aeq.admins.account.api.Account;
-import de.esports.aeq.admins.account.api.AccountId;
 import de.esports.aeq.admins.account.api.jpa.entity.AccountIdTa;
 import de.esports.aeq.admins.account.api.jpa.entity.AccountTa;
+import de.esports.aeq.admins.platform.api.Platform;
+import de.esports.aeq.admins.platform.api.jpa.PlatformTa;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.spi.MappingContext;
 import org.springframework.stereotype.Component;
@@ -39,21 +39,18 @@ public class AccountMapper {
 
         AccountIdTa destination = new AccountIdTa();
         destination.setValue(source.getValue());
-        destination.setType(source.getType());
+        destination.setType(source.getValueType());
 
-        // TODO platform
+        PlatformTa platformTa = mapper.map(source.getPlatform(), PlatformTa.class);
+        destination.setPlatform(platformTa);
 
         return destination;
     }
 
     private AccountId mapAccountIdTa(MappingContext<AccountIdTa, AccountId> context) {
         AccountIdTa source = context.getSource();
-
-        AccountId destination = new AccountId(source.getValue(), source.getType());
-
-        // TODO platform
-
-        return destination;
+        Platform platform = mapper.map(source.getPlatform(), Platform.class);
+        return new AccountId(source.getValue(), source.getType(), platform);
     }
 
     //-----------------------------------------------------------------------
@@ -64,10 +61,6 @@ public class AccountMapper {
 
     public AccountIdTa toAccountIdTa(AccountId accountId) {
         return mapper.map(accountId, AccountIdTa.class);
-    }
-
-    public AccountImpl toAccount(AccountTa account) {
-        return mapper.map(account, AccountImpl.class);
     }
 
     public AccountTa toAccountTa(Account account) {
