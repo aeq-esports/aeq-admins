@@ -11,18 +11,13 @@ import java.time.Instant;
 public class ConnectedAccountTa implements Serializable {
 
     @Id
+    @GeneratedValue
+    @Column(name = "mem_conn_acc_id")
     private Long id;
 
-    @MapsId
     @OneToOne
     @JoinColumn(name = "acc_id")
     private AccountIdTa accountId;
-
-    @Column
-    private Instant createdAt;
-
-    @Column
-    private Instant lastSeenAt;
 
     @Column
     private Instant verifiedAt;
@@ -30,28 +25,20 @@ public class ConnectedAccountTa implements Serializable {
     @Column
     private boolean isBanned;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public AccountIdTa getAccountId() {
         return accountId;
     }
 
     public void setAccountId(AccountIdTa accountId) {
         this.accountId = accountId;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getLastSeenAt() {
-        return lastSeenAt;
-    }
-
-    public void setLastSeenAt(Instant lastSeenAt) {
-        this.lastSeenAt = lastSeenAt;
     }
 
     public Instant getVerifiedAt() {
