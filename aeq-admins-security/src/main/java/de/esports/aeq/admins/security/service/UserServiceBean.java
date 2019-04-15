@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceBean implements UserService {
@@ -44,9 +46,13 @@ public class UserServiceBean implements UserService {
     }
 
     @Override
-    public UserTa findById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " + id));
+    public Optional<UserTa> findById(Long id) {
+        return repository.findById(id);
+    }
+
+    @Override
+    public Collection<UserTa> findAllByIds(Collection<Long> userIds) {
+        return repository.findAllById(userIds);
     }
 
     @Override

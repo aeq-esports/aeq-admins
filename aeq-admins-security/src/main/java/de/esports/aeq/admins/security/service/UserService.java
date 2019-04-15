@@ -2,7 +2,9 @@ package de.esports.aeq.admins.security.service;
 
 import de.esports.aeq.admins.security.domain.UserTa;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
 
@@ -12,7 +14,9 @@ public interface UserService {
 
     List<UserTa> findAll();
 
-    UserTa findById(Long id);
+    Optional<UserTa> findById(Long id);
+
+    Collection<UserTa> findAllByIds(Collection<Long> userIds);
 
     UserTa findByUsername(String username);
 }

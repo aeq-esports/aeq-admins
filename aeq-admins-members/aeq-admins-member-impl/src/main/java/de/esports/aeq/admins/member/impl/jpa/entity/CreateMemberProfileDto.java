@@ -1,14 +1,13 @@
-package de.esports.aeq.admins.member.web.dto;
+package de.esports.aeq.admins.member.impl.jpa.entity;
 
 import de.esports.aeq.admins.member.api.Gender;
 
 import java.time.LocalDate;
 import java.util.Locale;
 
-public class MemberProfileDto {
+public class CreateMemberProfileDto {
 
     private Long userId;
-    private String username;
     private String firstName;
     private Gender gender;
     private LocalDate dateOfBirth;
@@ -20,14 +19,6 @@ public class MemberProfileDto {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getFirstName() {
