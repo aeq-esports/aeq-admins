@@ -4,26 +4,16 @@ import de.esports.aeq.admins.member.api.Gender;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Locale;
 
 @Entity
-@Table(name = "aeq_mem")
-@NamedEntityGraph(
-        name = "MemberTa.connectedAccounts",
-        attributeNodes = {
-                @NamedAttributeNode("connectedAccounts")
-        }
-)
-public class MemberTa implements Serializable {
+@Table(name = "aeq_mem_profile")
+public class MemberProfileTa implements Serializable {
 
     @Id
-    @GeneratedValue
-    @Column(name = "mem_id")
-    private Long id;
+    @Column
+    private Long userId;
 
     @Column
     private String firstName;
@@ -38,22 +28,12 @@ public class MemberTa implements Serializable {
     @Column
     private Locale locale;
 
-    @Column
-    private Instant createdAt;
-
-    @Column
-    private Instant lastSeenAt;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "mem_id")
-    private Collection<ConnectedAccountTa> connectedAccounts = new ArrayList<>();
-
-    public Long getId() {
-        return id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getFirstName() {
@@ -86,21 +66,5 @@ public class MemberTa implements Serializable {
 
     public void setLocale(Locale locale) {
         this.locale = locale;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getLastSeenAt() {
-        return lastSeenAt;
-    }
-
-    public void setLastSeenAt(Instant lastSeenAt) {
-        this.lastSeenAt = lastSeenAt;
     }
 }

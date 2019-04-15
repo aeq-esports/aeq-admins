@@ -1,10 +1,8 @@
 package de.esports.aeq.admins.member.web.controller;
 
-import de.esports.aeq.admins.member.api.Member;
-import de.esports.aeq.admins.member.api.MemberDetails;
-import de.esports.aeq.admins.member.api.service.MemberService;
-import de.esports.aeq.admins.member.web.dto.CreateMemberDto;
-import de.esports.aeq.admins.member.web.dto.MemberDto;
+import de.esports.aeq.admins.member.api.MemberProfile;
+import de.esports.aeq.admins.member.api.service.MemberProfileService;
+import de.esports.aeq.admins.member.web.dto.MemberProfileDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,30 +15,28 @@ import java.util.stream.Collectors;
 public class MemberController {
 
     private final ModelMapper mapper;
-    private final MemberService memberService;
+    private final MemberProfileService profileService;
 
-    public MemberController(ModelMapper mapper, MemberService memberService) {
+    public MemberController(ModelMapper mapper, MemberProfileService profileService) {
         this.mapper = mapper;
-        this.memberService = memberService;
+        this.profileService = profileService;
     }
 
     @GetMapping
     @ResponseBody
-    public Collection<MemberDto> findAll() {
-        return memberService.getMembers().stream().map(this::toMemberDto)
+    public Collection<MemberProfileDto> findAll() {
+        return profileService.getProfiles().stream().map(this::toMemberProfileDto)
                 .collect(Collectors.toList());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@RequestBody CreateMemberDto request) {
-        MemberDetails details = mapper.map(request, MemberDetails.class);
-        Member member = new Member();
-        member.setDetails(details);
-        memberService.createMember(member);
+    public void create(@RequestBody MemberProfileDto request) {
+        MemberProfile profile = mapper.map(request, MemberProfile.class);
+        profileService.createProfile(profile);
     }
 
-    private MemberDto toMemberDto(Member member) {
-        return mapper.map(member, MemberDto.class);
+    private MemberProfileDto toMemberProfileDto(MemberProfile member) {
+        return mapper.map(member, MemberProfileDto.class);
     }
 }

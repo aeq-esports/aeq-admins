@@ -4,7 +4,6 @@ import de.esports.aeq.admins.account.api.AccountId;
 import de.esports.aeq.admins.account.api.AccountMapper;
 import de.esports.aeq.admins.account.api.jpa.entity.AccountIdTa;
 import de.esports.aeq.admins.member.api.ConnectedAccount;
-import de.esports.aeq.admins.member.api.Member;
 import de.esports.aeq.admins.member.api.service.ConnectedAccountService;
 import de.esports.aeq.admins.member.impl.jpa.ConnectedAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class ConnectedAccountServiceBean implements ConnectedAccountService {
     }
 
     @Override
-    public Optional<Member> getMemberByConnectedAccountId(AccountId accountId) {
+    public Optional<Long> getUserIdByConnectedAccountId(AccountId accountId) {
         return Optional.empty();
     }
 

@@ -4,9 +4,9 @@ import de.esports.aeq.admins.account.api.AccountId;
 import de.esports.aeq.admins.account.api.AccountType;
 import de.esports.aeq.admins.common.MapperProvider;
 import de.esports.aeq.admins.member.api.ConnectedAccount;
-import de.esports.aeq.admins.member.api.Member;
+import de.esports.aeq.admins.member.api.MemberProfile;
 import de.esports.aeq.admins.member.impl.jpa.entity.ConnectedAccountTa;
-import de.esports.aeq.admins.member.impl.jpa.entity.MemberTa;
+import de.esports.aeq.admins.member.impl.jpa.entity.MemberProfileTa;
 import de.esports.aeq.admins.platform.api.Platforms;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.spi.MappingContext;
@@ -52,12 +52,12 @@ public class MemberMapper implements MapperProvider {
      * Converters.
      */
 
-    public Member toMember(MemberTa member) {
-        return mapper.map(member, Member.class);
+    public MemberProfile toMemberProfile(MemberProfileTa member) {
+        return mapper.map(member, MemberProfile.class);
     }
 
-    public MemberTa toMemberTa(Member member) {
-        return mapper.map(member, MemberTa.class);
+    public MemberProfileTa toMemberProfileTa(MemberProfile member) {
+        return mapper.map(member, MemberProfileTa.class);
     }
 
     public Long toDatabaseId(AccountId accountId) {
