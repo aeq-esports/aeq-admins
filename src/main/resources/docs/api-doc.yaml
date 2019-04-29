@@ -1,0 +1,244 @@
+openapi: 3.0.1
+info:
+  title: AeQ Connect API
+  description: 'Official Aequilibritas eSports Community API.'
+  termsOfService: ''
+  contact:
+    name: AeQ Cypher
+    email: cypher@aeq-esports.de
+  license:
+    name: 'All Rights Reserved'
+  version: 0.1.0
+
+externalDocs:
+  description: GitHub
+  url: https://github.com/aeq-esports/aeq-admins
+servers:
+  - url: 'TODO'
+
+tags:
+  - name: member
+    description: data about community members
+
+paths:
+
+  # -----------------------------------
+  # Member Paths
+  # -----------------------------------
+
+  /member:
+    get:
+      summary: 'Get a list of existing members'
+      responses:
+        200:
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Member'
+      security:
+        - member_auth:
+            - write:pets
+            - read:pets
+
+  /member/{memberId}:
+    get:
+      summary: "Get information about a specific member"
+      parameters:
+        - name: memberId
+          in: path
+          description: "ID of the member"
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        404:
+          description: "Member with ID not found"
+
+  /member/{memberId}/profile:
+    get:
+      summary: "Get profile information about a specific member"
+      parameters:
+        - name: memberId
+          in: path
+          description: "ID of the member"
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberProfile'
+        404:
+          description: 'Member with ID not found'
+
+  # -----------------------------------
+  # Trial Period Paths
+  # -----------------------------------
+
+components:
+  schemas:
+
+    # -----------------------------------
+    # Member Schemas
+    # -----------------------------------
+
+    Member:
+      type: object
+      properties:
+        memberId:
+          type: integer
+          format: int64
+        nickname:
+          type: string
+          description: Nickname used by this memeber, unique accross the platform
+        hasOpenTrial:
+          type: boolean
+          description: true if this user has an open trial period, otherwise false
+        isBanned:
+          type: boolean
+          description: true if this user is banned, otherwise false
+        roles:
+          type: array
+          description: Roles of this user
+          items:
+            type: string
+
+    MemberProfile:
+      type: object
+      properties:
+        memberId:
+          type: integer
+          format: int64
+        firstName:
+          type: string
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+            - unknown
+
+    MemberBan:
+      type: object
+      properties:
+        memberId:
+          type: integer
+          format: int64
+          description: Id of the member that is banned
+        bannedBy:
+          type: integer
+          format: int64
+          description: Id of the member that initiated the ban
+        reason:
+          type: object
+          properties:
+            type:
+              type: string
+              description: The type of ban
+            message:
+              type: string
+              description: An additional message that provides detailed information
+        bannedAt:
+          type: string
+          format: date-time
+          description: Point of time this user was banned
+        bannedUntil:
+          type: string
+          format: date-time
+          description: 'Point of time until this user is banned, not present if the duration of the ban is infinite'
+
+    # -----------------------------------
+    # Trial Period Schemas
+    # -----------------------------------
+
+    TrialPeriod:
+      type: object
+      properties:
+        memberId:
+          type: integer
+          format: int64
+        state:
+          type: string
+          enum:
+            - open
+            - pending
+            - approved
+            - rejected
+        createdAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+
+    TrialPeriodVote:
+      type: object
+      properties:
+        trialPeriodId:
+          type: integer
+          format: int64
+        memberId:
+          type: integer
+          format: int64
+        consensus:
+          type: string
+          enum:
+            - prolong
+            - approve
+            - reject
+          description: >
+            Consensus:
+             * prolong - The trial period should be extended
+             * approve - The trial period should be approved
+             * reject - The trial period should be rejected
+        comment:
+          type: string
+          description: An additional comment that provides detailed information
+        createdAt:
+          type: string
+          format: date-time
+          description: The time this vote has been created
+      required:
+        - trialPeriodId
+        - memberId
+        - consensus
+
+    # -----------------------------------
+    # Other Schemas
+    # -----------------------------------
+
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+  securitySchemes:
+    member_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://petstore.swagger.io/oauth/dialog
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

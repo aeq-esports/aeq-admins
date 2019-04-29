@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.member.api;
+package de.esports.aeq.admins.account.api;
 
 import de.esports.aeq.admins.account.api.AccountId;
 import de.esports.aeq.admins.account.api.VerifiableAccount;

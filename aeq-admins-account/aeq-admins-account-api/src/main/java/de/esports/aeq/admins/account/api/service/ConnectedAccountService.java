@@ -1,7 +1,7 @@
-package de.esports.aeq.admins.member.api.service;
+package de.esports.aeq.admins.account.api.service;
 
 import de.esports.aeq.admins.account.api.AccountId;
-import de.esports.aeq.admins.member.api.ConnectedAccount;
+import de.esports.aeq.admins.account.api.ConnectedAccount;
 
 import java.util.Optional;
 import java.util.Set;

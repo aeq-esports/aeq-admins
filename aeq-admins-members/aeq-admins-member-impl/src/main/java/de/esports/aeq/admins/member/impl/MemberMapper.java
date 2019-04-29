@@ -3,7 +3,7 @@ package de.esports.aeq.admins.member.impl;
 import de.esports.aeq.admins.account.api.AccountId;
 import de.esports.aeq.admins.account.api.AccountType;
 import de.esports.aeq.admins.common.MapperProvider;
-import de.esports.aeq.admins.member.api.ConnectedAccount;
+import de.esports.aeq.admins.account.api.ConnectedAccount;
 import de.esports.aeq.admins.member.api.MemberProfile;
 import de.esports.aeq.admins.member.impl.jpa.entity.ConnectedAccountTa;
 import de.esports.aeq.admins.member.impl.jpa.entity.MemberProfileTa;
