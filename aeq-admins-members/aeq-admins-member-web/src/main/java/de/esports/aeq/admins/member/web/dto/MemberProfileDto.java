@@ -7,27 +7,19 @@ import java.util.Locale;
 
 public class MemberProfileDto {
 
-    private Long userId;
-    private String username;
+    private Long memberId;
     private String firstName;
     private Gender gender;
     private LocalDate dateOfBirth;
+    private int age;
     private Locale locale;
 
-    public Long getUserId() {
-        return userId;
+    public Long getMemberId() {
+        return memberId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    public void setMemberId(Long memberId) {
+        this.memberId = memberId;
     }
 
     public String getFirstName() {
@@ -52,6 +44,11 @@ public class MemberProfileDto {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+        this.age = LocalDate.now().getYear() - dateOfBirth.getYear();
+    }
+
+    public int getAge() {
+        return age;
     }
 
     public Locale getLocale() {

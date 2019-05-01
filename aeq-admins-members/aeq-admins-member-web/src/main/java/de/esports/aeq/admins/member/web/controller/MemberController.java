@@ -68,18 +68,18 @@ public class MemberController {
     }
 
     private void resolveMissingFields(MemberProfileDto profile) {
-        userService.findById(profile.getUserId()).ifPresent(user ->
+        userService.findById(profile.getMemberId()).ifPresent(user ->
                 resolveMissingFieldsWithUser(profile, user));
     }
 
     private void resolveMissingFields(Collection<MemberProfileDto> profiles) {
-        Set<Long> userIds = profiles.stream().map(MemberProfileDto::getUserId)
+        Set<Long> userIds = profiles.stream().map(MemberProfileDto::getMemberId)
                 .collect(Collectors.toSet());
         Map<Long, List<UserTa>> usersById =
                 userService.findAllByIds(userIds).stream().collect(groupingBy(UserTa::getId));
 
         for (MemberProfileDto profile : profiles) {
-            peek(usersById.get(profile.getUserId())).ifPresent(user ->
+            peek(usersById.get(profile.getMemberId())).ifPresent(user ->
                     resolveMissingFieldsWithUser(profile, user));
         }
     }

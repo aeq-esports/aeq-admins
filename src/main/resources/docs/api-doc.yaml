@@ -4,7 +4,7 @@ info:
   description: 'Official Aequilibritas eSports Community API.'
   termsOfService: ''
   contact:
-    name: AeQ Cypher
+    name: Developers
     email: cypher@aeq-esports.de
   license:
     name: 'All Rights Reserved'
@@ -96,6 +96,7 @@ components:
 
     Member:
       type: object
+      description: Data related to a member of the community.
       properties:
         memberId:
           type: integer
@@ -103,9 +104,9 @@ components:
         nickname:
           type: string
           description: Nickname used by this memeber, unique accross the platform
-        hasOpenTrial:
+        isTrialMember:
           type: boolean
-          description: true if this user has an open trial period, otherwise false
+          description: true if this member has an open trial period, otherwise false
         isBanned:
           type: boolean
           description: true if this user is banned, otherwise false
@@ -114,9 +115,14 @@ components:
           description: Roles of this user
           items:
             type: string
+        createdAt:
+          type: string
+          format: date-time
+          description: Point of time this this member has been created at
 
     MemberProfile:
       type: object
+      description: The profile of a member including personal data.
       properties:
         memberId:
           type: integer
@@ -129,6 +135,16 @@ components:
             - male
             - female
             - unknown
+        dateOfBirth:
+          type: string
+          format: date
+          description: The date of birth
+        age:
+          type: integer
+          description: The age in years, rounded down
+        locale:
+          type: string
+          description: A locale representing the preferred language
 
     MemberBan:
       type: object
