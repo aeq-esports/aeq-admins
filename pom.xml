@@ -27,7 +27,7 @@
         <module>aeq-admins-core</module>
         <module>aeq-admins-security</module>
         <module>aeq-admins-configuration</module>
-        <module>aeq-admins-members</module>
+        <module>aeq-admins-member</module>
         <module>aeq-admins-i18n</module>
         <module>aeq-admins-platform</module>
         <module>aeq-admins-riot-integration</module>

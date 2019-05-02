@@ -1,8 +1,5 @@
 package de.esports.aeq.admins.account.api;
 
-import de.esports.aeq.admins.account.api.AccountId;
-import de.esports.aeq.admins.account.api.VerifiableAccount;
-
 import java.time.Instant;
 import java.util.Optional;
 

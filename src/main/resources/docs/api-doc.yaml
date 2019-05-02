@@ -101,9 +101,6 @@ components:
         memberId:
           type: integer
           format: int64
-        nickname:
-          type: string
-          description: Nickname used by this memeber, unique accross the platform
         isTrialMember:
           type: boolean
           description: true if this member has an open trial period, otherwise false
@@ -127,6 +124,9 @@ components:
         memberId:
           type: integer
           format: int64
+        nickname:
+          type: string
+          description: Nickname used by this memeber, unique accross the platform
         firstName:
           type: string
         gender:

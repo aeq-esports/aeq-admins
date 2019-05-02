@@ -1,6 +1,5 @@
 package de.esports.aeq.admins.trials.web.dto;
 
-import de.esports.aeq.admins.security.web.UserResponseDTO;
 import de.esports.aeq.admins.trials.common.TrialState;
 
 import java.io.Serializable;
@@ -11,7 +10,7 @@ public class TrialPeriodResponseDto implements Serializable {
 
     private Long id;
 
-    private UserResponseDTO user;
+    private Long userId;
 
     private TrialState state;
 
@@ -29,12 +28,12 @@ public class TrialPeriodResponseDto implements Serializable {
         this.id = id;
     }
 
-    public UserResponseDTO getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(UserResponseDTO user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public TrialState getState() {

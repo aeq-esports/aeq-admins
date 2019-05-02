@@ -1,7 +1,7 @@
 package de.esports.aeq.admins.trials.web;
 
-import de.esports.aeq.admins.security.domain.UserTa;
-import de.esports.aeq.admins.security.service.UserService;
+import de.esports.aeq.admins.security.api.User;
+import de.esports.aeq.admins.security.api.service.UserService;
 import de.esports.aeq.admins.trials.service.TrialPeriodVoteService;
 import de.esports.aeq.admins.trials.service.dto.CreateTrialPeriodVote;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriodVote;
@@ -12,7 +12,6 @@ import de.esports.aeq.admins.trials.web.dto.TrialPeriodVotePatchDto;
 import de.esports.aeq.admins.trials.web.dto.TrialPeriodVoteUpdateDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,8 +57,7 @@ public class TrialPeriodVoteController {
     public void create(@PathVariable Long trialPeriodId,
             @RequestBody @Valid TrialPeriodVoteCreateDto request,
             Principal principal) {
-        // TODO make domain object for user
-        UserTa user = userService.findByUsername(principal.getName());
+        User user = userService.findByUsername(principal.getName());
 
         CreateTrialPeriodVote vote = new CreateTrialPeriodVote();
         vote.setTrialPeriodId(trialPeriodId);

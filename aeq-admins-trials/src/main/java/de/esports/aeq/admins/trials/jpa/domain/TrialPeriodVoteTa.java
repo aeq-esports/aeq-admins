@@ -1,6 +1,5 @@
 package de.esports.aeq.admins.trials.jpa.domain;
 
-import de.esports.aeq.admins.security.domain.UserTa;
 import de.esports.aeq.admins.trials.common.TrialState;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -26,7 +25,7 @@ public class TrialPeriodVoteTa implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotAudited
-    private UserTa user;
+    private Long userId;
 
     @Column
     private TrialState consensus;
@@ -50,12 +49,12 @@ public class TrialPeriodVoteTa implements Serializable {
         this.trialPeriod = trialPeriod;
     }
 
-    public UserTa getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(UserTa user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public TrialState getConsensus() {

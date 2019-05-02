@@ -1,6 +1,5 @@
 package de.esports.aeq.admins.trials.jpa.domain;
 
-import de.esports.aeq.admins.security.domain.UserTa;
 import de.esports.aeq.admins.trials.common.TrialState;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -30,7 +29,7 @@ public class TrialPeriodTa implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotAudited
-    private UserTa user;
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     private TrialState state;
@@ -49,12 +48,12 @@ public class TrialPeriodTa implements Serializable {
         this.id = id;
     }
 
-    public UserTa getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(UserTa user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public TrialState getState() {
@@ -85,28 +84,25 @@ public class TrialPeriodTa implements Serializable {
         this.duration = duration;
     }
 
-    @Override
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TrialPeriodTa)) return false;
         TrialPeriodTa that = (TrialPeriodTa) o;
         return Objects.equals(id, that.id) &&
-                Objects.equals(user, that.user) &&
+                Objects.equals(userId, that.userId) &&
                 state == that.state &&
                 Objects.equals(start, that.start) &&
                 Objects.equals(duration, that.duration);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, user, state, start, duration);
+    @Override public int hashCode() {
+        return Objects.hash(id, userId, state, start, duration);
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return new StringJoiner(", ", TrialPeriodTa.class.getSimpleName() + "[", "]")
                 .add("id=" + id)
-                .add("user=" + user)
+                .add("userId=" + userId)
                 .add("state=" + state)
                 .add("start=" + start)
                 .add("duration=" + duration)

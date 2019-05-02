@@ -3,8 +3,7 @@ package de.esports.aeq.admins.trials.service;
 import de.esports.aeq.admins.common.BadRequestException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.common.UpdateContext;
-import de.esports.aeq.admins.security.domain.UserTa;
-import de.esports.aeq.admins.security.service.UserService;
+import de.esports.aeq.admins.security.api.service.UserService;
 import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.exception.TrialPeriodAlreadyStartedException;
 import de.esports.aeq.admins.trials.exception.TrialPeriodBlockedException;
@@ -32,6 +31,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static de.esports.aeq.admins.common.ExceptionResponseWrapper.notFound;
 
 @Service
 class TrialPeriodServiceBean implements TrialPeriodService {
@@ -83,13 +84,16 @@ class TrialPeriodServiceBean implements TrialPeriodService {
 
     @Override
     public void create(TrialPeriod trialPeriod) {
-        TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
+
 
         // the user needs to be resolved before preconditions
-        UserTa user = userService.findById(trialPeriod.getUserId());
-        entity.setUser(user);
+        Long userId = trialPeriod.getUserId();
+        userService.findById(userId).orElseThrow(() -> notFound(userId));
 
-        assertCreatePreconditions(entity);
+        TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
+        entity.setUserId(userId);
+
+        assertCreatePreconditions(userId);
         enrichTrialPeriod(entity);
 
         LOG.info("Creating trial period: {}", entity);
@@ -99,8 +103,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         workflow.createProcessInstance(result);
     }
 
-    private void assertCreatePreconditions(TrialPeriodTa trialPeriod) {
-        Long userId = trialPeriod.getUser().getId();
+    private void assertCreatePreconditions(Long userId) {
         var activeTrialPeriods = trialPeriodRepository.findAllActiveByUserId(userId);
 
         if (!activeTrialPeriods.isEmpty()) {

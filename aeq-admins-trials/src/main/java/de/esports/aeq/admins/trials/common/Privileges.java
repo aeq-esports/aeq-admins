@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.trials.common;
 
-import de.esports.aeq.admins.security.GrantedAuthorityHolder;
+import de.esports.aeq.admins.security.api.GrantedAuthorityHolder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
