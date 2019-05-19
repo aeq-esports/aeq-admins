@@ -1,7 +1,6 @@
 package de.esports.aeq.admins.trials;
 
-import de.esports.aeq.admins.security.api.Privilege;
-import de.esports.aeq.admins.security.api.service.PrivilegeService;
+import de.esports.aeq.admins.security.api.service.GrantedAuthorityService;
 import de.esports.aeq.admins.trials.common.Privileges;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -12,16 +11,16 @@ import java.util.Arrays;
 @Configuration
 public class TrialsSecurityConfig {
 
-    private PrivilegeService service;
+    private GrantedAuthorityService service;
 
     @Autowired
-    public TrialsSecurityConfig(PrivilegeService service) {
+    public TrialsSecurityConfig(GrantedAuthorityService service) {
         this.service = service;
     }
 
     @PostConstruct
     private void setupPrivileges() {
-        Arrays.stream(Privileges.values()).map(Privileges::toGrantedAuthority)
-                .map(Privilege::of).forEach(service::createIfNotExists);
+        Arrays.stream(Privileges.values()).map(Privileges::getName).map(Authority::of)
+                .forEach(service::createIfNotExists);
     }
 }

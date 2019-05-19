@@ -1,7 +1,7 @@
 package de.esports.aeq.admins.trials.web;
 
-import de.esports.aeq.admins.security.api.User;
-import de.esports.aeq.admins.security.api.service.UserService;
+import de.esports.aeq.admins.security.api.DefaultUser;
+import de.esports.aeq.admins.security.api.service.AppUserService;
 import de.esports.aeq.admins.trials.service.TrialPeriodVoteService;
 import de.esports.aeq.admins.trials.service.dto.CreateTrialPeriodVote;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriodVote;
@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
 public class TrialPeriodVoteController {
 
     private final ModelMapper mapper;
-    private final UserService userService;
+    private final AppUserService userDetailsService;
     private final TrialPeriodVoteService voteService;
 
     public TrialPeriodVoteController(
-            ModelMapper mapper, UserService userService,
+            ModelMapper mapper, AppUserService userDetailsService,
             TrialPeriodVoteService voteService) {
         this.mapper = mapper;
-        this.userService = userService;
+        this.userDetailsService = userDetailsService;
         this.voteService = voteService;
     }
 
@@ -57,7 +57,7 @@ public class TrialPeriodVoteController {
     public void create(@PathVariable Long trialPeriodId,
             @RequestBody @Valid TrialPeriodVoteCreateDto request,
             Principal principal) {
-        User user = userService.findByUsername(principal.getName());
+        DefaultUser user = userDetailsService.getUserByUsername(principal.getName());
 
         CreateTrialPeriodVote vote = new CreateTrialPeriodVote();
         vote.setTrialPeriodId(trialPeriodId);

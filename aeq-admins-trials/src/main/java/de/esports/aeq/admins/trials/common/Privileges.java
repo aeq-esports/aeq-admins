@@ -1,10 +1,6 @@
 package de.esports.aeq.admins.trials.common;
 
-import de.esports.aeq.admins.security.api.GrantedAuthorityHolder;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-public enum Privileges implements GrantedAuthorityHolder {
+public enum Privileges {
 
     READ_TRIAL_PERIOD("READ_TRIAL_PERIOD"),
     CREATE_TRIAL_PERIOD("CREATE_TRIAL_PERIOD"),
@@ -17,8 +13,7 @@ public enum Privileges implements GrantedAuthorityHolder {
         this.name = name;
     }
 
-    @Override
-    public GrantedAuthority toGrantedAuthority() {
-        return new SimpleGrantedAuthority(name);
+    public String getName() {
+        return name;
     }
 }

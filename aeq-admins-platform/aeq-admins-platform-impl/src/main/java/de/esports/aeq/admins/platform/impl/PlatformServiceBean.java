@@ -3,7 +3,6 @@ package de.esports.aeq.admins.platform.impl;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.platform.api.Platform;
 import de.esports.aeq.admins.platform.api.PlatformInstance;
-import de.esports.aeq.admins.platform.api.PlatformType;
 import de.esports.aeq.admins.platform.api.data.RiotPlatformInstance;
 import de.esports.aeq.admins.platform.api.jpa.PlatformInstanceTa;
 import de.esports.aeq.admins.platform.api.jpa.PlatformTa;

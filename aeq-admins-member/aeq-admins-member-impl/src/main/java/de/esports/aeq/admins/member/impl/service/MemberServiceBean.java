@@ -1,10 +1,9 @@
 package de.esports.aeq.admins.member.impl.service;
 
-import de.esports.aeq.admins.member.api.Member;
 import de.esports.aeq.admins.member.api.service.MemberService;
 import de.esports.aeq.admins.member.impl.MemberMapper;
-import de.esports.aeq.admins.security.api.UserRoles;
-import de.esports.aeq.admins.security.api.service.UserService;
+import de.esports.aeq.admins.security.api.Roles;
+import de.esports.aeq.admins.security.api.service.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,25 +17,25 @@ import static java.util.stream.Collectors.toList;
 public class MemberServiceBean implements MemberService {
 
     private final MemberMapper mapper;
-    private final UserService userService;
+    private final AppUserService userDetailsService;
 
     @Autowired
-    public MemberServiceBean(MemberMapper mapper, UserService userService) {
+    public MemberServiceBean(MemberMapper mapper, AppUserService userDetailsService) {
         this.mapper = mapper;
-        this.userService = userService;
+        this.userDetailsService = userDetailsService;
     }
 
     //-----------------------------------------------------------------------
 
     @Override
     public Collection<Member> getMembers() {
-        return userService.findAll().stream().map(mapper::toMember)
+        return userDetailsService.getUsers().stream().map(mapper::toMember)
                 .collect(collectingAndThen(toList(), this::mapMissingMemberData));
     }
 
     @Override
     public Optional<Member> getMemberById(Long userId) {
-        return userService.findById(userId).map(mapper::toMember)
+        return userDetailsService.getUserById(userId).map(mapper::toMember)
                 .map(this::mapMissingMemberData);
     }
 
@@ -64,7 +63,7 @@ public class MemberServiceBean implements MemberService {
     }
 
     private boolean isTrialMember(Member member) {
-        String roleName = UserRoles.TRIAL_MEMBER.getName();
+        String roleName = Roles.TRIAL_MEMBER.getName();
         return member.getRoles().contains(roleName);
     }
 }

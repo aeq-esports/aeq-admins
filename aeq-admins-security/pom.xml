@@ -13,6 +13,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>aeq-admins-security-api</module>
+        <module>aeq-admins-security-impl</module>
+        <module>aeq-admins-security-web</module>
     </modules>
 
     <dependencies>

@@ -2,7 +2,7 @@ package de.esports.aeq.admins.member.web.controller;
 
 import de.esports.aeq.admins.member.api.MemberProfile;
 import de.esports.aeq.admins.member.api.service.MemberProfileService;
-import de.esports.aeq.admins.member.web.dto.MemberProfileDto;
+import de.esports.aeq.admins.member.web.types.MemberProfileDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

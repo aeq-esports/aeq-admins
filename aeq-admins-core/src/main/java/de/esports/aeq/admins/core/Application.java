@@ -14,7 +14,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = "de.esports.aeq.admins")
 @EnableJpaAuditing
 @EntityScan(basePackages = "de.esports.aeq.admins")
-@PropertySource("application.properties")
+@PropertySource("application.yml")
 @PropertySource("default.config.properties")
 @EnableProcessApplication
 public class Application {

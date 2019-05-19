@@ -1,20 +1,20 @@
 package de.esports.aeq.admins.security.api.service;
 
-import de.esports.aeq.admins.security.api.UserRole;
+import de.esports.aeq.admins.security.api.Role;
 
 import java.util.List;
 
 public interface RoleService {
 
-    UserRole create(UserRole entity);
+    Role create(Role entity);
 
-    UserRole update(UserRole entity);
+    Role update(Role entity);
 
     void delete(Long id);
 
-    List<UserRole> findAll();
+    List<Role> findAll();
 
-    UserRole findOne(Long id);
+    Role findOne(Long id);
 
-    UserRole findByName(String name);
+    Role findByName(String name);
 }

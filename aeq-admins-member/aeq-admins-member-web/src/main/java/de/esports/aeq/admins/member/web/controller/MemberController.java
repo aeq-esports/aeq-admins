@@ -1,8 +1,7 @@
 package de.esports.aeq.admins.member.web.controller;
 
-import de.esports.aeq.admins.member.api.Member;
 import de.esports.aeq.admins.member.api.service.MemberService;
-import de.esports.aeq.admins.member.web.dto.MemberDto;
+import de.esports.aeq.admins.member.web.types.MemberDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

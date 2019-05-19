@@ -3,7 +3,7 @@ package de.esports.aeq.admins.trials.service;
 import de.esports.aeq.admins.common.BadRequestException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.common.UpdateContext;
-import de.esports.aeq.admins.security.api.service.UserService;
+import de.esports.aeq.admins.security.api.service.AppUserService;
 import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.exception.TrialPeriodAlreadyStartedException;
 import de.esports.aeq.admins.trials.exception.TrialPeriodBlockedException;
@@ -41,7 +41,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
 
     private final TrialPeriodRepository trialPeriodRepository;
     private final TrialPeriodConfigService configService;
-    private final UserService userService;
+    private final AppUserService userDetailsService;
     private final WorkflowController workflow;
     private final EntityManager entityManager;
 
@@ -51,13 +51,13 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     @Autowired
     public TrialPeriodServiceBean(TrialPeriodRepository repository,
             TrialPeriodConfigService configService,
-            UserService userService,
+            AppUserService userDetailsService,
             WorkflowController workflow,
             ModelMapper mapper,
             EntityManager entityManager) {
         this.trialPeriodRepository = repository;
         this.configService = configService;
-        this.userService = userService;
+        this.userDetailsService = userDetailsService;
         this.workflow = workflow;
         this.mapper = mapper;
         this.entityManager = entityManager;
@@ -88,7 +88,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
 
         // the user needs to be resolved before preconditions
         Long userId = trialPeriod.getUserId();
-        userService.findById(userId).orElseThrow(() -> notFound(userId));
+        userDetailsService.getUserById(userId).orElseThrow(() -> notFound(userId));
 
         TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
         entity.setUserId(userId);
