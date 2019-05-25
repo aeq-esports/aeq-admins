@@ -1,6 +1,6 @@
 package de.esports.aeq.admins.security.api.event;
 
-import de.esports.aeq.admins.security.api.DefaultUser;
+import de.esports.aeq.admins.security.api.User;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -8,13 +8,13 @@ public class UserCreatedEvent {
 
     public static final String KEY = "user.created";
 
-    private DefaultUser user;
+    private User user;
 
-    public UserCreatedEvent(DefaultUser user) {
+    public UserCreatedEvent(User user) {
         this.user = user;
     }
 
-    public DefaultUser getUser() {
+    public User getUser() {
         return user;
     }
 

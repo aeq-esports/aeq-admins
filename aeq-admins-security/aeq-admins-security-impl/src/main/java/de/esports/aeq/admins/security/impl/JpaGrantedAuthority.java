@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.security.api;
+package de.esports.aeq.admins.security.impl;
 
 import java.util.Objects;
 import java.util.StringJoiner;

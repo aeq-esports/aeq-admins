@@ -3,7 +3,7 @@ package de.esports.aeq.admins.member.impl;
 import de.esports.aeq.admins.common.MapperProvider;
 import de.esports.aeq.admins.member.api.MemberProfile;
 import de.esports.aeq.admins.member.impl.jpa.entity.MemberProfileTa;
-import de.esports.aeq.admins.security.api.DefaultUser;
+import de.esports.aeq.admins.security.api.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +29,7 @@ public class MemberMapper implements MapperProvider {
      * Converters.
      */
 
-    public Member toMember(DefaultUser user) {
+    public Member toMember(User user) {
         return mapper.map(user, Member.class);
     }
 

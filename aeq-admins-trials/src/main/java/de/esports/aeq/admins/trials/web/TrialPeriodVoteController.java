@@ -1,7 +1,6 @@
 package de.esports.aeq.admins.trials.web;
 
-import de.esports.aeq.admins.security.api.DefaultUser;
-import de.esports.aeq.admins.security.api.service.AppUserService;
+import de.esports.aeq.admins.security.api.User;
 import de.esports.aeq.admins.trials.service.TrialPeriodVoteService;
 import de.esports.aeq.admins.trials.service.dto.CreateTrialPeriodVote;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriodVote;
@@ -57,7 +56,7 @@ public class TrialPeriodVoteController {
     public void create(@PathVariable Long trialPeriodId,
             @RequestBody @Valid TrialPeriodVoteCreateDto request,
             Principal principal) {
-        DefaultUser user = userDetailsService.getUserByUsername(principal.getName());
+        User user = userDetailsService.getUserByUsername(principal.getName());
 
         CreateTrialPeriodVote vote = new CreateTrialPeriodVote();
         vote.setTrialPeriodId(trialPeriodId);

@@ -3,7 +3,6 @@ package de.esports.aeq.admins.member.impl.service;
 import de.esports.aeq.admins.member.api.service.MemberService;
 import de.esports.aeq.admins.member.impl.MemberMapper;
 import de.esports.aeq.admins.security.api.Roles;
-import de.esports.aeq.admins.security.api.service.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

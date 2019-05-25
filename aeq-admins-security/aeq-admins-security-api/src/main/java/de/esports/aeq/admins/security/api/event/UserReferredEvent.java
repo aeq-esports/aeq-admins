@@ -1,7 +1,7 @@
 package de.esports.aeq.admins.security.api.event;
 
 import de.esports.aeq.admins.common.Referable;
-import de.esports.aeq.admins.security.api.DefaultUser;
+import de.esports.aeq.admins.security.api.User;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -9,15 +9,15 @@ public class UserReferredEvent {
 
     public static final String KEY = "user.referred";
 
-    private final DefaultUser user;
+    private final User user;
     private final Referable referable;
 
-    public UserReferredEvent(DefaultUser user, Referable referable) {
+    public UserReferredEvent(User user, Referable referable) {
         this.user = user;
         this.referable = referable;
     }
 
-    public DefaultUser getUser() {
+    public User getUser() {
         return user;
     }
 

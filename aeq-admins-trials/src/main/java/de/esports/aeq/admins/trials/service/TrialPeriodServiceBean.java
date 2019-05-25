@@ -3,7 +3,6 @@ package de.esports.aeq.admins.trials.service;
 import de.esports.aeq.admins.common.BadRequestException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.common.UpdateContext;
-import de.esports.aeq.admins.security.api.service.AppUserService;
 import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.exception.TrialPeriodAlreadyStartedException;
 import de.esports.aeq.admins.trials.exception.TrialPeriodBlockedException;

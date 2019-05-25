@@ -1,6 +1,7 @@
 package de.esports.aeq.admins.security.impl;
 
-import de.esports.aeq.admins.security.api.service.AppUserService;
+import de.esports.aeq.admins.security.api.service.SecurityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,9 +10,10 @@ import org.springframework.stereotype.Component;
 @Component("cse")
 public class CustomSecurityExpressionBean {
 
-    private final AppUserService service;
+    private final SecurityService service;
 
-    public CustomSecurityExpressionBean(AppUserService service) {
+    @Autowired
+    public CustomSecurityExpressionBean(SecurityService service) {
         this.service = service;
     }
 
@@ -30,7 +32,7 @@ public class CustomSecurityExpressionBean {
     }
 
     private boolean hasUserId(UserDetails details, Long userId) {
-        return service.getByUsername(details.getUsername())
-            .map(user -> user.getId().equals(userId)).orElse(false);
+        return service.getUserByUsername(details.getUsername())
+                .map(user -> user.getId().equals(userId)).orElse(Boolean.FALSE);
     }
 }
