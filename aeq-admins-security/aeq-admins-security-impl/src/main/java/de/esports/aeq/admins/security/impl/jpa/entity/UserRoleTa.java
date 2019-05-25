@@ -2,9 +2,15 @@ package de.esports.aeq.admins.security.impl.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import de.esports.aeq.admins.security.api.UserRoleFlag;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,12 +22,13 @@ import javax.persistence.ManyToMany;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
+import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @Table(name = "aeq_sec_role")
-@NamedEntityGraph(name = "graph.RoleTa.privileges",
+@NamedEntityGraph(name = "graph.UserRoleTa.privileges",
     attributeNodes = @NamedAttributeNode(value = "privileges"))
-public class RoleTa implements Serializable {
+public class UserRoleTa implements Serializable {
 
     @Id
     @GeneratedValue
@@ -34,6 +41,11 @@ public class RoleTa implements Serializable {
     @ManyToMany(mappedBy = "roles")
     @JsonBackReference
     private Collection<UserTa> users;
+
+
+    private Map<String, Collection<GrantedAuthority>> authorities = new HashMap<>();
+    private Set<UserRoleFlag> flags = EnumSet.noneOf(UserRoleFlag.class);
+
 
     @ManyToMany
     @JoinTable(name = "aeq_role_privilege",

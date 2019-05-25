@@ -1,9 +1,9 @@
 package de.esports.aeq.admins.security.impl.support;
 
 import de.esports.aeq.admins.security.api.annotation.RunAsRole;
-import de.esports.aeq.admins.security.impl.jpa.RoleRepository;
+import de.esports.aeq.admins.security.impl.jpa.UserRoleRepository;
 import de.esports.aeq.admins.security.impl.jpa.entity.PrivilegeTa;
-import de.esports.aeq.admins.security.impl.jpa.entity.RoleTa;
+import de.esports.aeq.admins.security.impl.jpa.entity.UserRoleTa;
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -23,10 +23,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class RunAsRoleAspect {
 
-    private RoleRepository repository;
+    private UserRoleRepository repository;
 
     @Autowired
-    public RunAsRoleAspect(RoleRepository repository) {
+    public RunAsRoleAspect(UserRoleRepository repository) {
         this.repository = repository;
     }
 
@@ -49,7 +49,7 @@ public class RunAsRoleAspect {
 
     private SecurityContext createTemporarySecurityContext(RunAsRole annotation) {
         String roleName = annotation.value();
-        RoleTa role = repository.findOneByName(roleName)
+        UserRoleTa role = repository.findOneByName(roleName)
             .orElseThrow(RuntimeException::new);
 
         SecurityContext context = new SecurityContextImpl();

@@ -5,33 +5,27 @@ import static java.util.stream.Collectors.toList;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.security.api.User;
-import de.esports.aeq.admins.security.api.UserRole;
 import de.esports.aeq.admins.security.api.event.UserCreatedEvent;
 import de.esports.aeq.admins.security.api.event.UserDeletedEvent;
-import de.esports.aeq.admins.security.api.event.UserRoleDeletedEvent;
 import de.esports.aeq.admins.security.api.event.UserUpdatedEvent;
 import de.esports.aeq.admins.security.api.exception.DuplicateUsernameException;
 import de.esports.aeq.admins.security.api.service.SecurityService;
-import de.esports.aeq.admins.security.impl.jpa.PrivilegeRepository;
-import de.esports.aeq.admins.security.impl.jpa.RoleRepository;
 import de.esports.aeq.admins.security.impl.jpa.UserRepository;
-import de.esports.aeq.admins.security.impl.jpa.entity.PrivilegeTa;
-import de.esports.aeq.admins.security.impl.jpa.entity.RoleTa;
+import de.esports.aeq.admins.security.impl.jpa.UserRoleRepository;
+import de.esports.aeq.admins.security.impl.jpa.entity.UserRoleTa;
 import de.esports.aeq.admins.security.impl.jpa.entity.UserTa;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,13 +37,11 @@ public class SecurityServiceBean implements SecurityService {
     private static final String USER_NOT_NULL = "The user must not be null";
     private static final String USER_ID_NOT_NULL = "The user id must not be null";
     private static final String USERNAME_NOT_NULL = "The username must not be null";
-    private static final String ROLE_NAME_NOT_NULL = "The role name must not be null";
 
     private final ModelMapper mapper;
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PrivilegeRepository privilegeRepository;
+    private final UserRoleRepository userRoleRepository;
 
     private PasswordEncoder passwordEncoder;
 
@@ -57,56 +49,70 @@ public class SecurityServiceBean implements SecurityService {
     private KafkaTemplate<String, Object> template;
 
     public SecurityServiceBean(ModelMapper mapper, UserRepository userRepository,
-        RoleRepository roleRepository, PrivilegeRepository privilegeRepository,
-        PasswordEncoder passwordEncoder) {
+        UserRoleRepository userRoleRepository, PasswordEncoder passwordEncoder) {
         this.mapper = mapper;
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.privilegeRepository = privilegeRepository;
+        this.userRoleRepository = userRoleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public Collection<User> getUsers() {
+    public Collection<User> getAll() {
         return userRepository.findAll().stream().map(this::toUser).collect(toList());
     }
 
     @Override
-    public List<User> getUsers(Sort sort) {
+    public List<User> getAll(Sort sort) {
         requireNonNull(sort);
         return userRepository.findAll(sort).stream().map(this::toUser).collect(toList());
     }
 
     @Override
-    public Page<User> getUsers(Pageable pageable) {
+    public Page<User> getAll(Pageable pageable) {
         return userRepository.findAll(pageable).map(this::toUser);
     }
 
     @Override
-    public Collection<User> getUsersByIds(Collection<Long> userIds) {
+    public <S extends User> List<S> getAll(Example<S> example) {
+        return null;
+    }
+
+    @Override
+    public <S extends User> List<S> getAll(Example<S> example, Sort sort) {
+        return null;
+    }
+
+    @Override
+    public Collection<User> getAllByIds(Collection<Long> userIds) {
         return userRepository.findAllById(userIds).stream().map(this::toUser)
             .collect(toList());
     }
 
     @Override
-    public Optional<User> getUserById(Long userId) {
+    public Optional<User> getOneById(Long userId) {
         return userRepository.findById(userId).map(this::toUser);
     }
 
     @Override
-    public Optional<User> getUserByUsername(String username) {
+    public Optional<User> getOne(User user) {
+        return getOneById(user.getId());
+    }
+
+    @Override
+    public Optional<User> getOneByUsername(String username) {
         return userRepository.findOneByUsername(username).map(this::toUser);
     }
 
     @Override
-    public User createUser(User user) {
+    public User create(User user) {
         requireNonNull(user, USER_NOT_NULL);
 
         user.setId(null);
         String username = requireNonNull(user.getUsername(), USERNAME_NOT_NULL);
 
-        userRepository.findOneByUsername(username)
-            .orElseThrow(() -> new DuplicateUsernameException(username));
+        userRepository.findOneByUsername(username).ifPresent(e -> {
+            throw new DuplicateUsernameException(username);
+        });
 
         UserTa entity = toUserTa(user);
 
@@ -128,7 +134,7 @@ public class SecurityServiceBean implements SecurityService {
     }
 
     @Override
-    public User updateUser(User user) {
+    public User update(User user) {
         requireNonNull(user, USER_NOT_NULL);
         requireNonNull(user.getId(), USER_ID_NOT_NULL);
 
@@ -154,7 +160,7 @@ public class SecurityServiceBean implements SecurityService {
     }
 
     @Override
-    public void deleteUser(Long userId) {
+    public void remove(Long userId) {
         requireNonNull(userId, USER_ID_NOT_NULL);
 
         User user = userRepository.findById(userId).map(this::toUser)
@@ -169,70 +175,25 @@ public class SecurityServiceBean implements SecurityService {
     //-----------------------------------------------------------------------
 
     @Override
-    public Collection<UserRole> getRoles() {
-        return roleRepository.findAll().stream().map(RoleTa::getName).map(UserRole::new)
-            .collect(toList());
-    }
-
-    @Override
-    public Optional<UserRole> getRoleByName(String name) {
-        return roleRepository.findOneByName(name).map(RoleTa::getName).map(UserRole::new);
-    }
-
-    @Override
-    public Collection<User> getUsersByRoleName(String name) {
-        RoleTa userRole = roleRepository.findOneByName(name)
+    public Collection<User> getAllByRoleName(String name) {
+        UserRoleTa userRole = userRoleRepository.findOneByName(name)
             .orElseThrow(() -> new EntityNotFoundException(name));
         return userRepository.findAllByRolesContains(userRole.getId()).stream()
             .map(this::toUser).collect(toList());
     }
 
     @Override
-    public Collection<User> getUsersByAnyRoleName(Collection<String> roleNames) {
-        Collection<Long> userRoleIds = roleRepository.findAllByNames(roleNames)
-            .stream().map(RoleTa::getId).collect(toList());
+    public Collection<User> getAllByAnyRoleName(Collection<String> roleNames) {
+        Collection<Long> userRoleIds = userRoleRepository.findAllByNames(roleNames)
+            .stream().map(UserRoleTa::getId).collect(toList());
         return userRepository.findAllByRolesContains(userRoleIds).stream()
             .map(this::toUser).collect(toList());
     }
 
     @Override
-    public Collection<User> getUsersByAllRoleNames(Collection<String> roleNames) {
-        return getUsersByAnyRoleName(roleNames).stream()
+    public Collection<User> getAllByAllRoleNames(Collection<String> roleNames) {
+        return getAllByAnyRoleName(roleNames).stream()
             .filter(user -> user.getUserRoles().containsAll(roleNames)).collect(toList());
-    }
-
-    @Override
-    public UserRole createUserRole(UserRole role) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public UserRole updateUserRole(UserRole role) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void deleteUserRole(String name) {
-        requireNonNull(name, ROLE_NAME_NOT_NULL);
-
-        RoleTa entity = roleRepository.findOneByName(name)
-            .orElseThrow(() -> new EntityNotFoundException(name));
-
-        UserRole role = new UserRole(entity.getName());
-        roleRepository.deleteById(entity.getId());
-
-        UserRoleDeletedEvent event = new UserRoleDeletedEvent(role);
-        template.send(UserRoleDeletedEvent.KEY, event);
-    }
-
-    @Override
-    public Collection<GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> result = new HashSet<>(getRoles());
-
-        privilegeRepository.findAll().stream().map(PrivilegeTa::getName)
-            .map(SimpleGrantedAuthority::new).forEach(result::add);
-
-        return result;
     }
 
     //-----------------------------------------------------------------------

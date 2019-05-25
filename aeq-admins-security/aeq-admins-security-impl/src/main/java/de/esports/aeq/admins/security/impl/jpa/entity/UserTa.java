@@ -63,7 +63,7 @@ public class UserTa implements Serializable {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id"))
     @JsonManagedReference
-    private Set<RoleTa> roles = new HashSet<>();
+    private Set<UserRoleTa> roles = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -145,11 +145,11 @@ public class UserTa implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public Set<RoleTa> getRoles() {
+    public Set<UserRoleTa> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<RoleTa> roles) {
+    public void setRoles(Set<UserRoleTa> roles) {
         this.roles = roles;
     }
 }

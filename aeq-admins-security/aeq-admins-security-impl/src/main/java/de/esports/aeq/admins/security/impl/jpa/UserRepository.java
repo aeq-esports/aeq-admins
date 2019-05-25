@@ -1,5 +1,6 @@
 package de.esports.aeq.admins.security.impl.jpa;
 
+import de.esports.aeq.admins.security.api.User;
 import de.esports.aeq.admins.security.impl.jpa.entity.UserTa;
 import java.util.Collection;
 import java.util.Optional;

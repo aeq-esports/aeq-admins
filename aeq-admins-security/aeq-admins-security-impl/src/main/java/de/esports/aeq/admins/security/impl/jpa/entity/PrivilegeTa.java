@@ -25,7 +25,7 @@ public class PrivilegeTa implements Serializable {
 
     @ManyToMany(mappedBy = "privileges")
     @JsonBackReference
-    private Set<RoleTa> roles = new HashSet<>();
+    private Set<UserRoleTa> roles = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -43,11 +43,11 @@ public class PrivilegeTa implements Serializable {
         this.name = name;
     }
 
-    public Set<RoleTa> getRoles() {
+    public Set<UserRoleTa> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<RoleTa> roles) {
+    public void setRoles(Set<UserRoleTa> roles) {
         this.roles = roles;
     }
 }

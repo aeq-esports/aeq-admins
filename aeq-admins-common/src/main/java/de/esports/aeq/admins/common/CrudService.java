@@ -26,4 +26,17 @@ public interface CrudService<T, ID> {
 
     Optional<T> getOneById(ID id);
 
+    Optional<T> getOne(T object);
+
+    T update(T object);
+
+    void remove(ID id);
+
+    default T createOrUpdate(T object) {
+        Optional<T> one = getOne(object);
+        if (one.isPresent()) {
+            return update(object);
+        }
+        return create(object);
+    }
 }
