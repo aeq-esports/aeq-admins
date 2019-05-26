@@ -14,29 +14,12 @@
     <dependencies>
         <dependency>
             <groupId>de.esports.aeq</groupId>
-            <artifactId>aeq-admins-account-impl</artifactId>
+            <artifactId>aeq-admins-security-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.esports.aeq</groupId>
-            <artifactId>aeq-admins-platform-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.esports.aeq</groupId>
-            <artifactId>aeq-admins-member-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.esports.aeq</groupId>
-            <artifactId>aeq-admins-member-web</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.esports.aeq</groupId>
-            <artifactId>aeq-admins-riot-integration</artifactId>
+            <artifactId>aeq-admins-security-web</artifactId>
             <version>${project.version}</version>
         </dependency>
 

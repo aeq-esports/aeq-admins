@@ -1,28 +1,18 @@
 package de.esports.aeq.admins.security.impl.jpa.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "aeq_sec_user")
-@NamedEntityGraph(name = "graph.UserTa.roles.privileges",
-    attributeNodes = @NamedAttributeNode(value = "roles", subgraph = "privileges"),
-    subgraphs = @NamedSubgraph(
-        name = "privileges", attributeNodes = @NamedAttributeNode("privileges")))
 public class UserTa implements Serializable {
 
     @Id
@@ -57,13 +47,8 @@ public class UserTa implements Serializable {
     @Column
     private Instant createdAt;
 
-
-    @ManyToMany
-    @JoinTable(name = "aeq_user_role",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id"))
-    @JsonManagedReference
-    private Set<UserRoleTa> roles = new HashSet<>();
+    @ElementCollection
+    private Collection<String> authorities = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -145,11 +130,11 @@ public class UserTa implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public Set<UserRoleTa> getRoles() {
-        return roles;
+    public Collection<String> getAuthorities() {
+        return authorities;
     }
 
-    public void setRoles(Set<UserRoleTa> roles) {
-        this.roles = roles;
+    public void setAuthorities(Collection<String> authorities) {
+        this.authorities = authorities;
     }
 }

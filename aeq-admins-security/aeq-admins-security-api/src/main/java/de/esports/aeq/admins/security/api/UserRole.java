@@ -7,6 +7,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
@@ -15,11 +16,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * Although this class derives from <code>{@link GrantedAuthority}</code>, which is marked as {@link
+ * Serializable}, this class does not support serialization.
+ */
 public class UserRole implements GrantedAuthority {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserRole.class);
 
     public static final String PREFIX = "ROLE_";
+
+    //-----------------------------------------------------------------------
 
     private static final String NAME_NOT_NULL = "The name must not be null";
     private static final String NAME_NOT_BLANK = "The name must not be blank";
@@ -28,16 +35,30 @@ public class UserRole implements GrantedAuthority {
     private static final String FLAG_NOT_NULL = "The flag must not be null";
     private static final String FLAGS_NOT_NULL = "The flags must not be null";
 
-    public static boolean isUserRole(GrantedAuthority authority) {
-        return authority.getAuthority().startsWith(UserRole.PREFIX);
+    //-----------------------------------------------------------------------
+
+    /**
+     * Validates if the specified <code>grantedAuthority</code> represents a user role.
+     * <p>
+     * More specifically, returns <code>true</code> if the granted authority start with the user
+     * role {@linkplain #PREFIX prefix}, otherwise <code>false</code>.
+     *
+     * @param grantedAuthority the granted authority, not <code>null</code>
+     * @return <code>true</code> if the granted authority represents a user role, otherwise
+     * <code>false</code>
+     */
+    public static boolean isUserRoleAuthority(GrantedAuthority grantedAuthority) {
+        requireNonNull(grantedAuthority);
+        String authority = grantedAuthority.getAuthority();
+        return authority != null && authority.startsWith(UserRole.PREFIX);
     }
 
-    private static String addPrefix(String name) {
-        requireNonNull(name, NAME_NOT_NULL);
-        if (name.isBlank()) {
+    private static String addPrefix(String authority) {
+        requireNonNull(authority, NAME_NOT_NULL);
+        if (authority.isBlank()) {
             throw new IllegalArgumentException(NAME_NOT_BLANK);
         }
-        return name.toUpperCase().startsWith(PREFIX) ? name : PREFIX + name;
+        return authority.toUpperCase().startsWith(PREFIX) ? authority : PREFIX + authority;
     }
 
     private final String name;

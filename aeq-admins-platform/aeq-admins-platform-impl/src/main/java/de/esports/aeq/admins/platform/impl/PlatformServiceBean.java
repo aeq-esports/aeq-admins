@@ -1,5 +1,6 @@
 package de.esports.aeq.admins.platform.impl;
 
+import de.esports.aeq.admins.common.DuplicateKeyException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.platform.api.Platform;
 import de.esports.aeq.admins.platform.api.PlatformInstance;
@@ -9,7 +10,6 @@ import de.esports.aeq.admins.platform.api.jpa.PlatformTa;
 import de.esports.aeq.admins.platform.api.jpa.RiotPlatformInstanceTa;
 import de.esports.aeq.admins.platform.api.service.PlatformService;
 import de.esports.aeq.admins.platform.impl.jpa.PlatformRepository;
-import de.esports.aeq.admins.security.exception.DuplicateEntityException;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -119,7 +119,7 @@ public class PlatformServiceBean implements PlatformService {
         platform.setId(null);
 
         repository.findByType(platform.getType()).ifPresent(e -> {
-            throw new DuplicateEntityException(e);
+            throw new DuplicateKeyException(e);
         });
 
         return repository.save(platform);

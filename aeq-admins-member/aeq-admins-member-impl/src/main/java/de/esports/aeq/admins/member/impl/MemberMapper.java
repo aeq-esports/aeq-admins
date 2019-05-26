@@ -29,10 +29,6 @@ public class MemberMapper implements MapperProvider {
      * Converters.
      */
 
-    public Member toMember(User user) {
-        return mapper.map(user, Member.class);
-    }
-
     public MemberProfile toMemberProfile(MemberProfileTa member) {
         return mapper.map(member, MemberProfile.class);
     }

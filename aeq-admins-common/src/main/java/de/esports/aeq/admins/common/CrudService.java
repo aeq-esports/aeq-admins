@@ -10,8 +10,6 @@ import org.springframework.data.domain.Sort;
 
 public interface CrudService<T, ID> {
 
-    T create(T object);
-
     Collection<T> getAll();
 
     List<T> getAll(Sort sort);
@@ -27,6 +25,8 @@ public interface CrudService<T, ID> {
     Optional<T> getOneById(ID id);
 
     Optional<T> getOne(T object);
+
+    T create(T object);
 
     T update(T object);
 

@@ -6,6 +6,7 @@ import de.esports.aeq.admins.member.api.service.MemberProfileService;
 import de.esports.aeq.admins.member.impl.MemberMapper;
 import de.esports.aeq.admins.member.impl.jpa.MemberProfileRepository;
 import de.esports.aeq.admins.member.impl.jpa.entity.MemberProfileTa;
+import de.esports.aeq.admins.security.api.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -21,14 +22,14 @@ import static java.util.Objects.requireNonNull;
 public class MemberProfileServiceBean implements MemberProfileService {
 
     private final MemberMapper mapper;
-    private final AppUserService userDetailsService;
+    private final SecurityService securityService;
     private final MemberProfileRepository repository;
 
     @Autowired
-    public MemberProfileServiceBean(MemberMapper mapper, AppUserService userDetailsService,
+    public MemberProfileServiceBean(MemberMapper mapper, SecurityService securityService,
             MemberProfileRepository repository) {
         this.mapper = mapper;
-        this.userDetailsService = userDetailsService;
+        this.securityService = securityService;
         this.repository = repository;
     }
 
@@ -53,7 +54,7 @@ public class MemberProfileServiceBean implements MemberProfileService {
     @Override
     public MemberProfile createProfile(MemberProfile profile) {
         Long userId = profile.getMemberId();
-        userDetailsService.getUserById(userId);
+        securityService.getOneById(userId);
 
         MemberProfileTa entity = mapper.toMemberProfileTa(profile);
         repository.save(entity);

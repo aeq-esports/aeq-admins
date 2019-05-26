@@ -1,5 +1,6 @@
 package de.esports.aeq.admins.security.impl;
 
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +16,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.servlet.http.HttpServletResponse;
-
 @Configuration
 @Profile("!dev")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -27,7 +26,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public WebSecurityConfig(JwtConfig jwtConfig, UserDetailsService service,
-            PasswordEncoder encoder) {
+        PasswordEncoder encoder) {
         this.jwtConfig = jwtConfig;
         this.service = service;
         this.encoder = encoder;
@@ -47,24 +46,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests().antMatchers("/").permitAll();
         http
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(
-                        (req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-                .and()
-                .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager(),
-                        jwtConfig))
-                .addFilterAfter(new JwtTokenAuthenticationFilter(jwtConfig),
-                        UsernamePasswordAuthenticationFilter.class)
-                .authorizeRequests()
-                .antMatchers(HttpMethod.POST, jwtConfig.getUri()).permitAll()
-                .antMatchers(HttpMethod.POST, "/users").permitAll()
-                .antMatchers("/app/**").permitAll()
-                .antMatchers("/lib/**").permitAll()
-                .antMatchers("/api/**").permitAll()
-                .anyRequest().authenticated();
+            .csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .exceptionHandling()
+            .authenticationEntryPoint(
+                (req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+            .and()
+            .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager(),
+                jwtConfig))
+            .addFilterAfter(new JwtTokenAuthenticationFilter(jwtConfig),
+                UsernamePasswordAuthenticationFilter.class)
+            .authorizeRequests()
+            .antMatchers(HttpMethod.POST, jwtConfig.getUri()).permitAll()
+            .antMatchers(HttpMethod.POST, "/users").permitAll()
+            .antMatchers("/app/**").permitAll()
+            .antMatchers("/lib/**").permitAll()
+            .antMatchers("/api/**").permitAll();
     }
 
     @Override

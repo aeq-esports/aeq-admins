@@ -1,5 +1,6 @@
 package de.esports.aeq.admins.core;
 
+import de.esports.aeq.admins.common.YamlPropertySourceFactory;
 import org.camunda.bpm.spring.boot.starter.annotation.EnableProcessApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,9 +15,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = "de.esports.aeq.admins")
 @EnableJpaAuditing
 @EntityScan(basePackages = "de.esports.aeq.admins")
-@PropertySource("application.yml")
 @PropertySource("default.config.properties")
+@PropertySource("logging.properties")
 @EnableProcessApplication
+@PropertySource(factory = YamlPropertySourceFactory.class, value = "classpath:application.yml")
 public class Application {
 
     public static void main(String[] args) {

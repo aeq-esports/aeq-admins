@@ -1,6 +1,5 @@
 package de.esports.aeq.admins.security.impl.jpa;
 
-import de.esports.aeq.admins.security.api.User;
 import de.esports.aeq.admins.security.impl.jpa.entity.UserTa;
 import java.util.Collection;
 import java.util.Optional;
@@ -14,8 +13,6 @@ public interface UserRepository extends JpaRepository<UserTa, Long> {
     @EntityGraph(value = "graph.UserTa.roles.privileges", type = EntityGraph.EntityGraphType.LOAD)
     Optional<UserTa> findOneByUsername(String username);
 
-    Collection<UserTa> findAllByRolesContains(Long roleId);
-
-    Collection<UserTa> findAllByRolesContains(Collection<Long> roleIds);
+    Collection<UserTa> findAllByAuthoritiesContains(Collection<String> authorities);
 
 }

@@ -1,4 +1,4 @@
-package de.esports.aeq.admins.security.impl;
+package de.esports.aeq.admins.security.api;
 
 import de.esports.aeq.admins.security.api.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +8,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component("cse")
-public class CustomSecurityExpressionBean {
+public class CustomSecurityExpressions {
 
     private final SecurityService service;
 
     @Autowired
-    public CustomSecurityExpressionBean(SecurityService service) {
+    public CustomSecurityExpressions(SecurityService service) {
         this.service = service;
     }
 
@@ -32,7 +32,25 @@ public class CustomSecurityExpressionBean {
     }
 
     private boolean hasUserId(UserDetails details, Long userId) {
-        return service.getUserByUsername(details.getUsername())
-                .map(user -> user.getId().equals(userId)).orElse(Boolean.FALSE);
+        return service.getOneByUsername(details.getUsername())
+            .map(user -> user.getId().equals(userId)).orElse(Boolean.FALSE);
+    }
+
+    public boolean hasUsername(String username) {
+        if (username.isBlank()) {
+            return false;
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername().equals(username);
+        }
+
+        return false;
     }
 }

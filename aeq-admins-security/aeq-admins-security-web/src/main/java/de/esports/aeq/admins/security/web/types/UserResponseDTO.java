@@ -1,17 +1,26 @@
 package de.esports.aeq.admins.security.web.types;
 
-import de.esports.aeq.admins.security.domain.RoleTa;
-
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.security.core.GrantedAuthority;
 
 public class UserResponseDTO {
 
     private Long id;
-    private String email;
     private String username;
-    private String ts3UId;
-    private Set<RoleTa> roles = new HashSet<>();
+    private String password;
+    private String email;
+
+    private boolean accountNonExpired;
+    private boolean accountNonLocked;
+    private boolean credentialsNonExpired;
+    private boolean enabled;
+
+    private boolean verified;
+    private Instant createdAt;
+
+    private final Set<GrantedAuthority> authorities = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -19,14 +28,6 @@ public class UserResponseDTO {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getUsername() {
@@ -37,19 +38,71 @@ public class UserResponseDTO {
         this.username = username;
     }
 
-    public String getTs3UId() {
-        return ts3UId;
+    public String getPassword() {
+        return password;
     }
 
-    public void setTs3UId(String ts3UId) {
-        this.ts3UId = ts3UId;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public Set<RoleTa> getRoles() {
-        return roles;
+    public String getEmail() {
+        return email;
     }
 
-    public void setRoles(Set<RoleTa> roles) {
-        this.roles = roles;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    public void setAccountNonExpired(boolean accountNonExpired) {
+        this.accountNonExpired = accountNonExpired;
+    }
+
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
+    }
+
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
+    }
+
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+        this.credentialsNonExpired = credentialsNonExpired;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Set<GrantedAuthority> getAuthorities() {
+        return authorities;
     }
 }

@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class User implements UserDetails, CredentialsContainer {
 
-    private Long id;
+    private String id;
     private String username;
     private String password;
     private String email;
@@ -29,11 +29,11 @@ public class User implements UserDetails, CredentialsContainer {
 
     private final Set<GrantedAuthority> authorities = new HashSet<>();
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -121,7 +121,7 @@ public class User implements UserDetails, CredentialsContainer {
     }
 
     public Collection<GrantedAuthority> getUserRoles() {
-        return authorities.stream().filter(UserRole::isUserRole).collect(toList());
+        return authorities.stream().filter(UserRole::isUserRoleAuthority).collect(toList());
     }
 
     @Override
@@ -152,7 +152,7 @@ public class User implements UserDetails, CredentialsContainer {
         return new StringJoiner(", ", User.class.getSimpleName() + "[", "]")
             .add("id=" + id)
             .add("username='" + username + "'")
-            .add("password='[**masked**]")
+            .add("password='[**masked**]") // NOSONAR
             .add("email='" + email + "'")
             .add("accountNonExpired=" + accountNonExpired)
             .add("accountNonLocked=" + accountNonLocked)

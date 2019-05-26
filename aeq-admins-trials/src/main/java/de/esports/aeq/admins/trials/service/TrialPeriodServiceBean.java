@@ -1,8 +1,11 @@
 package de.esports.aeq.admins.trials.service;
 
+import static de.esports.aeq.admins.common.ExceptionResponseWrapper.notFound;
+
 import de.esports.aeq.admins.common.BadRequestException;
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.common.UpdateContext;
+import de.esports.aeq.admins.security.api.service.SecurityService;
 import de.esports.aeq.admins.trials.common.TrialState;
 import de.esports.aeq.admins.trials.exception.TrialPeriodAlreadyStartedException;
 import de.esports.aeq.admins.trials.exception.TrialPeriodBlockedException;
@@ -11,6 +14,15 @@ import de.esports.aeq.admins.trials.jpa.domain.TrialPeriodTa;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriod;
 import de.esports.aeq.admins.trials.service.dto.UpdateTrialPeriod;
 import de.esports.aeq.admins.trials.workflow.WorkflowController;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionType;
@@ -21,18 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static de.esports.aeq.admins.common.ExceptionResponseWrapper.notFound;
-
 @Service
 class TrialPeriodServiceBean implements TrialPeriodService {
 
@@ -40,7 +40,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
 
     private final TrialPeriodRepository trialPeriodRepository;
     private final TrialPeriodConfigService configService;
-    private final AppUserService userDetailsService;
+    private final SecurityService securityService;
     private final WorkflowController workflow;
     private final EntityManager entityManager;
 
@@ -49,14 +49,14 @@ class TrialPeriodServiceBean implements TrialPeriodService {
 
     @Autowired
     public TrialPeriodServiceBean(TrialPeriodRepository repository,
-            TrialPeriodConfigService configService,
-            AppUserService userDetailsService,
-            WorkflowController workflow,
-            ModelMapper mapper,
-            EntityManager entityManager) {
+        TrialPeriodConfigService configService,
+        SecurityService securityService,
+        WorkflowController workflow,
+        ModelMapper mapper,
+        EntityManager entityManager) {
         this.trialPeriodRepository = repository;
         this.configService = configService;
-        this.userDetailsService = userDetailsService;
+        this.securityService = securityService;
         this.workflow = workflow;
         this.mapper = mapper;
         this.entityManager = entityManager;
@@ -67,8 +67,8 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     @Override
     public List<TrialPeriod> findAll(Long userId) {
         return trialPeriodRepository.findAll().stream()
-                .map(this::map)
-                .collect(Collectors.toList());
+            .map(this::map)
+            .collect(Collectors.toList());
     }
 
     //-----------------------------------------------------------------------
@@ -84,10 +84,9 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     @Override
     public void create(TrialPeriod trialPeriod) {
 
-
         // the user needs to be resolved before preconditions
         Long userId = trialPeriod.getUserId();
-        userDetailsService.getUserById(userId).orElseThrow(() -> notFound(userId));
+        securityService.getOneById(userId).orElseThrow(() -> notFound(userId));
 
         TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
         entity.setUserId(userId);
@@ -111,7 +110,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         }
 
         trialPeriodRepository.findLatestByUserId(userId)
-                .ifPresent(this::assertNoVestingPeriod);
+            .ifPresent(this::assertNoVestingPeriod);
     }
 
     private void assertNoVestingPeriod(TrialPeriodTa trialPeriod) {
@@ -129,13 +128,13 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     private void enrichTrialPeriod(TrialPeriodTa entity) {
         if (entity.getId() != null) {
             LOG.debug("Trial period {} has been initialized with an id that will be overridden.",
-                    entity);
+                entity);
             entity.setId(null);
         }
 
         if (entity.getState() != TrialState.OPEN) {
             LOG.warn("Trial period {} has been initialized with a state other that {} and will " +
-                    "be overridden.", entity, TrialState.OPEN);
+                "be overridden.", entity, TrialState.OPEN);
         }
         // state must always be open
         entity.setState(TrialState.OPEN);
@@ -149,7 +148,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         if (entity.getDuration() == null) {
             Duration defaultDuration = configService.getConfig().getTrialPeriodDuration();
             LOG.debug("Trial period {} will be initialized with default duration {}",
-                    entity, defaultDuration);
+                entity, defaultDuration);
             entity.setDuration(defaultDuration);
         }
     }
@@ -188,7 +187,8 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         TrialPeriod trialPeriod = map(ctx.getPrevious());
         var validStates = getSubsequentStates(trialPeriod);
         if (!validStates.contains(ctx.getCurrent().getState())) {
-            throw new BadRequestException("Invalid state transition: " + ctx.getPrevious().getState() +
+            throw new BadRequestException(
+                "Invalid state transition: " + ctx.getPrevious().getState() +
                     " -> " + ctx.getCurrent().getState());
         }
     }
@@ -237,18 +237,18 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     private int getAmountOfExtensions(Long trialPeriodId) {
         AuditReader reader = AuditReaderFactory.get(entityManager);
         List<?> results = reader.createQuery()
-                .forRevisionsOfEntityWithChanges(TrialPeriodTa.class, false)
-                .add(AuditEntity.id().eq(trialPeriodId))
-                .add(AuditEntity.revisionType().eq(RevisionType.MOD))
-                .add(AuditEntity.property("state").hasChanged())
-                .add(AuditEntity.property("state").eq(TrialState.OPEN))
-                .getResultList();
+            .forRevisionsOfEntityWithChanges(TrialPeriodTa.class, false)
+            .add(AuditEntity.id().eq(trialPeriodId))
+            .add(AuditEntity.revisionType().eq(RevisionType.MOD))
+            .add(AuditEntity.property("state").hasChanged())
+            .add(AuditEntity.property("state").eq(TrialState.OPEN))
+            .getResultList();
         return results.size();
     }
 
     private TrialPeriodTa findOneOrThrow(Long trialPeriodId) {
         return trialPeriodRepository.findById(trialPeriodId)
-                .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
+            .orElseThrow(() -> new EntityNotFoundException(trialPeriodId));
     }
 
     private TrialPeriod map(TrialPeriodTa trialPeriod) {
