@@ -17,16 +17,16 @@ servers:
   - url: 'TODO'
 
 tags:
-  - name: member
+  - name: user
     description: data about community members
 
 paths:
 
   # -----------------------------------
-  # Member Paths
+  # User Paths
   # -----------------------------------
 
-  /member:
+  /users:
     get:
       summary: 'Get a list of existing members'
       responses:
@@ -37,39 +37,34 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Member'
+                  $ref: '#/components/schemas/User'
       security:
         - member_auth:
             - write:pets
             - read:pets
 
-  /member/{memberId}:
+  /users/me:
     get:
-      summary: "Get information about a specific member"
-      parameters:
-        - name: memberId
-          in: path
-          description: "ID of the member"
-          required: true
-          schema:
-            type: integer
+      summary: 'Get information about the currently authenticated user'
       responses:
         200:
-          description: successful operation
+          description: 'Success'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Member'
-        404:
-          description: "Member with ID not found"
+                $ref: '#/components/schemas/User'
+      security:
+        - member_auth:
+            - write:pets
+            - read:pets
 
-  /member/{memberId}/profile:
+  /users/{userId}:
     get:
-      summary: "Get profile information about a specific member"
+      summary: "Get information about a specific user"
       parameters:
-        - name: memberId
+        - name: userId
           in: path
-          description: "ID of the member"
+          description: "ID of the user"
           required: true
           schema:
             type: integer
@@ -79,31 +74,64 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MemberProfile'
+                $ref: '#/components/schemas/User'
         404:
-          description: 'Member with ID not found'
+          description: "User with ID not found"
 
   # -----------------------------------
   # Trial Period Paths
   # -----------------------------------
 
 components:
+
   schemas:
 
     # -----------------------------------
-    # Member Schemas
+    # User Schemas
     # -----------------------------------
 
-    Member:
+    User:
       type: object
-      description: Data related to a member of the community.
+      description: Data related to a user of the community.
       properties:
         memberId:
           type: integer
           format: int64
+          example: 12
+        username:
+          type: string
+          description: Username of this memeber, unique accross the platform
+          example: lara123
+        firstName:
+          type: string
+          example: Lara
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+            - unknown
+          example: female
+          additionalProperties:
+            x-role-names: [read-user-private]
+        dateOfBirth:
+          type: string
+          format: date
+          description: The date of birth
+          example: '1996-07-16'
+          additionalProperties:
+            x-role-names: [read-user-private]
+        age:
+          type: integer
+          description: The age in years, rounded down
+          example: 23
+        locale:
+          type: string
+          description: A locale representing the preferred language
+          example: de-DE
         isTrialMember:
           type: boolean
-          description: true if this member has an open trial period, otherwise false
+          description: true if this user has an open trial period, otherwise false
         isBanned:
           type: boolean
           description: true if this user is banned, otherwise false
@@ -115,36 +143,7 @@ components:
         createdAt:
           type: string
           format: date-time
-          description: Point of time this this member has been created at
-
-    MemberProfile:
-      type: object
-      description: The profile of a member including personal data.
-      properties:
-        memberId:
-          type: integer
-          format: int64
-        nickname:
-          type: string
-          description: Nickname used by this memeber, unique accross the platform
-        firstName:
-          type: string
-        gender:
-          type: string
-          enum:
-            - male
-            - female
-            - unknown
-        dateOfBirth:
-          type: string
-          format: date
-          description: The date of birth
-        age:
-          type: integer
-          description: The age in years, rounded down
-        locale:
-          type: string
-          description: A locale representing the preferred language
+          description: Point of time this this user has been created at
 
     MemberBan:
       type: object
@@ -152,11 +151,11 @@ components:
         memberId:
           type: integer
           format: int64
-          description: Id of the member that is banned
+          description: Id of the user that is banned
         bannedBy:
           type: integer
           format: int64
-          description: Id of the member that initiated the ban
+          description: Id of the user that initiated the ban
         reason:
           type: object
           properties:
@@ -245,12 +244,13 @@ components:
           type: string
         message:
           type: string
+
   securitySchemes:
-    member_auth:
+    aeq_auth:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: http://petstore.swagger.io/oauth/dialog
+          authorizationUrl: http://TODO/oauth/dialog
           scopes:
             write:pets: modify pets in your account
             read:pets: read your pets

@@ -1,51 +1,26 @@
-package de.esports.aeq.admins.member.impl.jpa.entity;
+package de.esports.aeq.admins.member.api;
 
-import de.esports.aeq.admins.member.api.Gender;
-
-import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Locale;
 
-@Entity
-@Table(name = "aeq_mem_profile")
-public class MemberProfileTa implements Serializable {
+public class UserProfile {
 
-    @Id
-    @Column
-    private Long userId;
-
-    @Column
-    private String nickname;
-
-    @Column
+    private String userId;
     private String firstName;
-
-    @Column
-    @Enumerated(EnumType.STRING)
     private Gender gender;
-
-    @Column
     private LocalDate dateOfBirth;
-
-    @Column
     private Locale locale;
 
+    public int getAge() {
+        return LocalDate.now().getYear() - dateOfBirth.getYear();
+    }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
     }
 
     public String getFirstName() {

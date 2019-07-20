@@ -16,6 +16,11 @@
             <artifactId>aeq-admins-account-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>5.0.6.RELEASE</version>
+        </dependency>
     </dependencies>
 
 </project>
