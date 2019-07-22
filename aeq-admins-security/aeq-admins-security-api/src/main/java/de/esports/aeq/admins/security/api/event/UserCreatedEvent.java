@@ -10,6 +10,10 @@ public class UserCreatedEvent {
 
     private User user;
 
+    public UserCreatedEvent() {
+        // needed for serialisation
+    }
+
     public UserCreatedEvent(User user) {
         this.user = user;
     }

@@ -85,7 +85,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
     public void create(TrialPeriod trialPeriod) {
 
         // the user needs to be resolved before preconditions
-        Long userId = trialPeriod.getUserId();
+        String userId = trialPeriod.getUserId();
         securityService.getOneById(userId).orElseThrow(() -> notFound(userId));
 
         TrialPeriodTa entity = mapper.map(trialPeriod, TrialPeriodTa.class);
@@ -101,7 +101,7 @@ class TrialPeriodServiceBean implements TrialPeriodService {
         workflow.createProcessInstance(result);
     }
 
-    private void assertCreatePreconditions(Long userId) {
+    private void assertCreatePreconditions(String userId) {
         var activeTrialPeriods = trialPeriodRepository.findAllActiveByUserId(userId);
 
         if (!activeTrialPeriods.isEmpty()) {

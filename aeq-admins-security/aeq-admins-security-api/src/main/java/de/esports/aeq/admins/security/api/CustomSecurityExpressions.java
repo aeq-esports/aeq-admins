@@ -36,7 +36,7 @@ public class CustomSecurityExpressions {
             .map(user -> user.getId().equals(userId)).orElse(Boolean.FALSE);
     }
 
-    public boolean hasUsername(String username) {
+    public boolean isPrincipal(String username) {
         if (username.isBlank()) {
             return false;
         }

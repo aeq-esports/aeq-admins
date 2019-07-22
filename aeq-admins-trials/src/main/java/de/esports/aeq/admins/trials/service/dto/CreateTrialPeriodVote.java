@@ -12,7 +12,7 @@ public class CreateTrialPeriodVote implements Serializable {
     @NotNull
     private Long trialPeriodId;
     @NotNull
-    private Long userId;
+    private String userId;
     @NotNull
     private TrialState consensus;
     private String comment;
@@ -25,11 +25,11 @@ public class CreateTrialPeriodVote implements Serializable {
         this.trialPeriodId = trialPeriodId;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

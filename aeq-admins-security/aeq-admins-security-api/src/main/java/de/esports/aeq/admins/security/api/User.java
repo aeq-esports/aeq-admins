@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class User implements UserDetails, CredentialsContainer {
 
-    private String id;
+    private Long id;
     private String username;
     private String password;
     private String email;
@@ -29,11 +29,11 @@ public class User implements UserDetails, CredentialsContainer {
 
     private final Set<GrantedAuthority> authorities = new HashSet<>();
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

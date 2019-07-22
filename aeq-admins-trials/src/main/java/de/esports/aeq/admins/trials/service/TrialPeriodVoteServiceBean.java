@@ -61,7 +61,7 @@ class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
     }
 
     @Override
-    public TrialPeriodVote findOneByUserId(Long userId) {
+    public TrialPeriodVote findOneByUserId(String userId) {
         TrialPeriodVoteTa entity = findOneByUserIdOrThrow(userId);
         return map(entity);
     }
@@ -143,7 +143,7 @@ class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
                 .orElseThrow(EntityNotFoundException::new);
     }
 
-    private TrialPeriodVoteTa findOneByUserIdOrThrow(Long userId) {
+    private TrialPeriodVoteTa findOneByUserIdOrThrow(String userId) {
         return repository.findByUserId(userId)
                 .orElseThrow(EntityNotFoundException::new);
     }
@@ -156,7 +156,7 @@ class TrialPeriodVoteServiceBean implements TrialPeriodVoteService {
         }
     }
 
-    private void assertNotAlreadyVoted(Long userId) {
+    private void assertNotAlreadyVoted(String userId) {
         repository.findByUserId(userId).ifPresent(e -> {
             throw new AlreadyVotedException();
         });

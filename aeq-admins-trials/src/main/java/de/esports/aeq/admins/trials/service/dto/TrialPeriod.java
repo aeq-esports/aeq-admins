@@ -11,7 +11,7 @@ import java.util.StringJoiner;
 public class TrialPeriod implements Serializable {
 
     private Long id;
-    private Long userId;
+    private String userId;
     private TrialState state;
     private Instant start;
     private Duration duration;
@@ -24,11 +24,11 @@ public class TrialPeriod implements Serializable {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

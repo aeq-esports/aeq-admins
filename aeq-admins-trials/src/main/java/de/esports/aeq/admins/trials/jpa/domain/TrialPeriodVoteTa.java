@@ -25,7 +25,7 @@ public class TrialPeriodVoteTa implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotAudited
-    private Long userId;
+    private String userId;
 
     @Column
     private TrialState consensus;
@@ -49,11 +49,11 @@ public class TrialPeriodVoteTa implements Serializable {
         this.trialPeriod = trialPeriod;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

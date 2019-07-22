@@ -16,9 +16,9 @@ public interface CrudService<T, ID> {
 
     Page<T> getAll(Pageable pageable);
 
-    <S extends T> List<S> getAll(Example<S> example);
+    List<T> getAll(Example<T> example);
 
-    <S extends T> List<S> getAll(Example<S> example, Sort sort);
+    List<T> getAll(Example<T> example, Sort sort);
 
     Collection<T> getAllByIds(Collection<ID> ids);
 

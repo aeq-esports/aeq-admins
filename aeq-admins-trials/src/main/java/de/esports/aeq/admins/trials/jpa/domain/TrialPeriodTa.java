@@ -29,7 +29,7 @@ public class TrialPeriodTa implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @NotAudited
-    private Long userId;
+    private String userId;
 
     @Enumerated(EnumType.STRING)
     private TrialState state;
@@ -48,11 +48,11 @@ public class TrialPeriodTa implements Serializable {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

@@ -2,7 +2,7 @@ package de.esports.aeq.admins.trials.web;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
 import de.esports.aeq.admins.security.api.User;
-import de.esports.aeq.admins.security.api.service.SecureSecurityService;
+import de.esports.aeq.admins.security.api.service.SecurityService;
 import de.esports.aeq.admins.trials.service.TrialPeriodVoteService;
 import de.esports.aeq.admins.trials.service.dto.CreateTrialPeriodVote;
 import de.esports.aeq.admins.trials.service.dto.TrialPeriodVote;
@@ -35,11 +35,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class TrialPeriodVoteController {
 
     private final ModelMapper mapper;
-    private final SecureSecurityService securityService;
+    private final SecurityService securityService;
     private final TrialPeriodVoteService voteService;
 
     public TrialPeriodVoteController(
-        ModelMapper mapper, SecureSecurityService securityService,
+        ModelMapper mapper, SecurityService securityService,
         TrialPeriodVoteService voteService) {
         this.mapper = mapper;
         this.securityService = securityService;

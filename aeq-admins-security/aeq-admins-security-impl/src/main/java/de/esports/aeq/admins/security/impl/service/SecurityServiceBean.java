@@ -4,13 +4,11 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 import de.esports.aeq.admins.common.EntityNotFoundException;
-import de.esports.aeq.admins.common.conversion.Converters;
 import de.esports.aeq.admins.security.api.User;
 import de.esports.aeq.admins.security.api.event.UserCreatedEvent;
 import de.esports.aeq.admins.security.api.event.UserDeletedEvent;
 import de.esports.aeq.admins.security.api.event.UserUpdatedEvent;
 import de.esports.aeq.admins.security.api.exception.DuplicateUsernameException;
-import de.esports.aeq.admins.security.api.service.SecureSecurityService;
 import de.esports.aeq.admins.security.api.service.SecurityService;
 import de.esports.aeq.admins.security.impl.jpa.UserRepository;
 import de.esports.aeq.admins.security.impl.jpa.entity.UserTa;
@@ -31,7 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SecurityServiceBean implements SecurityService, SecureSecurityService {
+public class SecurityServiceBean implements SecurityService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityServiceBean.class);
 
@@ -58,12 +56,8 @@ public class SecurityServiceBean implements SecurityService, SecureSecurityServi
 
     @PostConstruct
     private void configureMapper() {
-        mapper.createTypeMap(User.class, UserTa.class)
-            .addMappings(m -> m.using(Converters::convertStringToLong)
-                .map(User::getId, UserTa::setId));
-        mapper.createTypeMap(UserTa.class, User.class)
-            .addMappings(m -> m.using(Converters::convertLongToString)
-                .map(UserTa::getId, User::setId));
+        mapper.createTypeMap(User.class, UserTa.class);
+        mapper.createTypeMap(UserTa.class, User.class);
     }
 
     //-----------------------------------------------------------------------
@@ -85,26 +79,23 @@ public class SecurityServiceBean implements SecurityService, SecureSecurityServi
     }
 
     @Override
-    public <S extends User> List<S> getAll(Example<S> example) {
+    public List<User> getAll(Example<User> example) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <S extends User> List<S> getAll(Example<S> example, Sort sort) {
+    public List<User> getAll(Example<User> example, Sort sort) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Collection<User> getAllByIds(Collection<String> userIds) {
-        List<Long> userIdsAsLong = userIds.stream().map(Long::valueOf).collect(toList());
-        return userRepository.findAllById(userIdsAsLong).stream().map(this::toUser)
-            .collect(toList());
+    public Collection<User> getAllByIds(Collection<Long> userIds) {
+        return userRepository.findAllById(userIds).stream().map(this::toUser).collect(toList());
     }
 
     @Override
-    public Optional<User> getOneById(String userId) {
-        Long userIdAsLong = Long.valueOf(userId);
-        return userRepository.findById(userIdAsLong).map(this::toUser);
+    public Optional<User> getOneById(Long userId) {
+        return userRepository.findById(userId).map(this::toUser);
     }
 
     @Override
@@ -142,7 +133,7 @@ public class SecurityServiceBean implements SecurityService, SecureSecurityServi
         user.eraseCredentials();
         result.eraseCredentials();
 
-        UserCreatedEvent event = new UserCreatedEvent(user);
+        UserCreatedEvent event = new UserCreatedEvent(result);
         template.send(UserCreatedEvent.KEY, event);
 
         return result;
@@ -153,8 +144,7 @@ public class SecurityServiceBean implements SecurityService, SecureSecurityServi
         requireNonNull(user, USER_NOT_NULL);
         requireNonNull(user.getId(), USER_ID_NOT_NULL);
 
-        Long userIdAsLong = Long.valueOf(user.getId());
-        UserTa existing = userRepository.findById(userIdAsLong)
+        UserTa existing = userRepository.findById(user.getId())
             .orElseThrow(() -> new EntityNotFoundException(user.getId()));
 
         UserTa update = toUserTa(user);
@@ -176,14 +166,13 @@ public class SecurityServiceBean implements SecurityService, SecureSecurityServi
     }
 
     @Override
-    public void remove(String userId) {
+    public void remove(Long userId) {
         requireNonNull(userId, USER_ID_NOT_NULL);
 
-        Long userIdAsLong = Long.valueOf(userId);
-        User user = userRepository.findById(userIdAsLong).map(this::toUser)
+        User user = userRepository.findById(userId).map(this::toUser)
             .orElseThrow(() -> new EntityNotFoundException(userId));
 
-        userRepository.deleteById(userIdAsLong);
+        userRepository.deleteById(userId);
 
         UserDeletedEvent event = new UserDeletedEvent(user);
         template.send(UserDeletedEvent.KEY, event);

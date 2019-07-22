@@ -54,7 +54,7 @@ public class TrialPeriodController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void create(@PathVariable Long userId,
+    public void create(@PathVariable String userId,
             @RequestBody TrialPeriodCreateDto request) {
         TrialPeriod trialPeriod = mapper.map(request, TrialPeriod.class);
         trialPeriod.setUserId(userId);

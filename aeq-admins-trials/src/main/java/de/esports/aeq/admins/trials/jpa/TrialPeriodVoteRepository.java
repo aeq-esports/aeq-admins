@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface TrialPeriodVoteRepository extends JpaRepository<TrialPeriodVoteTa, Long> {
 
-    Optional<TrialPeriodVoteTa> findByUserId(Long userId);
+    Optional<TrialPeriodVoteTa> findByUserId(String userId);
 
     Collection<TrialPeriodVoteTa> findAllByTrialPeriodId(Long trialPeriodId);
 }

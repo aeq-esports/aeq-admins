@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<UserTa, Long> {
 
-    @EntityGraph(value = "graph.UserTa.roles.privileges", type = EntityGraph.EntityGraphType.LOAD)
+    //@EntityGraph(value = "graph.UserTa.roles.privileges", type = EntityGraph.EntityGraphType.LOAD)
     Optional<UserTa> findOneByUsername(String username);
 
     Collection<UserTa> findAllByAuthoritiesContains(Collection<String> authorities);

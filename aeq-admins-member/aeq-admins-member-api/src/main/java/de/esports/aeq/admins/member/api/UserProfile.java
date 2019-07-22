@@ -5,21 +5,37 @@ import java.util.Locale;
 
 public class UserProfile {
 
-    private String userId;
+    public static UserProfile empty(Long userId) {
+        return new UserProfile(userId);
+    }
+
+    private Long userId;
+
     private String firstName;
     private Gender gender;
     private LocalDate dateOfBirth;
     private Locale locale;
 
+    public UserProfile() {
+
+    }
+
+    private UserProfile(Long userId) {
+        this.userId = userId;
+    }
+
     public int getAge() {
+        if (dateOfBirth == null) {
+            throw new IllegalStateException("date of birth is not set");
+        }
         return LocalDate.now().getYear() - dateOfBirth.getYear();
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

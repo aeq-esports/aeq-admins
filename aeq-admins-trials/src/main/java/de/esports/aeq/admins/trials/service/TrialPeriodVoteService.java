@@ -12,7 +12,7 @@ public interface TrialPeriodVoteService {
 
     TrialPeriodVote findOne(Long voteId);
 
-    TrialPeriodVote findOneByUserId(Long userId);
+    TrialPeriodVote findOneByUserId(String userId);
 
     Collection<TrialPeriodVote> findAll(Long trialPeriodId);
 

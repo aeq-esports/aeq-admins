@@ -10,8 +10,8 @@ import java.util.Optional;
 @Repository
 public interface TrialPeriodRepository extends JpaRepository<TrialPeriodTa, Long> {
 
-    List<TrialPeriodTa> findAllActiveByUserId(Long userId);
+    List<TrialPeriodTa> findAllActiveByUserId(String userId);
 
     // TODO
-    Optional<TrialPeriodTa> findLatestByUserId(Long userId);
+    Optional<TrialPeriodTa> findLatestByUserId(String userId);
 }
