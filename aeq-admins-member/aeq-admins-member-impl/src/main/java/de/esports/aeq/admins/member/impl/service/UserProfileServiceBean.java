@@ -41,18 +41,17 @@ public class UserProfileServiceBean implements UserProfileService {
     private final MemberMapper mapper;
     private final SecurityService securityService;
     private final UserProfileRepository repository;
-
-    @Autowired
-    private KafkaTemplate<String, Object> template;
+    private final KafkaTemplate<String, Object> template;
 
     //-----------------------------------------------------------------------
 
     @Autowired
     public UserProfileServiceBean(MemberMapper mapper, SecurityService securityService,
-        UserProfileRepository repository) {
+        UserProfileRepository repository, KafkaTemplate<String, Object> template) {
         this.mapper = mapper;
         this.securityService = securityService;
         this.repository = repository;
+        this.template = template;
     }
 
     //-----------------------------------------------------------------------
