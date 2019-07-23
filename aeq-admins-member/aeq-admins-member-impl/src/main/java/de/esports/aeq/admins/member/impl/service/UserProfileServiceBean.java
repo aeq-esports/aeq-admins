@@ -127,6 +127,18 @@ public class UserProfileServiceBean implements UserProfileService {
     }
 
     @Override
+    public UserProfile createIfAbsent(Long userId, UserProfile profile) {
+        requireNonNull(userId, "The user id must not be null");
+        requireNonNull(userId, "The user profile must not be null");
+        Optional<UserProfile> existing = getOneById(userId);
+        if (existing.isPresent()) {
+            LOG.debug("User with id {} already has an existing user profile", userId);
+            return existing.get();
+        }
+        return create(profile);
+    }
+
+    @Override
     public UserProfile update(UserProfile profile) {
         Long userId = profile.getUserId();
         requireNonNull(userId);

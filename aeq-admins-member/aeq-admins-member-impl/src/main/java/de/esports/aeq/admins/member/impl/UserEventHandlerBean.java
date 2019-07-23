@@ -29,10 +29,15 @@ public class UserEventHandlerBean {
 
     @KafkaListener(topics = UserCreatedEvent.KEY)
     private void createMissingUserProfile(@Payload UserCreatedEvent event) {
-        Long userId = event.getUser().getId();
-        UserProfile profile = profileService.getOneById(userId)
-            .orElseGet(() -> profileService.create(UserProfile.empty(userId)));
-        LOG.debug("Created empty user profile for user with user id {}: {}", userId, profile);
+        LOG.debug("Attempting to create an empty user profile after user created event: {}", event);
+        if (event.getUser() == null) {
+            LOG.warn("Event {} did not contain a valid user: {}", UserCreatedEvent.KEY, event);
+        } else if (event.getUser().getId() == null) {
+            LOG.warn("Event {} did not contain a valid user id: {}", UserCreatedEvent.KEY, event);
+        } else {
+            Long userId = event.getUser().getId();
+            profileService.createIfAbsent(userId, UserProfile.empty(userId));
+        }
     }
 
     @KafkaListener(topics = UserDeletedEvent.KEY)

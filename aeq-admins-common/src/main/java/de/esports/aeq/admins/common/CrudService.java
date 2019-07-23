@@ -1,5 +1,7 @@
 package de.esports.aeq.admins.common;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -38,5 +40,11 @@ public interface CrudService<T, ID> {
             return update(object);
         }
         return create(object);
+    }
+
+    default T createIfAbsent(ID id, T object) {
+        requireNonNull(id, "The id must not be null");
+        requireNonNull(object, "The object must not be null");
+        return getOneById(id).orElseGet(() -> create(object));
     }
 }

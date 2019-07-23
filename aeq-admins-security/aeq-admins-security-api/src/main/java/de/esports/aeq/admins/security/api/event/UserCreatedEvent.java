@@ -1,5 +1,7 @@
 package de.esports.aeq.admins.security.api.event;
 
+import static java.util.Objects.requireNonNull;
+
 import de.esports.aeq.admins.security.api.User;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -15,7 +17,7 @@ public class UserCreatedEvent {
     }
 
     public UserCreatedEvent(User user) {
-        this.user = user;
+        this.user = requireNonNull(user, "The user must not be null");
     }
 
     public User getUser() {
